@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione</title>
-    <link rel="stylesheet" href="/src/styles/loginregistrazione.css">
-    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="d-flex justify-content-center align-items-center min-vh-100">
-         <div class="card LoginRegistrazione-card">
+export const Registrazione = () => {
+    return `<div class="d-flex justify-content-center align-items-center min-vh-100">
+         <div class="card loginregistrazione-card">
              <div class="card-body">
                     <h2 class="card-title"  style="text-align: center;">Registrazione</h2>
                     <div class="mb-3">
@@ -40,6 +31,5 @@
                     </div>
                 </div>
          </div>
-    </div>
-</body>
-</html>
+    </div>`
+}
