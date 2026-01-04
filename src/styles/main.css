@@ -46,3 +46,9 @@ body {
     z-index: -1;
     pointer-events: none;
 }
+
+.loginregistrazione-card {
+  background-color: #ff6347 !important; 
+  color: white !important;
+  width: 18rem;
+}
