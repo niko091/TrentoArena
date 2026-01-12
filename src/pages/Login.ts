@@ -18,7 +18,7 @@ export const Login = () => {
                 <hr>
                 <div class="text-center">
                     <button class="btn btn-light" style="color: #ff6347;">
-                        <img src="https://img.icons8.com/color/48/000000/google-logo.png" width="24" height="24">
+                        <img src="/src/utils/images/google-logo.png" width="24" height="24">
                         Continua con Google
                     </button>
                 </div>
