@@ -1,18 +1,41 @@
 {
-  "name": "antitest",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "trentoarena",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
+    "start": "ts-node src/backend/server.ts",
+    "dev": "nodemon src/backend/server.ts",
+    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && mocha -r ts-node/register test/test_api.ts --exit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^9.1.5",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "typescript": "~5.9.3",
-    "vite": "^7.2.4"
-  },
-  "dependencies": {
-    "bootstrap": "^5.3.8"
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.18.2",
+    "@types/mocha": "^10.0.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.1.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.17",
+    "@types/passport-local": "^1.0.38",
+    "@types/supertest": "^6.0.3",
+    "mocha": "^11.7.5",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }
