@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node src/backend/server.ts",
     "dev": "nodemon src/backend/server.ts",
-    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && mocha -r ts-node/register test/test_api.ts --exit"
+    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && ts-node test/test_places_api.ts && mocha -r ts-node/register test/test_api.ts --exit"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +15,7 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-basic-auth": "^1.2.1",
     "express-session": "^1.19.0",
     "mongoose": "^9.1.5",
     "passport": "^0.7.0",

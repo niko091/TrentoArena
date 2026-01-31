@@ -7,6 +7,9 @@ import passport from 'passport';
 import session from 'express-session';
 import './config/passport'; // Passport config
 import authRoutes from './routes/auth';
+import placeRoutes from './routes/places';
+import basicAuth from 'express-basic-auth';
+
 
 dotenv.config();
 
@@ -30,7 +33,7 @@ app.use(passport.session());
 
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        res.redirect('/success.html');
+        res.redirect('/homepage.html');
     } else {
         res.redirect('/login');
     }
@@ -38,15 +41,34 @@ app.get('/', (req, res) => {
 
 app.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect('/success.html');
+        return res.redirect('/homepage.html');
     }
     res.sendFile(path.join(__dirname, '../frontend/login.html'));
+});
+
+app.get('/homepage', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.sendFile(path.join(__dirname, '../frontend/homepage.html'));
+    } else {
+        res.redirect('/login');
+    }
 });
 
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/api/places', placeRoutes);
+
+// Admin Dashboard Route
+app.use('/admin', basicAuth({
+    users: { [process.env.ADMIN_USERNAME || 'admin']: process.env.ADMIN_PASSWORD || 'admin123' },
+    challenge: true
+}), (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/admin_dashboard.html'));
+});
+
+
 
 app.get('/registration', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/registrazione.html'));
