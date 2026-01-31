@@ -37,4 +37,20 @@ router.post('/', async (req: Request, res: Response) => {
     }
 });
 
+// DELETE /api/places/:id - Delete a place
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        const place = await Place.findByIdAndDelete(req.params.id);
+
+        if (!place) {
+            return res.status(404).json({ message: 'Place not found' });
+        }
+
+        res.json({ message: 'Place removed' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 export default router;

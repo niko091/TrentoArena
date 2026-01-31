@@ -1,15 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <div class="container">
         <h1>Admin Dashboard</h1>
         <p>Welcome, Admin!</p>
+
+        <section id="add-place-section" style="margin-top: 2rem; padding: 1rem; border: 1px solid #ccc;">
+            <h2>Add New Place</h2>
+            <form id="add-place-form">
+                <div style="margin-bottom: 1rem;">
+                    <label for="name">Name:</label><br>
+                    <input type="text" id="name" name="name" required style="width: 100%;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="sport">Sport:</label><br>
+                    <input type="text" id="sport" name="sport" required style="width: 100%;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="lat">Latitude:</label><br>
+                    <input type="number" id="lat" name="lat" step="any" required style="width: 100%;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="lng">Longitude:</label><br>
+                    <input type="number" id="lng" name="lng" step="any" required style="width: 100%;">
+                </div>
+                <button type="submit"
+                    style="padding: 0.5rem 1rem; background-color: #28a745; color: white; border: none; cursor: pointer;">Add
+                    Place</button>
+            </form>
+        </section>
+
+        <section id="places-section" style="margin-top: 2rem;">
+            <h2>Places</h2>
+            <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Sport</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="places-table-body">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+        </section>
     </div>
+
+    <script>
+        // Fetch and display places
+        async function fetchPlaces() {
+            try {
+                const response = await fetch('/api/places');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch places');
+                }
+                const places = await response.json();
+                const tableBody = document.getElementById('places-table-body');
+
+                tableBody.innerHTML = ''; // Clear existing data
+
+                places.forEach(place => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${place.name}</td>
+                        <td>${place.sport}</td>
+                        <td>${place.position.lat}</td>
+                        <td>${place.position.lng}</td>
+                        <td>
+                            <button onclick="deletePlace('${place._id}')" style="background-color: #dc3545; color: white; border: none; padding: 0.25rem 0.5rem; cursor: pointer;">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading places:', error);
+                alert('Error loading places. See console for details.');
+            }
+        }
+
+        async function deletePlace(id) {
+            if (!confirm('Are you sure you want to delete this place?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/places/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('Place deleted successfully');
+                    fetchPlaces(); // Refresh table
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error deleting place: ${errorData.message}`);
+                }
+            } catch (error) {
+                console.error('Error deleting place:', error);
+                alert('Error deleting place. See console for details.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            fetchPlaces();
+
+            const form = document.getElementById('add-place-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const formData = {
+                    name: document.getElementById('name').value,
+                    sport: document.getElementById('sport').value,
+                    position: {
+                        lat: parseFloat(document.getElementById('lat').value),
+                        lng: parseFloat(document.getElementById('lng').value)
+                    }
+                };
+
+                try {
+                    const response = await fetch('/api/places', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        alert('Place added successfully!');
+                        form.reset();
+                        fetchPlaces(); // Refresh table
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Error adding place: ${errorData.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error adding place:', error);
+                    alert('Error adding place. See console for details.');
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>
