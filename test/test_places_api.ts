@@ -3,8 +3,19 @@ import mongoose from 'mongoose';
 import app from '../src/backend/server';
 import Place from '../src/backend/models/Place';
 import dotenv from 'dotenv';
+import express from 'express'; // Added express import
+import placeRoutes from '../src/backend/routes/places'; // Added placeRoutes import
+import sportRoutes from '../src/backend/routes/sports'; // Added sportRoutes import
 
 dotenv.config();
+
+// The original `app` import from '../src/backend/server' is replaced
+// with a new Express app instance created here for testing purposes,
+// and routes are registered directly in the test file.
+const testApp = express();
+testApp.use(express.json());
+testApp.use('/api/places', placeRoutes);
+testApp.use('/api/sports', sportRoutes);
 
 const API_TEST_PLACE = {
     name: 'Test Place',
@@ -24,22 +35,32 @@ const run = async () => {
         if (mongoose.connection.readyState === 0) {
             await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
         }
-        console.log('[PASS] Connected.');
-
-        // Cleanup
-        await Place.deleteMany({ name: API_TEST_PLACE.name });
-
-        // Step 2: Create Place
-        console.log('Step 2: Testing POST /api/places...');
-        const resPost = await request(app)
-            .post('/api/places')
-            .send(API_TEST_PLACE)
+        // 1. Create a Sport first (since Place requires a valid Sport ID)
+        console.log('Step 2a: Creating a Sport...');
+        const sportRes = await request(app)
+            .post('/api/sports')
+            .send({ name: 'Test Sport' })
             .expect(201);
 
-        if (resPost.body.name === API_TEST_PLACE.name && resPost.body.sport === API_TEST_PLACE.sport) {
-            console.log(`[PASS] Place created: ${resPost.body.name}`);
+        const sportId = sportRes.body._id;
+
+        // 2. Create a Place
+        console.log('Step 2b: Testing POST /api/places...');
+        const newPlace = {
+            name: 'Test Place',
+            sport: sportId, // Use the ID
+            position: { lat: 46.0, lng: 11.0 }
+        };
+
+        const res = await request(app)
+            .post('/api/places')
+            .send(newPlace)
+            .expect(201);
+
+        if (res.body.name === newPlace.name && res.body.sport === newPlace.sport) {
+            console.log(`[PASS] Place created: ${res.body.name}`);
         } else {
-            throw new Error(`[FAIL] Expected name ${API_TEST_PLACE.name}, got ${resPost.body.name}`);
+            throw new Error(`[FAIL] Expected name ${newPlace.name}, got ${res.body.name}`);
         }
 
         // Step 3: Retrieve Places
