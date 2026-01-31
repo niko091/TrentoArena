@@ -6,7 +6,7 @@ const router = express.Router();
 // GET /api/places - Retrieve all places
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const places = await Place.find();
+        const places = await Place.find().populate('sport');
         res.json(places);
     } catch (err) {
         console.error(err);

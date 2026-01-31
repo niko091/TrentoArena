@@ -10,50 +10,80 @@
 
 <body>
     <div class="container">
-        <h1>Admin Dashboard</h1>
-        <p>Welcome, Admin!</p>
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+        </div>
 
-        <section id="add-place-section" style="margin-top: 2rem; padding: 1rem; border: 1px solid #ccc;">
-            <h2>Add New Place</h2>
-            <form id="add-place-form">
-                <div style="margin-bottom: 1rem;">
-                    <label for="name">Name:</label><br>
-                    <input type="text" id="name" name="name" required style="width: 100%;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="sport">Sport:</label><br>
-                    <input type="text" id="sport" name="sport" required style="width: 100%;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="lat">Latitude:</label><br>
-                    <input type="number" id="lat" name="lat" step="any" required style="width: 100%;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="lng">Longitude:</label><br>
-                    <input type="number" id="lng" name="lng" step="any" required style="width: 100%;">
-                </div>
-                <button type="submit"
-                    style="padding: 0.5rem 1rem; background-color: #28a745; color: white; border: none; cursor: pointer;">Add
-                    Place</button>
-            </form>
-        </section>
+        <div class="dashboard-grid">
+            <!-- Add Place Card -->
+            <section class="dashboard-card">
+                <h2>Add New Place</h2>
+                <form id="add-place-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sport">Sport</label>
+                        <select id="sport" name="sport" class="form-control" required>
+                            <option value="" disabled selected>Select a sport</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lat">Latitude</label>
+                        <input type="number" id="lat" name="lat" step="any" class="form-control" placeholder="46.0..."
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lng">Longitude</label>
+                        <input type="number" id="lng" name="lng" step="any" class="form-control" placeholder="11.1..."
+                            required>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%;">Add Place</button>
+                </form>
+            </section>
 
-        <section id="places-section" style="margin-top: 2rem;">
-            <h2>Places</h2>
-            <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Sport</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="places-table-body">
-                    <!-- Data will be populated here -->
-                </tbody>
-            </table>
+            <!-- Sports Management Card -->
+            <section class="dashboard-card">
+                <h2>Existing Sports</h2>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3>Add New Sport</h3>
+                    <form id="add-sport-form" style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="sport-name" name="name" class="form-control" placeholder="Sport Name"
+                            required>
+                        <button type="submit" class="btn btn-primary">Add</button>
+                    </form>
+                </div>
+
+                <div>
+                    <h3>Existing Sports</h3>
+                    <ul id="sports-list" class="list-group">
+                        <!-- Sports will be populated here -->
+                        <li class="list-item" style="justify-content: center; color: #999;">Loading...</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <section class="dashboard-card">
+            <h2>Existing Places</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Sport</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="places-table-body">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 
@@ -72,13 +102,16 @@
 
                 places.forEach(place => {
                     const row = document.createElement('tr');
+                    // Handle populated sport object or potential missing data
+                    const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
+
                     row.innerHTML = `
                         <td>${place.name}</td>
-                        <td>${place.sport}</td>
+                        <td>${sportName}</td>
                         <td>${place.position.lat}</td>
                         <td>${place.position.lng}</td>
                         <td>
-                            <button onclick="deletePlace('${place._id}')" style="background-color: #dc3545; color: white; border: none; padding: 0.25rem 0.5rem; cursor: pointer;">Delete</button>
+                            <button onclick="deletePlace('${place._id}')" class="btn btn-danger">Delete</button>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -112,8 +145,42 @@
             }
         }
 
+
+        // Fetch and populate sports dropdown and list
+        async function fetchSports() {
+            try {
+                const response = await fetch('/api/sports');
+                const sports = await response.json();
+
+                // Populate Dropdown
+                const select = document.getElementById('sport');
+                select.innerHTML = '<option value="" disabled selected>Select a sport</option>';
+
+                // Populate List
+                const list = document.getElementById('sports-list');
+                list.innerHTML = '';
+
+                sports.forEach(sport => {
+                    // Dropdown
+                    const option = document.createElement('option');
+                    option.value = sport._id;
+                    option.textContent = sport.name;
+                    select.appendChild(option);
+
+                    // List
+                    const listItem = document.createElement('li');
+                    listItem.textContent = sport.name;
+                    listItem.className = 'list-item';
+                    list.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching sports:', error);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             fetchPlaces();
+            fetchSports();
 
             const form = document.getElementById('add-place-form');
             form.addEventListener('submit', async (e) => {
@@ -148,6 +215,33 @@
                 } catch (error) {
                     console.error('Error adding place:', error);
                     alert('Error adding place. See console for details.');
+                }
+            });
+
+            // Add Sport Form Handler
+            const sportForm = document.getElementById('add-sport-form');
+            sportForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('sport-name').value;
+
+                try {
+                    const response = await fetch('/api/sports', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name })
+                    });
+
+                    if (response.ok) {
+                        alert('Sport added successfully!');
+                        sportForm.reset();
+                        fetchSports(); // Refresh list and dropdown
+                    } else {
+                        const data = await response.json();
+                        alert(`Error adding sport: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error adding sport:', error);
+                    alert('Error adding sport');
                 }
             });
         });

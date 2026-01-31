@@ -6,7 +6,7 @@ export interface IPlace extends Document {
         lat: number;
         lng: number;
     };
-    sport: string;
+    sport: mongoose.Types.ObjectId | string;
 }
 
 const PlaceSchema: Schema = new Schema({
@@ -19,7 +19,8 @@ const PlaceSchema: Schema = new Schema({
         lng: { type: Number, required: true },
     },
     sport: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: 'Sport',
         required: true,
     },
 });

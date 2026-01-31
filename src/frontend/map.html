@@ -54,9 +54,10 @@
             .then(places => {
                 places.forEach(place => {
                     if (place.position && place.position.lat && place.position.lng) {
+                        const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
                         L.marker([place.position.lat, place.position.lng], { icon: orangeIcon })
                             .addTo(map)
-                            .bindPopup(`<b>${place.name}</b><br>${place.sport}`);
+                            .bindPopup(`<b>${place.name}</b><br>${sportName}`);
                     }
                 });
             })

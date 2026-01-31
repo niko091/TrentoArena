@@ -1,6 +1,25 @@
 /* Custom styles for TrentoArena */
 
-/* Example: Add a background pattern or specific branding colors here */
+:root {
+    --bg-primary: #f8f9fa;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --accent-primary: #fd7e14;
+    /* Orange */
+    --accent-secondary: #e36209;
+    /* Darker Orange */
+    --danger: #dc3545;
+    --success: #28a745;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --space-md: 2rem;
+    --space-lg: 4rem;
+    --radius: 0.5rem;
+}
+
 body {
     /* Optional: Add a subtle background image or color toggle if needed beyond bootstrap defaults */
 }
@@ -19,12 +38,15 @@ body {
 }
 
 body {
-    line-height: 1.5;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     font-family: var(--font-family);
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 img,
@@ -53,58 +75,191 @@ a {
     color: inherit;
 }
 
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
 #app {
     width: 100%;
     flex: 1;
 }
 
 .container {
-    padding-top: var(--space-md);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-md);
+    width: 100%;
 }
 
-.text-gradient {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.hero-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* Dashboard Styles */
+.dashboard-header {
+    margin-bottom: 2rem;
     text-align: center;
-    min-height: 80vh;
-    gap: var(--space-lg);
-    position: relative;
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    color: var(--accent-primary);
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.dashboard-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.dashboard-card h2 {
+    margin-bottom: 1.5rem;
+    color: var(--accent-secondary);
+    border-bottom: 2px solid var(--bg-primary);
+    padding-bottom: 0.5rem;
+}
+
+.dashboard-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background-color: #fcfcfc;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.25);
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-secondary);
+}
+
+.btn-success {
+    background-color: var(--success);
+    color: white;
+}
+
+.btn-success:hover {
+    filter: brightness(90%);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+.btn-danger:hover {
+    background-color: #bd2130;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius);
     overflow: hidden;
 }
 
-.hero-bg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at center, rgba(255, 145, 0, 0.1) 0%, transparent 70%);
-    z-index: -1;
-    pointer-events: none;
+.data-table th,
+.data-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.loginregistrazione-card {
-    background-color: #ff6347 !important;
-    color: white !important;
-    width: 18rem;
+.data-table th {
+    background-color: var(--accent-primary);
+    color: white;
+    font-weight: 600;
 }
 
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Lists */
+.list-group {
+    list-style: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.list-item {
+    padding: 1rem;
+    background: white;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    background-color: #f8f9fa;
+}
+
+
+/* Initial Map Style (Legacy) */
 #map {
     height: 800px;
 }

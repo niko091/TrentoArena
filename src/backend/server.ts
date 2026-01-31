@@ -8,6 +8,7 @@ import session from 'express-session';
 import './config/passport'; // Passport config
 import authRoutes from './routes/auth';
 import placeRoutes from './routes/places';
+import sportRoutes from './routes/sports';
 import basicAuth from 'express-basic-auth';
 
 
@@ -59,6 +60,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/places', placeRoutes);
+app.use('/api/sports', sportRoutes);
 
 // Admin Dashboard Route
 app.use('/admin', basicAuth({
