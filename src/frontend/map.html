@@ -22,10 +22,10 @@
 
     <script>
         fetch("./utility/navbar.html")
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("navbar").innerHTML = data;
-    });
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("navbar").innerHTML = data;
+            });
     </script>
 
     <div id="map"></div>
@@ -37,10 +37,10 @@
         const map = L.map('map').setView([46.0697, 11.1211], 13);
 
         const orangeIcon = L.icon({
-        iconUrl: "./images/OrangeMarker.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
+            iconUrl: "./images/OrangeMarker.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
         })
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -48,9 +48,19 @@
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        L.marker([46.0697, 11.1211], {icon:orangeIcon}).addTo(map)
-            .bindPopup('Trento')
-            .openPopup();
+        // Fetch places and add markers
+        fetch('/api/places')
+            .then(response => response.json())
+            .then(places => {
+                places.forEach(place => {
+                    if (place.position && place.position.lat && place.position.lng) {
+                        L.marker([place.position.lat, place.position.lng], { icon: orangeIcon })
+                            .addTo(map)
+                            .bindPopup(`<b>${place.name}</b><br>${place.sport}`);
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching places:', error));
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
