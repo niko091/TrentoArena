@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ts-node src/backend/server.ts",
     "dev": "nodemon src/backend/server.ts",
-    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && ts-node test/test_places_api.ts && ts-node test/test_user_api.ts && mocha -r ts-node/register test/test_api.ts --exit"
+    "test_login": "ts-node test/test_login.ts",
+    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && ts-node test/test_places_api.ts && ts-node test/test_user_api.ts && ts-node test/test_login.ts && mocha -r ts-node/register test/test_api.ts --exit"
   },
   "keywords": [],
   "author": "",

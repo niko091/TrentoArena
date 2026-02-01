@@ -11,9 +11,14 @@ passport.use(
     new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
         try {
             // Match user
-            const user = await User.findOne({ email });
+            const user = await User.findOne({
+                $or: [
+                    { email: email },
+                    { username: email }
+                ]
+            });
             if (!user) {
-                return done(null, false, { message: 'Email not registered' });
+                return done(null, false, { message: 'Email or Username not registered' });
             }
 
             // Match password

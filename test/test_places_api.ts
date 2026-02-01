@@ -2,6 +2,7 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import app from '../src/backend/server';
 import Place from '../src/backend/models/Place';
+import Sport from '../src/backend/models/Sport';
 import dotenv from 'dotenv';
 import express from 'express'; // Added express import
 import placeRoutes from '../src/backend/routes/places'; // Added placeRoutes import
@@ -90,6 +91,7 @@ const run = async () => {
 
         // Cleanup
         await Place.deleteMany({ name: API_TEST_PLACE.name });
+        await Sport.deleteMany({ name: 'Test Sport' });
         console.log('[PASS] Cleaned up.');
 
         process.exit(0);

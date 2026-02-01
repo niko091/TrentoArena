@@ -263,3 +263,32 @@ a {
 #map {
     height: 800px;
 }
+
+/* Login/Registration Card */
+.loginregistrazione-card {
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 400px;
+}
+
+.loginregistrazione-card .form-label {
+    color: white;
+    font-weight: 600;
+}
+
+.loginregistrazione-card .btn-light {
+    color: var(--accent-primary) !important;
+    font-weight: bold;
+}
+
+.loginregistrazione-card a {
+    text-decoration: underline;
+}
+
+.loginregistrazione-card hr {
+    border-color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+}
