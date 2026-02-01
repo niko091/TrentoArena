@@ -86,6 +86,14 @@ app.get('/map', (req, res) => {
     }
 });
 
+app.get('/profile', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.sendFile(path.join(__dirname, '../frontend/profile.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
 // Routes (Placeholder)
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
