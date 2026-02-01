@@ -14,6 +14,14 @@
             height: 100vh;
             width: 100%;
         }
+
+        .filter-control {
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+        }
     </style>
 </head>
 
@@ -35,6 +43,8 @@
     <script>
         // Center on Trento
         const map = L.map('map').setView([46.0697, 11.1211], 13);
+        const markersLayer = L.layerGroup().addTo(map);
+        let allPlaces = [];
 
         const orangeIcon = L.icon({
             iconUrl: "./images/OrangeMarker.png",
@@ -48,18 +58,70 @@
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
+        // Add Filter Control
+        const filterControl = L.control({ position: 'topright' });
+        filterControl.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'filter-control');
+            div.innerHTML = `
+                <select id="sportFilter" class="form-select">
+                    <option value="">All Sports</option>
+                </select>
+            `;
+            // Prevent map clicks when interacting with the sort control
+            L.DomEvent.disableClickPropagation(div);
+            return div;
+        };
+        filterControl.addTo(map);
+
+        // Render markers
+        function renderMarkers(places) {
+            markersLayer.clearLayers();
+            places.forEach(place => {
+                if (place.position && place.position.lat && place.position.lng) {
+                    const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
+                    L.marker([place.position.lat, place.position.lng], { icon: orangeIcon })
+                        .bindPopup(`<b>${place.name}</b><br>${sportName}`)
+                        .addTo(markersLayer);
+                }
+            });
+        }
+
+        // Populate filter options
+        function updateSportFilter(places) {
+            const sports = new Set();
+            places.forEach(place => {
+                if (place.sport && place.sport.name) {
+                    sports.add(place.sport.name);
+                }
+            });
+
+            const filter = document.getElementById('sportFilter');
+            sports.forEach(sport => {
+                const option = document.createElement('option');
+                option.value = sport;
+                option.textContent = sport;
+                filter.appendChild(option);
+            });
+
+            // Add event listener
+            filter.addEventListener('change', (e) => {
+                const selectedSport = e.target.value;
+                if (selectedSport) {
+                    const filteredPlaces = allPlaces.filter(p => p.sport && p.sport.name === selectedSport);
+                    renderMarkers(filteredPlaces);
+                } else {
+                    renderMarkers(allPlaces);
+                }
+            });
+        }
+
         // Fetch places and add markers
         fetch('/api/places')
             .then(response => response.json())
             .then(places => {
-                places.forEach(place => {
-                    if (place.position && place.position.lat && place.position.lng) {
-                        const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
-                        L.marker([place.position.lat, place.position.lng], { icon: orangeIcon })
-                            .addTo(map)
-                            .bindPopup(`<b>${place.name}</b><br>${sportName}`);
-                    }
-                });
+                allPlaces = places;
+                renderMarkers(allPlaces);
+                updateSportFilter(allPlaces);
             })
             .catch(error => console.error('Error fetching places:', error));
     </script>
