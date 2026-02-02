@@ -57,13 +57,9 @@
     </script>
 
     <div class="card-utente">
-        <img src="./images/utenteDefault.png" alt="Avatar" class="img-rotonda">
-        <div id="loading">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-                
+        <img src="./images/utenteDefault.png" alt="Avatar" class="img-rotonda">       
         <div>
-            <h1><span id="user-name"></span></h1>
+            <h1 id="user-name">Loading...</h1>
         </div>
 
         <div class="containerPartiteAmici">
@@ -87,7 +83,6 @@
             })
             .then(user => {
                 if (user) {
-                    document.getElementById('loading').style.display = 'none';
                     document.getElementById('user-name').textContent = user.username;
                     document.getElementById('friendsCount').textContent = user.friends ? user.friends.length : 0;
                     //document.getElementById('friendRequestsCount').textContent = user.friendRequests ? user.friendRequests.length : 0;

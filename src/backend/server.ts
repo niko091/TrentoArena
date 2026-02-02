@@ -35,7 +35,7 @@ app.use(passport.session());
 
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
-        res.redirect('/homepage.html');
+        res.redirect('/dashboard.html');
     } else {
         res.redirect('/login');
     }
@@ -43,14 +43,14 @@ app.get('/', (req, res) => {
 
 app.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
-        return res.redirect('/homepage.html');
+        return res.redirect('/dashboard.html');
     }
     res.sendFile(path.join(__dirname, '../frontend/login.html'));
 });
 
-app.get('/homepage', (req, res) => {
+app.get('/dashboard', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/homepage.html'));
+        res.sendFile(path.join(__dirname, '../frontend/dashboard.html'));
     } else {
         res.redirect('/login');
     }
@@ -93,6 +93,16 @@ app.get('/profile', (req, res) => {
         res.redirect('/login');
     }
 });
+
+
+app.get('/game_creation', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.sendFile(path.join(__dirname, '../frontend/game_creation.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
 
 // Routes (Placeholder)
 app.get('/api/health', (req, res) => {
