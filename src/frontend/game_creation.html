@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-   <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrentoArena - GameCreation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,9 +21,9 @@
         .containerInput {
             display: flex;
             flex-direction: column;
-            justify-content: center;  
+            justify-content: center;
             align-items: center;
-            margin: 50px 
+            margin: 50px
         }
 
         .containerTimeInput {
@@ -32,6 +33,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <nav class="navbar  navbar-orange">
@@ -54,7 +56,7 @@
         <div class="form-group col-md-4">
             <strong for="inputMap">Luogo</strong>
             <select id="inputMap" class="form-control">
-                <option selected>Choose...</option><!--Da capire come prendere l'input-->
+                <option selected>Choose...</option>
                 <option>...</option>
             </select>
         </div>
@@ -72,18 +74,87 @@
         </div>
 
         <div class="form-group col-md-4">
-            <strong for="inputTipo">Tipo  di partia</strong>
+            <strong for="inputTipo">Tipo di partia</strong>
             <select id="inputTipo" class="form-control">
-                <option selected>Choose...</option><!--Da capire come prendere l'input-->
+                <option selected>Choose...</option>
                 <option>...</option>
             </select>
         </div>
 
         <div class="form-group col-md-4">
-            <strong for="inputNode">Node</strong>
-            <textarea class="form-control" id="inputnode" rows="3"></textarea>
+            <strong for="inputNote">Note</strong>
+            <textarea class="form-control" id="inputNote" rows="3"></textarea>
         </div>
     </div>
-   
+
+    <script>
+        let allPlaces = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSports();
+            await loadPlaces();
+
+            document.getElementById('inputSport').addEventListener('change', filterPlacesBySport);
+        });
+
+        async function loadSports() {
+            try {
+                const response = await fetch('/api/sports');
+                if (!response.ok) throw new Error('Failed to fetch sports');
+                const sports = await response.json();
+
+                const sportSelect = document.getElementById('inputSport');
+                // Keep the first "Choose..." option
+                sportSelect.innerHTML = '<option selected>Choose...</option>';
+
+                sports.forEach(sport => {
+                    const option = document.createElement('option');
+                    option.value = sport._id;
+                    option.textContent = sport.name;
+                    sportSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading sports:', error);
+            }
+        }
+
+        async function loadPlaces() {
+            try {
+                const response = await fetch('/api/places');
+                if (!response.ok) throw new Error('Failed to fetch places');
+                allPlaces = await response.json();
+                renderPlaces(allPlaces);
+            } catch (error) {
+                console.error('Error loading places:', error);
+            }
+        }
+
+        function renderPlaces(places) {
+            const placeSelect = document.getElementById('inputMap');
+            // Keep the first "Choose..." option
+            placeSelect.innerHTML = '<option selected>Choose...</option>';
+
+            places.forEach(place => {
+                const option = document.createElement('option');
+                option.value = place._id;
+                option.textContent = place.name;
+                placeSelect.appendChild(option);
+            });
+        }
+
+        function filterPlacesBySport(event) {
+            const selectedSportId = event.target.value;
+
+            if (selectedSportId === 'Choose...') {
+                renderPlaces(allPlaces);
+            } else {
+                const filteredPlaces = allPlaces.filter(place =>
+                    place.sport && place.sport._id === selectedSportId
+                );
+                renderPlaces(filteredPlaces);
+            }
+        }
+    </script>
 </body>
+
 </html>
