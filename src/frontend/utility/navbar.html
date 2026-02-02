@@ -12,7 +12,27 @@
     <div class="flex-grow-1"></div>
     <h1>TrentoArena</h1>
     <div class="flex-grow-1 d-flex justify-content-end">
-      <a class="nav-link" href="game_creation" style="margin-right: 15px;">Crea Partita</a>
+      <a class="nav-link" href="#" style="margin-right: 15px;" onclick="
+        event.preventDefault();
+        const cssPath = '/css/game_creation_popup.css';
+        const jsPath = '/js/game_creation_popup.js';
+        
+        if (!document.querySelector(`link[href='${cssPath}']`)) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = cssPath;
+            document.head.appendChild(link);
+        }
+        
+        if (window.GameCreationPopup) {
+            window.GameCreationPopup.show();
+        } else {
+            const script = document.createElement('script');
+            script.src = jsPath;
+            script.onload = () => window.GameCreationPopup.show();
+            document.body.appendChild(script);
+        }
+      ">Crea Partita</a>
       <a class="nav-link" href="map" style="margin-right: 15px;">Mappa</a>
       <a class="nav-link" href="profile">Profilo</a>
     </div>

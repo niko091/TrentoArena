@@ -96,16 +96,6 @@ app.get('/profile', (req, res) => {
     }
 });
 
-
-app.get('/game_creation', (req, res) => {
-    if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/game_creation.html'));
-    } else {
-        res.redirect('/login');
-    }
-});
-
-
 // Routes (Placeholder)
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
