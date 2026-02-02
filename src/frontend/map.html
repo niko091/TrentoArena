@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game_popup.css">
     <style>
         #map {
             height: 100vh;
@@ -79,13 +80,84 @@
             places.forEach(place => {
                 if (place.position && place.position.lat && place.position.lng) {
                     const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
-                    L.marker([place.position.lat, place.position.lng], { icon: orangeIcon })
-                        .bindPopup(`<b>${place.name}</b><br>${sportName}`)
-                        .addTo(markersLayer);
+                    const marker = L.marker([place.position.lat, place.position.lng], { icon: orangeIcon });
+
+                    const popupContent = `
+                        <div style="min-width: 200px;">
+                            <h5 style="margin-bottom: 5px;">${place.name}</h5>
+                            <p style="margin-bottom: 10px; color: #666;">Sport: <strong>${sportName}</strong></p>
+                            <hr style="margin: 5px 0;">
+                            <h6>Upcoming Games:</h6>
+                            <div id="games-list-${place._id}">
+                                <small>Loading...</small>
+                            </div>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+
+                    marker.on('popupopen', () => {
+                        fetchGamesForPlace(place._id);
+                    });
+
+                    marker.addTo(markersLayer);
                 }
             });
         }
 
+        async function fetchGamesForPlace(placeId) {
+            const container = document.getElementById(`games-list-${placeId}`);
+            if (!container) return;
+
+            // Avoid re-fetching if already loaded (optional, but good for UX. 
+            // For now, let's refresh every time to ensure up-to-date info, or check content)
+            // If we want to refresh every time, we should reset to "Loading..." first?
+            // container.innerHTML = '<small>Loading...</small>'; 
+            // Actually, keep it simple. Leaflet destroys popup DOM when closed unless autoClose is handled differently, 
+            // but usually it recreates content. Let's assume we need to fetch.
+
+            try {
+                const today = new Date().toISOString();
+                const response = await fetch(`/api/games?placeId=${placeId}&startDate=${today}`);
+                if (!response.ok) throw new Error('Failed to fetch games');
+
+                const games = await response.json();
+
+                if (games.length === 0) {
+                    container.innerHTML = '<small>No upcoming games.</small>';
+                    return;
+                }
+
+                let html = '<ul style="padding-left: 20px; margin-bottom: 0;">';
+                games.forEach(game => {
+                    const date = new Date(game.date);
+                    const dateStr = date.toLocaleDateString();
+                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    const gameDataStr = JSON.stringify({
+                        sport: game.sport && game.sport.name ? game.sport.name : 'Unknown',
+                        place: game.place && game.place.name ? game.place.name : 'Unknown', // This place name should be correct
+                        date: game.date,
+                        creator: game.creator && game.creator.username ? game.creator.username : 'Unknown',
+                        note: game.note
+                    }).replace(/"/g, '&quot;'); // Escape quotes for HTML attribute
+
+                    html += `<li style="margin-bottom: 4px; cursor: pointer; color: #007bff;" 
+                                 onclick="window.GameDetailsPopup.show(${gameDataStr})">
+                        <span style="text-decoration: underline;"><strong>${dateStr}</strong> at ${timeStr}</span>
+                    </li>`;
+                });
+                html += '</ul>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error fetching games:', error);
+                container.innerHTML = '<small style="color: red;">Error loading games.</small>';
+            }
+        }
+
+    </script>
+    <script>
         // Populate filter options
         function updateSportFilter(places) {
             const sports = new Set();
@@ -125,6 +197,7 @@
             })
             .catch(error => console.error('Error fetching places:', error));
     </script>
+    <script src="js/game_popup.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
