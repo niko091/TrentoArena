@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrentoArena - GameCreation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .navbar-orange {
+            background-color: rgb(223, 103, 5);
+            padding-top: 15px;
+            color: white;
+            font-size: 20px;
+        }
+
+        .containerInput {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;  
+            align-items: center;
+            margin: 50px 
+        }
+
+        .containerTimeInput {
+            display: flex;
+            justify-content: center;
+            gap: 100px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar  navbar-orange">
+        <div class="container-fluid">
+            <div class="flex-grow-1 d-flex justify-content-center">
+                <h1><b>CREA PARTITA</b></h1>
+            </div>
+        </div>
+    </nav>
+
+    <div class="containerInput">
+        <div class="form-group col-md-4">
+            <strong for="inputSport">Sport</strong>
+            <select id="inputSport" class="form-control">
+                <option selected>Choose...</option>
+                <option>...</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-4">
+            <strong for="inputMap">Luogo</strong>
+            <select id="inputMap" class="form-control">
+                <option selected>Choose...</option><!--Da capire come prendere l'input-->
+                <option>...</option>
+            </select>
+        </div>
+
+        <div class="containerTimeInput">
+            <div class="form-group col-md-4">
+                <strong for="dateInput">Data</strong>
+                <input type="date" class="form-control" id="dateInput">
+            </div>
+
+            <div class="form-group col-md-4">
+                <strong for="timeInput" class="form-label">Orario</strong>
+                <input type="time" class="form-control" id="timeInput">
+            </div>
+        </div>
+
+        <div class="form-group col-md-4">
+            <strong for="inputTipo">Tipo  di partia</strong>
+            <select id="inputTipo" class="form-control">
+                <option selected>Choose...</option><!--Da capire come prendere l'input-->
+                <option>...</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-4">
+            <strong for="inputNode">Node</strong>
+            <textarea class="form-control" id="inputnode" rows="3"></textarea>
+        </div>
+    </div>
+   
+</body>
+</html>
