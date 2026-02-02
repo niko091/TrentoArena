@@ -20,7 +20,15 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
+// Connect to MongoDB
 connectDB();
+
+// Ensure uploads directory exists
+import fs from 'fs';
+const uploadDir = path.join(__dirname, '../frontend/uploads/profile_pictures');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Middleware
 app.use(express.json());
@@ -91,6 +99,14 @@ app.get('/map', (req, res) => {
 app.get('/profile', (req, res) => {
     if (req.isAuthenticated()) {
         res.sendFile(path.join(__dirname, '../frontend/profile.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.get('/user/:username', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.sendFile(path.join(__dirname, '../frontend/user_profile.html'));
     } else {
         res.redirect('/login');
     }

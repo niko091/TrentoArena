@@ -1,5 +1,8 @@
 import express, { Request, Response } from 'express';
 import User from '../models/User';
+import upload from '../config/uploadConfig';
+import fs from 'fs';
+import path from 'path';
 
 const router = express.Router();
 
@@ -10,6 +13,24 @@ router.get('/:id', async (req: Request, res: Response) => {
             .select('-password')
             .populate('friends', 'username email')
             .populate('friendRequests', 'username email');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// GET /api/users/username/:username - Get user by username (public info)
+router.get('/username/:username', async (req: Request, res: Response) => {
+    try {
+        const user = await User.findOne({ username: req.params.username })
+            .select('username friends profilePicture') // Only public info
+            .populate('friends', 'username'); // Just usernames of friends
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -78,6 +99,71 @@ router.post('/:id/friends/accept', async (req: Request, res: Response) => {
 
         res.status(200).json({ message: 'Friend request accepted', friends: user.friends });
 
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// POST /api/users/:id/profile-picture - Upload profile picture
+router.post('/:id/profile-picture', upload.single('profilePicture'), async (req: Request, res: Response) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Delete old profile picture if exists
+        if (user.profilePicture) {
+            const oldPath = path.join(__dirname, '../../frontend', user.profilePicture);
+            if (fs.existsSync(oldPath)) {
+                try {
+                    fs.unlinkSync(oldPath);
+                } catch (err) {
+                    console.error('Failed to delete old profile picture:', err);
+                }
+            }
+        }
+
+        // Relative path to be stored in DB and used in frontend
+        const profilePicturePath = `/uploads/profile_pictures/${req.file.filename}`;
+
+        user.profilePicture = profilePicturePath;
+        await user.save();
+
+        res.json({ message: 'Profile picture updated', profilePicture: profilePicturePath });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// DELETE /api/users/:id/profile-picture - Remove profile picture
+router.delete('/:id/profile-picture', async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.profilePicture) {
+            const filePath = path.join(__dirname, '../../frontend', user.profilePicture);
+            if (fs.existsSync(filePath)) {
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error('Failed to delete profile picture:', err);
+                }
+            }
+            user.profilePicture = undefined;
+            await user.save();
+        }
+
+        res.json({ message: 'Profile picture removed' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });

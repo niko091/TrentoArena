@@ -7,6 +7,7 @@ export interface IUser extends Document {
     password?: string;
     friends: string[] | IUser[];
     friendRequests: string[] | IUser[];
+    profilePicture?: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -27,6 +28,10 @@ const UserSchema: Schema = new Schema({
         sparse: true, // Allows multiple null values
     },
     password: {
+        type: String,
+        required: false,
+    },
+    profilePicture: {
         type: String,
         required: false,
     },
