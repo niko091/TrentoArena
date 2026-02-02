@@ -85,9 +85,65 @@
                 </table>
             </div>
         </section>
+        <section class="dashboard-card" style="margin-top: 2rem;">
+            <h2>Games List</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sport</th>
+                            <th>Place</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Creator</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="games-table-body">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <script>
+        // Fetch and display games
+        async function fetchGames() {
+            try {
+                const response = await fetch('/api/games');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch games');
+                }
+                const games = await response.json();
+                const tableBody = document.getElementById('games-table-body');
+                tableBody.innerHTML = '';
+
+                games.forEach(game => {
+                    const row = document.createElement('tr');
+
+                    const sportName = game.sport ? game.sport.name : 'Unknown';
+                    const placeName = game.place ? game.place.name : 'Unknown';
+                    const creatorName = game.creator ? game.creator.username : 'Unknown';
+                    const dateObj = new Date(game.date);
+                    const formattedDate = dateObj.toLocaleDateString();
+                    const formattedTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                    row.innerHTML = `
+                        <td>${sportName}</td>
+                        <td>${placeName}</td>
+                        <td>${formattedDate}</td>
+                        <td>${formattedTime}</td>
+                        <td>${creatorName}</td>
+                        <td>${game.note}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading games:', error);
+            }
+        }
+
         // Fetch and display places
         async function fetchPlaces() {
             try {
@@ -181,6 +237,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             fetchPlaces();
             fetchSports();
+            fetchGames(); // Added fetchGames call
 
             const form = document.getElementById('add-place-form');
             form.addEventListener('submit', async (e) => {
