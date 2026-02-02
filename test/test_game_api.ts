@@ -31,12 +31,21 @@ describe('Game API Tests', () => {
         await User.deleteMany({ email: API_TEST_USER.email });
         await Game.deleteMany({ note: 'API_TEST_GAME' });
 
-        // Get dependencies
-        const sport = await Sport.findOne();
-        const place = await Place.findOne();
-        if (!sport || !place) {
-            throw new Error('Sports/Places seeding required for tests');
+        // Get dependencies or create them
+        let sport = await Sport.findOne();
+        if (!sport) {
+            sport = await Sport.create({ name: 'Football' });
         }
+
+        let place = await Place.findOne();
+        if (!place) {
+            place = await Place.create({
+                name: 'Test Place Game API',
+                sport: sport._id,
+                position: { lat: 46.0, lng: 11.0 }
+            });
+        }
+
         sportId = sport._id.toString();
         placeId = place._id.toString();
     });

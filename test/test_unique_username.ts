@@ -4,8 +4,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Re-implementing the logic here for testing purposes since it's not exported from passport.ts
-// In a real scenario, we might export the helper or test via the auth flow.
 const generateUniqueUsername = async (baseName: string): Promise<string> => {
     let username = baseName;
     let userExists = await User.findOne({ username });
@@ -19,56 +17,41 @@ const generateUniqueUsername = async (baseName: string): Promise<string> => {
     return username;
 };
 
-const run = async () => {
-    try {
-        console.log('\n--- TEST: Unique Username Logic ---');
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
-        console.log('[PASS] Connected to DB');
+describe('Unique Username Logic', () => {
+    const baseName = 'UniqueUserTest';
 
-        const baseName = 'UniqueUserTest';
-
-        // Cleanup
+    before(async () => {
+        if (mongoose.connection.readyState === 0) {
+            await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
+        }
         await User.deleteMany({ username: { $regex: new RegExp(`^${baseName}`) } });
+    });
 
+    after(async () => {
+        await User.deleteMany({ username: { $regex: new RegExp(`^${baseName}`) } });
+    });
+
+    it('Step 1: Should create unique usernames', async () => {
         // Create first user
-        console.log('Step 1: Creating first user...');
         const user1 = await User.create({
             username: await generateUniqueUsername(baseName),
             email: 'test1@example.com',
             googleId: 'test_id_1'
         });
-        console.log(`[PASS] User 1 created: ${user1.username}`);
 
         // Create second user with SAME base name
-        console.log('Step 2: Creating second user with same base name...');
         const user2 = await User.create({
             username: await generateUniqueUsername(baseName),
             email: 'test2@example.com',
             googleId: 'test_id_2'
         });
-        console.log(`[PASS] User 2 created: ${user2.username}`);
 
-        console.log('Step 3: Verifying uniqueness...');
         if (user1.username === user2.username) {
-            console.error('[FAIL] Usernames are identical!');
-            process.exit(1);
+            throw new Error('Usernames are identical!');
         }
 
-        if (user2.username.startsWith(baseName) && user2.username !== baseName) {
-            console.log('[PASS] User 2 has a modified unique username.');
-        } else {
-            console.error(`[FAIL] User 2 username "${user2.username}" format unexpected.`);
-            process.exit(1);
+        if (!user2.username.startsWith(baseName) || user2.username === baseName) {
+            throw new Error(`User 2 username "${user2.username}" format unexpected.`);
         }
-
-        // Cleanup
-        await User.deleteMany({ username: { $regex: new RegExp(`^${baseName}`) } });
-        process.exit(0);
-
-    } catch (err) {
-        console.error('\n[FAIL] Test Failed:', err);
-        process.exit(1);
-    }
-};
-
-run();
+    });
+});

@@ -6,10 +6,15 @@
   "scripts": {
     "start": "ts-node src/backend/server.ts",
     "dev": "nodemon src/backend/server.ts",
-    "test_login": "ts-node test/test_login.ts",
-    "test_game_model": "ts-node test/test_game_model.ts",
-    "test_game_api": "mocha -r ts-node/register test/test_game_api.ts --exit",
-    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && ts-node test/test_places_api.ts && ts-node test/test_user_api.ts && ts-node test/test_login.ts && ts-node test/test_game_model.ts && mocha -r ts-node/register test/test_api.ts --exit && mocha -r ts-node/register test/test_game_api.ts --exit"
+    "test_db_connection": "mocha -r ts-node/register test/test_db_connection.ts --exit",
+    "test_user_model": "mocha -r ts-node/register test/test_user_model.ts --exit",
+    "test_unique_username": "mocha -r ts-node/register test/test_unique_username.ts --exit",
+    "test_places_api": "mocha -r ts-node/register test/test_places_api.ts --exit",
+    "test_user_api": "mocha -r ts-node/register test/test_user_api.ts --exit",
+    "test_login": "mocha -r ts-node/register test/test_login.ts --exit",
+    "test_game_model": "mocha -r ts-node/register test/test_game_model.ts --exit",
+    "test_sport_model": "mocha -r ts-node/register test/test_sport_model.ts --exit",
+    "test": "mocha -r ts-node/register test/*.ts --exit"
   },
   "keywords": [],
   "author": "",

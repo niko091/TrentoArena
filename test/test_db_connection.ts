@@ -4,13 +4,20 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const run = async () => {
-    try {
-        console.log('\n--- TEST: DB Connection & Basic CRUD ---');
-        console.log('Step 1: Connecting to DB...');
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
-        console.log('[PASS] Connected.');
+describe('DB Connection & Basic CRUD', () => {
 
+    before(async () => {
+        if (mongoose.connection.readyState === 0) {
+            await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
+        }
+    });
+
+    after(async () => {
+        // Only close if we are done (but usually keeps open for watch mode, here we exit)
+        // await mongoose.disconnect();
+    });
+
+    it('Step 1: Should perform basic CRUD operations', async () => {
         const testUser = {
             username: 'db_test_user',
             email: 'db_test@example.com',
@@ -21,30 +28,15 @@ const run = async () => {
         await User.deleteOne({ googleId: testUser.googleId });
 
         // Create
-        console.log('Step 2: Creating user...');
         const user = await User.create(testUser);
-        console.log(`[PASS] User created: ${user.username}`);
+        if (!user) throw new Error('User creation failed');
 
         // Find
-        console.log('Step 3: Finding user...');
         const found = await User.findById(user._id);
-        if (found) {
-            console.log(`[PASS] User found: ${found.username}`);
-        } else {
-            console.error('[FAIL] User NOT found!');
-            process.exit(1);
-        }
+        if (!found) throw new Error('User not found');
+        if (found.username !== testUser.username) throw new Error('Username mismatch');
 
         // Clean up
-        console.log('Step 4: Cleaning up...');
         await User.deleteOne({ _id: user._id });
-        console.log('[PASS] Cleaned up.');
-
-        process.exit(0);
-    } catch (err) {
-        console.error('\n[FAIL] Test Failed:', err);
-        process.exit(1);
-    }
-};
-
-run();
+    });
+});

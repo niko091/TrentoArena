@@ -13,13 +13,21 @@ const API_TEST_USER = {
     password: 'password123'
 };
 
-describe('API Integration Tests', () => {
+describe('API Integration Tests', function () {
+    this.timeout(10000); // Increase timeout to 10 seconds
 
     before(async () => {
         console.log('\n--- SETUP: Connecting to DB ---');
         // Ensure we are connected
         if (mongoose.connection.readyState === 0) {
             await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
+        } else {
+            // connection might be connecting (2) or disconnecting (3). Wait for (1).
+            let retries = 20;
+            while (mongoose.connection.readyState !== 1 && retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+                retries--;
+            }
         }
         // Cleanup potentially stale data
         await User.deleteMany({ email: API_TEST_USER.email });

@@ -7,19 +7,33 @@ import User from '../src/backend/models/User';
 
 dotenv.config();
 
-const run = async () => {
-    try {
-        console.log('\n--- TEST: Game Model ---');
-        console.log('Step 1: Connecting to DB...');
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
-        console.log('[PASS] Connected.');
+describe('Game Model Tests', () => {
 
-        // 1. Fetch dependencies
-        const sport = await Sport.findOne();
-        const place = await Place.findOne();
+    let sport: any;
+    let place: any;
+    let user: any;
 
-        // Ensure a user exists
-        let user = await User.findOne({ email: 'testgame_model@example.com' });
+    before(async () => {
+        if (mongoose.connection.readyState === 0) {
+            await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
+        }
+
+        // Ensure dependencies exist
+        sport = await Sport.findOne();
+        if (!sport) {
+            sport = await Sport.create({ name: 'Football' });
+        }
+
+        place = await Place.findOne();
+        if (!place) {
+            place = await Place.create({
+                name: 'Test Place Game Model',
+                sport: sport._id,
+                position: { lat: 46.0, lng: 11.0 }
+            });
+        }
+
+        user = await User.findOne({ email: 'testgame_model@example.com' });
         if (!user) {
             user = await User.create({
                 username: 'testuser_game_model',
@@ -29,14 +43,16 @@ const run = async () => {
         }
 
         if (!sport || !place || !user) {
-            console.error('[FAIL] Missing dependencies: Sport, Place, or User not found.');
-            process.exit(1);
+            throw new Error('Dependencies missing (Sport/Place/User)');
         }
+    });
 
-        console.log('[PASS] Dependencies found/created.');
+    after(async () => {
+        await Game.deleteMany({ note: 'This is a test game for verification.' });
+        await User.deleteOne({ email: 'testgame_model@example.com' });
+    });
 
-        // 2. Create a Game
-        console.log('Step 2: Creating Game...');
+    it('Step 1: Should create and save a game', async () => {
         const newGame = new Game({
             sport: sport._id,
             place: place._id,
@@ -45,38 +61,15 @@ const run = async () => {
             note: 'This is a test game for verification.',
         });
 
-        // 3. Save Game
         const savedGame = await newGame.save();
-        if (savedGame) {
-            console.log(`[PASS] Game saved successfully with ID: ${savedGame._id}`);
-        } else {
-            throw new Error('Game was not saved.');
-        }
+        if (!savedGame) throw new Error('Game not saved');
 
-        // 4. Verify fetch (optional populate)
-        console.log('Step 3: Verifying Game Fetch...');
         const fetchedGame = await Game.findById(savedGame._id)
             .populate('sport')
             .populate('place')
             .populate('creator');
 
-        if (fetchedGame && fetchedGame.note === 'This is a test game for verification.') {
-            console.log('[PASS] Game fetched and verified.');
-        } else {
-            throw new Error('Game fetch failed or data mismatch.');
-        }
-
-        // 5. Clean up
-        console.log('Step 4: Cleaning up...');
-        await Game.findByIdAndDelete(savedGame._id);
-        await User.deleteOne({ email: 'testgame_model@example.com' });
-        console.log('[PASS] Test game and user deleted.');
-
-        process.exit(0);
-    } catch (error) {
-        console.error('\n[FAIL] Test Failed:', error);
-        process.exit(1);
-    }
-};
-
-run();
+        if (!fetchedGame) throw new Error('Game not fetched');
+        if (fetchedGame.note !== 'This is a test game for verification.') throw new Error('Note mismatch');
+    });
+});

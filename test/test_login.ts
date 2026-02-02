@@ -6,35 +6,33 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_TEST_USER = {
-    username: 'login_test_user',
-    email: 'login_test@example.com',
-    password: 'password123'
-};
+describe('Login API', () => {
+    const API_TEST_USER = {
+        username: 'login_test_user',
+        email: 'login_test@example.com',
+        password: 'password123'
+    };
 
-const run = async () => {
-    try {
-        console.log('\n--- TEST: Login API ---');
-
-        // Step 1: Connect to DB
-        console.log('Step 1: Connecting to DB...');
+    before(async () => {
         if (mongoose.connection.readyState === 0) {
             await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
         }
-
-        // Cleanup before start
         await User.deleteMany({ email: API_TEST_USER.email });
+    });
 
-        // Step 2: Register User
-        console.log('Step 2: Registering User...');
+    after(async () => {
+        await User.deleteMany({ email: API_TEST_USER.email });
+    });
+
+    it('Step 1: Should register user', async () => {
         await request(app)
             .post('/auth/register')
             .send(API_TEST_USER)
             .expect(201);
+    });
 
-        // Step 3: Login with Email
-        console.log('Step 3: Login with Email...');
-        const resEmail = await request(app)
+    it('Step 2: Should login with Email', async () => {
+        const res = await request(app)
             .post('/auth/login')
             .send({
                 email: API_TEST_USER.email,
@@ -42,51 +40,30 @@ const run = async () => {
             })
             .expect(200);
 
-        if (resEmail.body.user.email === API_TEST_USER.email) {
-            console.log('[PASS] Login with Email success');
-        } else {
-            throw new Error('[FAIL] Login with Email failed to return user');
-        }
+        if (res.body.user.email !== API_TEST_USER.email) throw new Error('Email login mismatch');
+    });
 
-        // logout (optional, but good practice if session persists, though supertest agents usually don't persist cookies unless configured)
-
-        // Step 4: Login with Username
-        console.log('Step 4: Login with Username...');
-        const resUsername = await request(app)
+    it('Step 3: Should login with Username', async () => {
+        const res = await request(app)
             .post('/auth/login')
             .send({
-                email: API_TEST_USER.username, // We send username in the 'email' field as per logic
+                email: API_TEST_USER.username, // Passport local strategy uses 'username' field, but we configured it to map to 'email' field in request??
+                // Wait, let's check passport config. Usually it's `usernameField: 'email'`.
+                // Actually, our previous test sent username in the email field.
                 password: API_TEST_USER.password
             })
             .expect(200);
 
-        if (resUsername.body.user.username === API_TEST_USER.username) {
-            console.log('[PASS] Login with Username success');
-        } else {
-            throw new Error('[FAIL] Login with Username failed to return user');
-        }
+        if (res.body.user.username !== API_TEST_USER.username) throw new Error('Username login mismatch');
+    });
 
-        // Step 5: Invalid Login
-        console.log('Step 5: Invalid Login...');
+    it('Step 4: Should reject invalid login', async () => {
         await request(app)
             .post('/auth/login')
             .send({
                 email: 'wrong_user',
                 password: 'password123'
             })
-            .expect(400); // Or 401 depending on passport config, but usually 400/401
-        console.log('[PASS] Invalid login rejected');
-
-        // Cleanup
-        await User.deleteMany({ email: API_TEST_USER.email });
-        console.log('[PASS] Cleaned up.');
-
-        process.exit(0);
-
-    } catch (err) {
-        console.error('\n[FAIL] Test Failed:', err);
-        process.exit(1);
-    }
-};
-
-run();
+            .expect(400); // Expecting 400 as per previous test
+    });
+});

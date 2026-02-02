@@ -25,113 +25,93 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
-const TEST_USER = {
-    username: 'test_user_api',
-    email: 'test_user_api@example.com',
-    password: 'password123'
-};
+describe('User API Tests', () => {
+    const TEST_USER = {
+        username: 'test_user_api',
+        email: 'test_user_api@example.com',
+        password: 'password123'
+    };
 
-async function run() {
-    console.log('\n--- User API Test ---');
+    let userId: string;
 
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoarena');
-    await User.deleteMany({ email: TEST_USER.email });
+    before(async () => {
+        if (mongoose.connection.readyState === 0) {
+            await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoarena');
+        }
+        await User.deleteMany({ email: TEST_USER.email });
+        await User.deleteMany({ email: 'friend@example.com' });
+    });
 
-    try {
-        // 1. Register User
-        console.log('1. Registering User...');
-        const registerRes = await request(app)
+    after(async () => {
+        await User.deleteMany({ email: TEST_USER.email });
+        await User.deleteMany({ email: 'friend@example.com' });
+    });
+
+    it('Step 1: Should register a user', async () => {
+        const res = await request(app)
             .post('/auth/register')
             .send(TEST_USER)
             .expect(201);
 
-        const userId = registerRes.body.user._id;
-        console.log(`   User registered with ID: ${userId}`);
+        userId = res.body.user._id;
+        if (!userId) throw new Error('User ID missing');
+    });
 
-        // 2. Fetch User Info
-        console.log('2. Fetching User Info...');
-        const userRes = await request(app)
+    it('Step 2: Should fetch user info', async () => {
+        const res = await request(app)
             .get(`/api/users/${userId}`)
             .expect(200);
 
-        console.log('   User retrieved:', userRes.body);
+        if (res.body.password) throw new Error('Password returned in API');
+        if (res.body.username !== TEST_USER.username) throw new Error('Username mismatch');
+    });
 
-        // 3. Verify Data
-        if (userRes.body.password) {
-            throw new Error('FAILED: Password should not be returned');
-        }
-        if (userRes.body.username !== TEST_USER.username) {
-            throw new Error(`FAILED: Expected username ${TEST_USER.username}, got ${userRes.body.username}`);
-        }
-
-        // 4. Test Friend Request Logic
-        console.log('3. Testing Friend Request Logic...');
-
-        // Create a second user (Requester)
+    it('Step 3: Should handle friend requests', async () => {
+        // Create Requester
         const FRIEND_USER = {
             username: 'friend_user',
             email: 'friend@example.com',
             password: 'password123'
         };
 
-        const friendRegRes = await request(app)
+        const regRes = await request(app)
             .post('/auth/register')
             .send(FRIEND_USER)
             .expect(201);
-        const requesterId = friendRegRes.body.user._id;
+        const requesterId = regRes.body.user._id;
 
-        // Step 4a: Send Friend Request (Requester -> Test User)
-        console.log('   Sending request...');
+        // Send request
         await request(app)
             .post(`/api/users/${userId}/friend-requests`)
             .send({ requesterId: requesterId })
             .expect(200);
 
-        // Verify request received
-        const userWithReqRes = await request(app)
+        // Verify received
+        const userRes = await request(app)
             .get(`/api/users/${userId}`)
             .expect(200);
 
-        const requests = userWithReqRes.body.friendRequests;
-        if (!requests || requests.length === 0 || requests[0].username !== FRIEND_USER.username) {
-            throw new Error('FAILED: Friend request not received');
+        if (userRes.body.friendRequests[0].username !== FRIEND_USER.username) {
+            throw new Error('Friend request not received');
         }
 
-        // Step 4b: Accept Friend Request
-        console.log('   Accepting request...');
+        // Accept
         await request(app)
             .post(`/api/users/${userId}/friends/accept`)
             .send({ requesterId: requesterId })
             .expect(200);
 
-        // Verify Friend Added (Mutual Check)
-        const userWithFriendRes = await request(app)
+        // Verify accepted
+        const finalUserRes = await request(app)
             .get(`/api/users/${userId}`)
             .expect(200);
 
-        const friends = userWithFriendRes.body.friends;
-        if (!Array.isArray(friends) || friends.length === 0) {
-            throw new Error('FAILED: Friends list is empty');
+        if (finalUserRes.body.friends[0].username !== FRIEND_USER.username) {
+            throw new Error('Friend not added');
         }
-        if (friends[0].username !== FRIEND_USER.username) {
-            throw new Error(`FAILED: Expected friend ${FRIEND_USER.username}, got ${friends[0].username}`);
+        if (finalUserRes.body.friendRequests.length !== 0) {
+            throw new Error('Friend request not removed');
         }
+    });
 
-        // Verify Request Removed
-        if (userWithFriendRes.body.friendRequests.length !== 0) {
-            throw new Error('FAILED: Friend request was not removed after acceptance');
-        }
-
-        console.log('PASSED: Friend Request Flow verification successful');
-
-    } catch (error) {
-        console.error('FAILED:', error);
-        process.exit(1);
-    } finally {
-        await User.deleteMany({ email: TEST_USER.email });
-        await User.deleteMany({ email: 'friend@example.com' }); // Cleanup friend
-        await mongoose.disconnect();
-    }
-}
-
-run();
+});
