@@ -85,6 +85,10 @@
             <strong for="inputNote">Note</strong>
             <textarea class="form-control" id="inputNote" rows="3"></textarea>
         </div>
+
+        <div class="form-group col-md-4 mt-4">
+            <button type="button" class="btn btn-primary" onclick="createGame()">Create Game</button>
+        </div>
     </div>
 
     <script>
@@ -154,7 +158,64 @@
                 renderPlaces(filteredPlaces);
             }
         }
+
+        async function createGame() {
+            const sportId = document.getElementById('inputSport').value;
+            const placeId = document.getElementById('inputMap').value;
+            const date = document.getElementById('dateInput').value;
+            const time = document.getElementById('timeInput').value;
+            const note = document.getElementById('inputNote').value;
+
+            if (sportId === 'Choose...' || !sportId) {
+                alert('Please select a Sport.');
+                return;
+            }
+            if (placeId === 'Choose...' || !placeId) {
+                alert('Please select a Place.');
+                return;
+            }
+            if (!date) {
+                alert('Please select a Date.');
+                return;
+            }
+            if (!time) {
+                alert('Please select a Time.');
+                return;
+            }
+
+            const payload = {
+                sportId,
+                placeId,
+                date,
+                time,
+                note
+            };
+
+            try {
+                const response = await fetch('/api/games', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert('Game created successfully!');
+                    // Redirect or clear form?
+                    window.location.href = '/dashboard.html'; // Or wherever
+                } else {
+                    const error = await response.json();
+                    alert('Error creating game: ' + (error.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error('Network error:', err);
+                alert('Failed to connect to server.');
+            }
+        }
     </script>
+
 </body>
 
 </html>

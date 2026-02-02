@@ -36,4 +36,50 @@ router.post('/', async (req: Request, res: Response) => {
     }
 });
 
+// GET /api/games - Retrieve games with filtering
+router.get('/', async (req: Request, res: Response) => {
+    try {
+        const { startDate, endDate, sportId, placeId, creatorId } = req.query;
+
+        const query: any = {};
+
+        // Date Filter
+        if (startDate || endDate) {
+            query.date = {};
+            if (startDate) {
+                query.date.$gte = new Date(startDate as string);
+            }
+            if (endDate) {
+                query.date.$lte = new Date(endDate as string);
+            }
+        }
+
+        // Sport Filter
+        if (sportId) {
+            query.sport = sportId;
+        }
+
+        // Place Filter
+        if (placeId) {
+            query.place = placeId;
+        }
+
+        // Creator Filter
+        if (creatorId) {
+            query.creator = creatorId;
+        }
+
+        const games = await Game.find(query)
+            .populate('sport')
+            .populate('place')
+            .populate('creator', '-password'); // Exclude password from creator
+
+        res.json(games);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 export default router;
