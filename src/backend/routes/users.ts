@@ -11,7 +11,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     try {
         const user = await User.findById(req.params.id)
             .select('-password')
-            .populate('friends', 'username email')
+            .populate('friends', 'username email profilePicture')
             .populate('friendRequests', 'username email');
 
         if (!user) {
@@ -30,7 +30,7 @@ router.get('/username/:username', async (req: Request, res: Response) => {
     try {
         const user = await User.findOne({ username: req.params.username })
             .select('username friends profilePicture') // Only public info
-            .populate('friends', 'username'); // Just usernames of friends
+            .populate('friends', 'username profilePicture'); // Just usernames and pics of friends
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -98,6 +98,34 @@ router.post('/:id/friends/accept', async (req: Request, res: Response) => {
         await requester.save();
 
         res.status(200).json({ message: 'Friend request accepted', friends: user.friends });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// POST /api/users/:id/friends/decline - Decline a friend request
+router.post('/:id/friends/decline', async (req: Request, res: Response) => {
+    const { requesterId } = req.body;
+    const userId = req.params.id;
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Check if request exists
+        if (!user.friendRequests.includes(requesterId)) {
+            return res.status(400).json({ message: 'No friend request from this user' });
+        }
+
+        // Remove from requests
+        user.friendRequests = (user.friendRequests as any[]).filter(id => id.toString() !== requesterId);
+
+        await user.save();
+
+        res.status(200).json({ message: 'Friend request declined' });
 
     } catch (err) {
         console.error(err);

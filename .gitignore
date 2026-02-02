@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 .env
-/src/uploads/*
+/src/frontend/uploads/*
 
 # Editor directories and files
 .vscode/*
