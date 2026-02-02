@@ -9,6 +9,7 @@ import './config/passport'; // Passport config
 import authRoutes from './routes/auth';
 import placeRoutes from './routes/places';
 import sportRoutes from './routes/sports';
+import gameRoutes from './routes/games';
 import userRoutes from './routes/users';
 import basicAuth from 'express-basic-auth';
 
@@ -62,6 +63,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/auth', authRoutes);
 app.use('/api/places', placeRoutes);
 app.use('/api/sports', sportRoutes);
+app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 
 // Admin Dashboard Route

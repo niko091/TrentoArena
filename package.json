@@ -7,7 +7,9 @@
     "start": "ts-node src/backend/server.ts",
     "dev": "nodemon src/backend/server.ts",
     "test_login": "ts-node test/test_login.ts",
-    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && ts-node test/test_places_api.ts && ts-node test/test_user_api.ts && ts-node test/test_login.ts && mocha -r ts-node/register test/test_api.ts --exit"
+    "test_game_model": "ts-node test/test_game_model.ts",
+    "test_game_api": "mocha -r ts-node/register test/test_game_api.ts --exit",
+    "test": "ts-node test/test_db_connection.ts && ts-node test/test_user_model.ts && ts-node test/test_unique_username.ts && ts-node test/test_places_api.ts && ts-node test/test_user_api.ts && ts-node test/test_login.ts && ts-node test/test_game_model.ts && mocha -r ts-node/register test/test_api.ts --exit && mocha -r ts-node/register test/test_game_api.ts --exit"
   },
   "keywords": [],
   "author": "",
