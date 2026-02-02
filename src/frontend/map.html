@@ -10,6 +10,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/game_popup.css">
+    <link rel="stylesheet" href="css/game_popup_participants.css">
     <style>
         #map {
             height: 100vh;
@@ -139,7 +140,11 @@
                         place: game.place && game.place.name ? game.place.name : 'Unknown', // This place name should be correct
                         date: game.date,
                         creator: game.creator && game.creator.username ? game.creator.username : 'Unknown',
-                        note: game.note
+                        note: game.note,
+                        participants: game.participants,
+                        maxParticipants: game.maxParticipants,
+                        _id: game._id,
+                        isFinished: game.isFinished
                     }).replace(/"/g, '&quot;'); // Escape quotes for HTML attribute
 
                     html += `<li style="margin-bottom: 4px; cursor: pointer; color: #007bff;" 

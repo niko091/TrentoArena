@@ -53,6 +53,11 @@ class GameCreationPopup {
                         <textarea class="form-control" id="popupInputNote" rows="3"></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <strong for="popupMaxParticipants">Max Partecipanti</strong>
+                        <input type="number" class="form-control" id="popupMaxParticipants" value="10" min="2">
+                    </div>
+
                     <div class="form-group mt-4" style="text-align: center;">
                         <button type="button" class="btn btn-primary" id="popupCreateBtn">Create Game</button>
                     </div>
@@ -158,6 +163,7 @@ class GameCreationPopup {
         const date = document.getElementById('popupDateInput').value;
         const time = document.getElementById('popupTimeInput').value;
         const note = document.getElementById('popupInputNote').value;
+        const maxParticipants = document.getElementById('popupMaxParticipants').value;
 
         if (sportId === 'Choose...' || !sportId) {
             alert('Please select a Sport.');
@@ -175,13 +181,18 @@ class GameCreationPopup {
             alert('Please select a Time.');
             return;
         }
+        if (!maxParticipants || maxParticipants < 2) {
+            alert('Max participants must be at least 2.');
+            return;
+        }
 
         const payload = {
             sportId,
             placeId,
             date,
             time,
-            note
+            note,
+            maxParticipants: parseInt(maxParticipants)
         };
 
         try {

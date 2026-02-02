@@ -96,6 +96,8 @@
                             <th>Date</th>
                             <th>Time</th>
                             <th>Creator</th>
+                            <th>Finished</th>
+                            <th>Participants</th>
                             <th>Note</th>
                         </tr>
                     </thead>
@@ -135,6 +137,8 @@
                         <td>${formattedDate}</td>
                         <td>${formattedTime}</td>
                         <td>${creatorName}</td>
+                        <td>${game.isFinished ? 'Yes' : 'No'}</td>
+                        <td>${game.participants ? game.participants.length : 0} / ${game.maxParticipants || '?'}</td>
                         <td>${game.note}</td>
                     `;
                     tableBody.appendChild(row);
