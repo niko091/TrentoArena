@@ -10,20 +10,22 @@
 
     <style>
         .img-rotonda {
-            width: 100px;       
-            height: 100px;      /* Deve essere uguale alla larghezza */
-            border-radius: 50%; /* Crea il cerchio */
-            object-fit: cover; 
-            display: block;      
-            margin-left: auto;    
+            width: 100px;
+            height: 100px;
+            /* Deve essere uguale alla larghezza */
+            border-radius: 50%;
+            /* Crea il cerchio */
+            object-fit: cover;
+            display: block;
+            margin-left: auto;
             margin-right: auto;
-            margin-top: -50px;      
-            background-color: white; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-top: -50px;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
 
-        .card-utente{
+        .card-utente {
             width: 400px;
             height: 500px;
             text-align: center;
@@ -33,9 +35,9 @@
         }
 
         .containerPartiteAmici {
-                display: flex;
-                justify-content: center;
-                gap: 60px;
+            display: flex;
+            justify-content: center;
+            gap: 60px;
         }
 
         .stat {
@@ -45,19 +47,20 @@
         }
     </style>
 </head>
+
 <body>
     <div id="navbar"></div>
 
     <script>
         fetch("./utility/navbar.html")
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById("navbar").innerHTML = data;
-    });
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("navbar").innerHTML = data;
+            });
     </script>
 
     <div class="card-utente">
-        <img src="./images/utenteDefault.png" alt="Avatar" class="img-rotonda">       
+        <img id="dashboardProfilePic" src="./images/utenteDefault.png" alt="Avatar" class="img-rotonda">
         <div>
             <h1 id="user-name">Loading...</h1>
         </div>
@@ -85,8 +88,10 @@
                 if (user) {
                     document.getElementById('user-name').textContent = user.username;
                     document.getElementById('friendsCount').textContent = user.friends ? user.friends.length : 0;
+                    if (user.profilePicture) {
+                        document.getElementById('dashboardProfilePic').src = user.profilePicture;
+                    }
                     //document.getElementById('friendRequestsCount').textContent = user.friendRequests ? user.friendRequests.length : 0;
-                    
                 }
             })
             .catch(err => {
@@ -100,4 +105,5 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
