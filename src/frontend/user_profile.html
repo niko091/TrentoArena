@@ -7,6 +7,9 @@
     <title>TrentoArena - User Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/game_popup.css">
+    <link rel="stylesheet" href="/css/game_popup_participants.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -17,119 +20,375 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById("navbar").innerHTML = data;
-                // Re-attach event listener for game creation if needed (though navbar.html handles it mostly inline now)
             });
     </script>
 
     <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">Public Profile</h3>
+        <div class="d-flex flex-column flex-lg-row align-items-start justify-content-center p-4 gap-5">
+            <!-- Left Column: Profile Picture -->
+            <div class="flex-shrink-0 text-center">
+                <div style="position: relative; display: inline-block;">
+                    <img id="profilePic" src="/images/utenteDefault.png" alt="Profile Picture" class="rounded-circle"
+                        style="width: 250px; height: 250px; object-fit: cover; border: 5px solid #fff; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+                </div>
+                <h1 id="username" class="fw-bold mt-4 mb-2 display-6">Loading...</h1>
+            </div>
+
+            <!-- Middle Column: User Details -->
+            <div class="flex-grow-1">
+
+                <!-- ELO Statistics -->
+                <div id="eloStatsContainer" class="mb-5" style="display: none;">
+                    <h5 class="fw-bold mb-3">ELO</h5>
+                    <select id="eloSportSelect" class="form-select mb-3" aria-label="Select Sport for ELO">
+                        <option selected disabled>Select a sport...</option>
+                    </select>
+                    <div id="eloDisplay" class="text-center p-3 border rounded bg-light"
+                        style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                        <span class="text-muted" id="eloPlaceholder">Select a sport to see rating history</span>
+                        <canvas id="eloChart" style="display: none; width: 100%; height: 100%;"></canvas>
                     </div>
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <img id="profilePic" src="/images/utenteDefault.png" alt="Profile Picture"
-                                class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                            <h4 id="username" class="card-title mb-0">Loading...</h4>
-                            <button id="addFriendBtn" class="btn btn-primary mt-3" style="display: none;">Richiedi
-                                amicizia</button>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Friends
-                                <span id="friendsCount" class="badge bg-primary rounded-pill">0</span>
-                            </li>
-                        </ul>
-                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Friends List -->
+            <div class="flex-shrink-0" style="width: 300px;">
+                <ul class="list-group list-group-flush mb-5">
+                    <li
+                        class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-top">
+                        <span class="fw-semibold fs-5">Friends</span>
+                        <span id="friendsCount" class="badge bg-primary rounded-pill fs-5">0</span>
+                    </li>
+                </ul>
+
+                <h4 class="fw-bold mb-3 border-bottom pb-2">Friends</h4>
+                <div id="friendsList" class="d-flex flex-wrap gap-2 justify-content-start">
+                    <!-- Friend avatars will be injected here -->
+                    <span class="text-muted">Loading friends...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Games Section -->
+        <div class="mt-5">
+            <h2 class="fw-bold mb-4 border-bottom pb-2">Upcoming Games</h2>
+            <div id="myGamesList" class="row g-3">
+                <!-- Games will be injected here -->
+                <div class="col-12">
+                    <span class="text-muted">Loading games...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Past Games Section -->
+        <div class="mt-5 mb-5">
+            <h2 class="fw-bold mb-4 border-bottom pb-2">Past Games</h2>
+            <div id="myPastGamesList" class="row g-3">
+                <!-- Past Games will be injected here -->
+                <div class="col-12">
+                    <span class="text-muted">Loading past games...</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/game_popup.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Get username from URL path: /user/:username
+        document.addEventListener('DOMContentLoaded', () => {
             const pathParts = window.location.pathname.split('/');
-            const username = pathParts[pathParts.length - 1]; // Last part is username
+            const username = pathParts[pathParts.length - 1];
 
             if (!username) {
-                document.getElementById('username').textContent = 'User not specified';
+                alert("No username specified");
                 return;
             }
 
-            try {
-                const response = await fetch(`/api/users/username/${username}`);
-                if (response.ok) {
-                    const user = await response.json();
-                    document.getElementById('username').textContent = user.username;
-                    document.getElementById('friendsCount').textContent = user.friends ? user.friends.length : 0;
-                    if (user.profilePicture) {
-                        document.getElementById('profilePic').src = user.profilePicture;
+            fetch(`/api/users/username/${username}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('User not found');
+                    return response.json();
+                })
+                .then(async (publicUser) => {
+                    // Fetch full details using ID to get ELO and populated friends for sure
+                    try {
+                        const response = await fetch(`/api/users/${publicUser._id}`);
+                        if (!response.ok) throw new Error('Failed to fetch user details');
+                        const user = await response.json();
+
+                        document.getElementById('username').textContent = user.username;
+                        document.getElementById('friendsCount').textContent = user.friends ? user.friends.length : 0;
+
+                        if (user.profilePicture) {
+                            document.getElementById('profilePic').src = user.profilePicture;
+                        }
+
+                        // Render Friends List
+                        const friendsListContainer = document.getElementById('friendsList');
+                        friendsListContainer.innerHTML = '';
+
+                        if (user.friends && user.friends.length > 0) {
+                            user.friends.forEach(friend => {
+                                const friendDiv = document.createElement('div');
+                                friendDiv.className = 'text-center';
+                                friendDiv.style.width = '60px';
+
+                                const img = document.createElement('img');
+                                img.src = friend.profilePicture || '/images/utenteDefault.png';
+                                img.alt = friend.username;
+                                img.className = 'rounded-circle shadow-sm border border-white';
+                                img.style.width = '50px';
+                                img.style.height = '50px';
+                                img.style.objectFit = 'cover';
+                                img.title = friend.username;
+                                img.style.cursor = 'pointer';
+
+                                const link = document.createElement('a');
+                                link.href = `/user/${friend.username}`;
+                                link.style.textDecoration = 'none';
+                                link.appendChild(img);
+
+                                friendDiv.appendChild(link);
+                                friendsListContainer.appendChild(friendDiv);
+                            });
+                        } else {
+                            friendsListContainer.innerHTML = '<span class="text-muted">No friends yet.</span>';
+                        }
+
+                        // Render ELO Stats
+                        renderEloStats(user);
+
+                        // Load Games
+                        loadMyGames(user._id);
+
+                    } catch (e) {
+                        console.error("Error loading full profile:", e);
+                        alert("Failed to load profile details.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching user data:', error);
+                    document.querySelector('.container').innerHTML = '<div class="alert alert-danger text-center">User not found</div>';
+                });
+        });
+
+        function renderEloStats(user) {
+            if (user.sportsElo && user.sportsElo.length > 0) {
+                const eloContainer = document.getElementById('eloStatsContainer');
+                const sportSelect = document.getElementById('eloSportSelect');
+                const eloDisplay = document.getElementById('eloDisplay');
+                const eloPlaceholder = document.getElementById('eloPlaceholder');
+                const canvas = document.getElementById('eloChart');
+                let chartInstance = null;
+
+                eloContainer.style.display = 'block';
+
+                // Reset select
+                sportSelect.innerHTML = '<option selected disabled value="">Select a sport...</option>';
+
+                user.sportsElo.forEach((stat, index) => {
+                    const sportName = stat.sport ? stat.sport.name : 'Unknown Sport';
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = sportName;
+                    sportSelect.appendChild(option);
+                });
+
+                // Handle Change
+                sportSelect.addEventListener('change', (e) => {
+                    const selectedIndex = sportSelect.value;
+                    if (selectedIndex === "") return;
+
+                    const stat = user.sportsElo[selectedIndex];
+                    const sportName = stat.sport ? stat.sport.name : 'Unknown Sport';
+
+                    const labels = [];
+                    const data = [];
+
+                    if (stat.history && stat.history.length > 0) {
+                        const history = stat.history.sort((a, b) => new Date(a.date) - new Date(b.date));
+                        history.forEach(h => {
+                            const date = new Date(h.date).toLocaleDateString();
+                            labels.push(date);
+                            data.push(h.elo);
+                        });
                     }
 
-                    // Fetch current user to check if we can add friend
-                    try {
-                        const currentUserResp = await fetch('/auth/current_user');
-                        if (currentUserResp.ok) {
-                            const currentUser = await currentUserResp.json();
+                    if (data.length === 0) {
+                        labels.push('Start');
+                        data.push(stat.elo);
+                    }
 
-                            // Check if:
-                            // 1. Not own profile
-                            // 2. Not already friends (friends list contains ID? API returns usernames for friends on public profile, need to check ID from full user array if possible, OR just check usernames since public endpoints return that. Wait, /username/:username returns friends as simple objects or IDs? 
-                            // Let's check users.ts: .populate('friends', 'username'). So user.friends is array of objects { _id, username }.
-                            // We need to compare IDs.
+                    eloPlaceholder.style.display = 'none';
+                    canvas.style.display = 'block';
 
-                            // Actually, public profile 'friends' are populated with { _id, username }. 
-                            // currentUser._id vs user._id
+                    if (chartInstance) {
+                        chartInstance.destroy();
+                    }
 
-                            const isOwnProfile = currentUser._id === user._id;
-                            const isAlreadyFriend = user.friends.some(f => f._id === currentUser._id || f === currentUser._id); // Handle both populated and unpopulated just in case
-
-                            if (!isOwnProfile && !isAlreadyFriend) {
-                                const addFriendBtn = document.getElementById('addFriendBtn');
-                                addFriendBtn.style.display = 'inline-block';
-
-                                console.log("step 1")
-
-                                addFriendBtn.addEventListener('click', async () => {
-                                    try {
-                                        const req = await fetch(`/api/users/${user._id}/friend-requests`, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ requesterId: currentUser._id })
-                                        });
-
-                                        if (req.ok) {
-                                            alert('Richiesta inviata!');
-                                            addFriendBtn.style.display = 'none';
-                                        } else {
-                                            const err = await req.json();
-                                            alert('Errore: ' + err.message);
+                    chartInstance = new Chart(canvas, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `${sportName} ELO`,
+                                data: data,
+                                borderColor: '#0d6efd',
+                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                tension: 0.3,
+                                fill: true,
+                                pointRadius: 5,
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: true },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            return `ELO: ${context.parsed.y}`;
                                         }
-                                    } catch (e) {
-                                        console.error(e);
-                                        alert('Errore di connessione');
                                     }
-                                });
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    suggestedMin: 1000,
+                                    suggestedMax: 1400
+                                }
                             }
                         }
-                    } catch (e) {
-                        console.error('Error fetching current user', e);
-                    }
+                    });
+                });
 
-                } else {
-                    document.getElementById('username').textContent = 'User not found';
+                if (user.sportsElo.length > 0) {
+                    sportSelect.selectedIndex = 1;
+                    sportSelect.dispatchEvent(new Event('change'));
                 }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                document.getElementById('username').textContent = 'Error loading profile';
             }
-        });
-    </script>
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        let cachedGames = {};
+
+        async function loadMyGames(userId) {
+            fetchAndRenderGames(userId, false, 'myGamesList', 'No upcoming games found.');
+            fetchAndRenderGames(userId, true, 'myPastGamesList', 'No past games found.');
+        }
+
+        async function fetchAndRenderGames(userId, isFinished, containerId, emptyMessage) {
+            try {
+                const response = await fetch(`/api/games?participantId=${userId}&isFinished=${isFinished}`);
+                if (!response.ok) throw new Error('Failed to fetch games');
+                const games = await response.json();
+
+                games.forEach(g => cachedGames[g._id] = g);
+
+                if (isFinished) {
+                    games.sort((a, b) => new Date(b.date) - new Date(a.date));
+                } else {
+                    games.sort((a, b) => new Date(a.date) - new Date(b.date));
+                }
+
+                renderGames(games, containerId, emptyMessage, userId);
+            } catch (err) {
+                console.error(`Error loading games for ${containerId}:`, err);
+                document.getElementById(containerId).innerHTML = '<div class="col-12 text-danger">Failed to load games.</div>';
+            }
+        }
+
+        function renderGames(games, containerId, emptyMessage, currentUserId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            if (games.length === 0) {
+                container.innerHTML = `<div class="col-12 text-muted">${emptyMessage}</div>`;
+                return;
+            }
+
+            games.forEach(game => {
+                const date = new Date(game.date);
+                const dateStr = date.toLocaleDateString();
+                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const sportName = game.sport ? game.sport.name : 'Unknown Sport';
+                const placeName = game.place ? game.place.name : 'Unknown Place';
+                const isFinished = game.isFinished;
+
+                const card = document.createElement('div');
+                card.className = 'col-md-6 col-lg-4';
+
+                let cardStyle = '';
+                let badgeHtml = '';
+                let borderClass = '';
+
+                if (isFinished) {
+                    cardStyle = 'opacity: 0.9;';
+                    // Determine outcome if userId is provided
+                    if (currentUserId && game.participants) {
+                        const participant = game.participants.find(p => {
+                            const pId = p.user._id || p.user;
+                            return pId === currentUserId;
+                        });
+
+                        if (participant) {
+                            if (participant.winner) {
+                                cardStyle += 'background-color: #d1e7dd;';
+                                borderClass = 'border-success';
+                                badgeHtml = '<span class="badge bg-success me-1">Won 🏆</span>';
+                            } else {
+                                cardStyle += 'background-color: #f8d7da;';
+                                borderClass = 'border-danger';
+                                badgeHtml = '<span class="badge bg-danger me-1">Lost</span>';
+                            }
+                        }
+                    }
+                    if (!badgeHtml) badgeHtml = '<span class="badge bg-secondary me-1">Finished</span>';
+                } else {
+                    badgeHtml = `<span class="badge bg-secondary">${game.participants.length}/${game.maxParticipants}</span>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card h-100 shadow-sm ${borderClass}" style="cursor: pointer; transition: transform 0.2s; ${cardStyle}" onclick="openGameDetails('${game._id}')">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title fw-bold mb-0 text-primary">${sportName}</h5>
+                                <div>
+                                    ${badgeHtml}
+                                </div>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">${placeName}</h6>
+                            <p class="card-text mb-2">
+                                📅 ${dateStr} at ${timeStr}
+                             </p>
+                             ${game.note ? `<p class="card-text small text-muted text-truncate">📝 ${game.note}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                const innerCard = card.querySelector('.card');
+                innerCard.onmouseover = () => innerCard.style.transform = 'translateY(-5px)';
+                innerCard.onmouseout = () => innerCard.style.transform = 'translateY(0)';
+
+                container.appendChild(card);
+            });
+        }
+
+        window.openGameDetails = function (gameId) {
+            const game = cachedGames[gameId];
+            if (game && window.GameDetailsPopup) {
+                window.GameDetailsPopup.show(game);
+            } else {
+                console.error("Game data or Popup not available");
+                if (!window.GameDetailsPopup) alert('Popup not loaded');
+            }
+        };
+    </script>
 </body>
 
 </html>
