@@ -1,10 +1,41 @@
 import express, { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import User from '../models/User';
 import upload from '../config/uploadConfig';
 import fs from 'fs';
 import path from 'path';
 
 const router = express.Router();
+
+// GET /api/users/leaderboard - Get leaderboard for a sport
+router.get('/leaderboard', async (req: Request, res: Response) => {
+    const { sportId } = req.query;
+
+    if (!sportId) {
+        return res.status(400).json({ message: 'Sport ID is required' });
+    }
+
+    try {
+        const leaderboard = await User.aggregate([
+            { $unwind: '$sportsElo' },
+            { $match: { 'sportsElo.sport': new mongoose.Types.ObjectId(sportId as string) } },
+            { $sort: { 'sportsElo.elo': -1 } },
+            {
+                $project: {
+                    username: 1,
+                    profilePicture: 1,
+                    elo: '$sportsElo.elo',
+                    sport: '$sportsElo.sport'
+                }
+            }
+        ]);
+
+        res.json(leaderboard);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
 
 // GET /api/users/:id - Get user by ID (excluding password, populating friends)
 router.get('/:id', async (req: Request, res: Response) => {
@@ -43,6 +74,7 @@ router.get('/username/:username', async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server Error' });
     }
 });
+
 
 // POST /api/users/:id/friend-requests - Send a friend request
 router.post('/:id/friend-requests', async (req: Request, res: Response) => {
