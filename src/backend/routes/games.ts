@@ -171,4 +171,31 @@ router.post('/:id/join', async (req: Request, res: Response) => {
     }
 });
 
+// DELETE /api/games/:id - Delete a game
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        if (!req.isAuthenticated() || !req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const game = await Game.findById(req.params.id);
+
+        if (!game) {
+            return res.status(404).json({ message: 'Game not found' });
+        }
+
+        // Check if the current user is the creator
+        if (game.creator.toString() !== (req.user as any)._id.toString()) {
+            return res.status(403).json({ message: 'Only the creator can delete this game' });
+        }
+
+        await game.deleteOne();
+
+        res.json({ message: 'Game deleted successfully' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
 export default router;

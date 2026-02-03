@@ -110,4 +110,38 @@ describe('Game API Tests', () => {
             .expect(401);
     });
 
+    it('Step 5: Should FAIL to delete someone else\'s game', async () => {
+        // Create another user
+        const otherUser = {
+            username: 'other_user',
+            email: 'other_user@example.com',
+            password: 'password123'
+        };
+
+        const agent2 = request.agent(app);
+        await agent2.post('/auth/register').send(otherUser).expect(201);
+
+        // Find the game created by the first user
+        const game = await Game.findOne({ note: 'API_TEST_GAME' });
+        if (!game) throw new Error('Game not found');
+
+        // Try to delete as otherUser
+        await agent2
+            .delete(`/api/games/${game._id}`)
+            .expect(403);
+
+        await User.deleteOne({ email: 'other_user@example.com' });
+    });
+
+    it('Step 6: Should DELETE a game', async () => {
+        const game = await Game.findOne({ note: 'API_TEST_GAME' });
+        if (!game) throw new Error('Game not found');
+
+        await agent
+            .delete(`/api/games/${game._id}`)
+            .expect(200);
+
+        const checkedGame = await Game.findById(game._id);
+        if (checkedGame) throw new Error('Game still exists');
+    });
 });

@@ -135,32 +135,47 @@ class GameDetailsPopup {
             return pId === this.currentUser._id;
         });
 
+        // Check if creator
+        const creatorId = gameData.creator._id || gameData.creator;
+        const isCreator = this.currentUser && creatorId === this.currentUser._id;
+
+        let actionHtml = '';
+
         if (this.currentUser && !isFinished && !isFull && !isParticipant) {
-            return `
+            actionHtml = `
                 <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
                     <button class="btn btn-success" onclick="window.GameDetailsPopup.joinGame('${gameData._id}')">Join Game</button>
                 </div>
              `;
         } else if (isParticipant) {
-            return `
+            actionHtml = `
                 <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
                     <span class="badge bg-success" style="font-size: 1rem;">You are a participant</span>
                 </div>
              `;
         } else if (isFull) {
-            return `
+            actionHtml = `
                 <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
                     <span class="badge bg-danger" style="font-size: 1rem;">Game Full</span>
                 </div>
              `;
         } else if (isFinished) {
-            return `
+            actionHtml = `
                 <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
                     <span class="badge bg-secondary" style="font-size: 1rem;">Game Finished</span>
                 </div>
              `;
         }
-        return '';
+
+        if (isCreator) {
+            actionHtml += `
+                <div class="game-popup-actions" style="text-align: center; margin-top: 10px;">
+                    <button class="btn btn-danger" onclick="window.GameDetailsPopup.deleteGame('${gameData._id}')">Delete Game</button>
+                </div>
+            `;
+        }
+
+        return actionHtml;
     }
 
     async joinGame(gameId) {
@@ -175,13 +190,37 @@ class GameDetailsPopup {
             if (response.ok) {
                 alert('Successfully joined the game!');
                 this.hide();
-                // Refresh logic would go here
+                window.location.reload(); // Reload to update UI
             } else {
                 const error = await response.json();
                 alert('Error joining game: ' + (error.message || 'Unknown error'));
             }
         } catch (error) {
             console.error('Error joining game:', error);
+            alert('Failed to connect to server.');
+        }
+    }
+
+    async deleteGame(gameId) {
+        if (!confirm('Are you sure you want to delete this game? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/games/${gameId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert('Game deleted successfully');
+                this.hide();
+                window.location.reload(); // Reload to remove game from view
+            } else {
+                const error = await response.json();
+                alert('Error deleting game: ' + (error.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error deleting game:', error);
             alert('Failed to connect to server.');
         }
     }
