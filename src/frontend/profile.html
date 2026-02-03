@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/friend_requests_popup.css">
+    <link rel="stylesheet" href="css/game_popup.css">
+    <link rel="stylesheet" href="css/game_popup_participants.css">
 </head>
 
 <body>
@@ -75,10 +77,22 @@
                 </div>
             </div>
         </div>
+
+        <!-- My Games Section -->
+        <div class="mt-5">
+            <h2 class="fw-bold mb-4 border-bottom pb-2">My Upcoming Games</h2>
+            <div id="myGamesList" class="row g-3">
+                <!-- Games will be injected here -->
+                <div class="col-12">
+                    <span class="text-muted">Loading games...</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/friend_requests_popup.js"></script>
+    <script src="js/game_popup.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -136,6 +150,9 @@
 
                             // Setup Listeners with full user object
                             setupListeners(user);
+
+                            // Load My Games
+                            loadMyGames(user._id);
 
                         } catch (e) {
                             console.error("Error loading full profile:", e);
@@ -208,6 +225,8 @@
                     console.error('Remove error:', err);
                     alert('Failed to remove picture.');
                 }
+
+
             });
 
             // Friend Requests Popup
@@ -222,6 +241,81 @@
                 });
             }
         }
+
+        let cachedGames = {};
+
+        async function loadMyGames(userId) {
+            try {
+                const response = await fetch(`/api/games?participantId=${userId}&isFinished=false`);
+                if (!response.ok) throw new Error('Failed to fetch games');
+                const games = await response.json();
+
+                // Cache games for popup
+                cachedGames = {};
+                games.forEach(g => cachedGames[g._id] = g);
+
+                // Sort by date (nearest first)
+                games.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                renderMyGames(games);
+            } catch (err) {
+                console.error('Error loading games:', err);
+                document.getElementById('myGamesList').innerHTML = '<div class="col-12 text-danger">Failed to load games.</div>';
+            }
+        }
+
+        function renderMyGames(games) {
+            const container = document.getElementById('myGamesList');
+            container.innerHTML = '';
+
+            if (games.length === 0) {
+                container.innerHTML = '<div class="col-12 text-muted">No upcoming games found. Join one from the map!</div>';
+                return;
+            }
+
+            games.forEach(game => {
+                const date = new Date(game.date);
+                const dateStr = date.toLocaleDateString();
+                const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const sportName = game.sport ? game.sport.name : 'Unknown Sport';
+                const placeName = game.place ? game.place.name : 'Unknown Place';
+
+                const card = document.createElement('div');
+                card.className = 'col-md-6 col-lg-4';
+                card.innerHTML = `
+                    <div class="card h-100 shadow-sm" style="cursor: pointer; transition: transform 0.2s;" onclick="openGameDetails('${game._id}')">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="card-title fw-bold mb-0 text-primary">${sportName}</h5>
+                                <span class="badge bg-secondary">${game.participants.length}/${game.maxParticipants}</span>
+                            </div>
+                            <h6 class="card-subtitle mb-2 text-muted">${placeName}</h6>
+                            <p class="card-text mb-2">
+                                📅 ${dateStr} at ${timeStr}
+                            </p>
+                             ${game.note ? `<p class="card-text small text-muted text-truncate">📝 ${game.note}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+
+                const innerCard = card.querySelector('.card');
+                innerCard.onmouseover = () => innerCard.style.transform = 'translateY(-5px)';
+                innerCard.onmouseout = () => innerCard.style.transform = 'translateY(0)';
+
+                container.appendChild(card);
+            });
+        }
+
+        window.openGameDetails = function (gameId) {
+            const game = cachedGames[gameId];
+            if (game && window.GameDetailsPopup) {
+                window.GameDetailsPopup.show(game);
+            } else {
+                console.error("Game data or Popup not available");
+                if (!window.GameDetailsPopup) alert('Popup not loaded');
+            }
+        };
     </script>
 </body>
 

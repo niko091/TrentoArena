@@ -62,11 +62,11 @@ class GameDetailsPopup {
         const bodyContent = `
             <div class="game-popup-row">
                 <span class="game-popup-label">Sport:</span>
-                <span class="game-popup-value">${gameData.sport}</span>
+                <span class="game-popup-value">${typeof gameData.sport === 'object' ? gameData.sport.name : gameData.sport}</span>
             </div>
             <div class="game-popup-row">
                 <span class="game-popup-label">Place:</span>
-                <span class="game-popup-value">${gameData.place}</span>
+                <span class="game-popup-value">${typeof gameData.place === 'object' ? gameData.place.name : gameData.place}</span>
             </div>
             <div class="game-popup-row">
                 <span class="game-popup-label">Date:</span>

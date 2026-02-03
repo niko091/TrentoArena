@@ -46,7 +46,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/games - Retrieve games with filtering
 router.get('/', async (req: Request, res: Response) => {
     try {
-        const { startDate, endDate, sportId, placeId, creatorId, isFinished } = req.query;
+        const { startDate, endDate, sportId, placeId, creatorId, isFinished, participantId } = req.query;
 
         const query: any = {};
 
@@ -74,6 +74,11 @@ router.get('/', async (req: Request, res: Response) => {
         // Creator Filter
         if (creatorId) {
             query.creator = creatorId;
+        }
+
+        // Participant Filter
+        if (participantId) {
+            query['participants.user'] = participantId;
         }
 
         // isFinished Filter
