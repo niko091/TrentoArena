@@ -133,6 +133,48 @@ describe('Game API Tests', () => {
         await User.deleteOne({ email: 'other_user@example.com' });
     });
 
+    it('Step 7: Should FINISH a game and SET WINNERS', async () => {
+        // 1. Create a second user to be a participant
+        const winnerUser = {
+            username: 'winner_user',
+            email: 'winner_user@example.com',
+            password: 'password123'
+        };
+        const agentWin = request.agent(app);
+        const winRes = await agentWin.post('/auth/register').send(winnerUser).expect(201);
+        const winnerId = winRes.body.user._id;
+
+        // 2. Get the game (assuming it's not deleted yet - we insert this BEFORE Step 6)
+        const game = await Game.findOne({ note: 'API_TEST_GAME' });
+        if (!game) throw new Error('Game not found');
+
+        // 3. Join the game with second user
+        await agentWin.post(`/api/games/${game._id}/join`).expect(200);
+
+        // 4. Finish the game and set winner (Agent 1 is creator)
+        await agent
+            .patch(`/api/games/${game._id}/finish`)
+            .send({ winnerIds: [winnerId] })
+            .expect(200);
+
+        // 5. Verify winners
+        const finishedGame = await Game.findById(game._id);
+        if (!finishedGame) throw new Error('Game not found after finish');
+        if (!finishedGame.isFinished) throw new Error('Game not finished');
+
+        const winnerParticipant = finishedGame.participants.find(p => p.user.toString() === winnerId);
+        const loserParticipant = finishedGame.participants.find(p => p.user.toString() !== winnerId); // Creator
+
+        if (!winnerParticipant) throw new Error('Winner participant not found');
+        if (!loserParticipant) throw new Error('Loser participant not found');
+
+        if (!winnerParticipant.winner) throw new Error('Winner not set correctly');
+        if (loserParticipant.winner) throw new Error('Loser incorrectly marked as winner');
+
+        // Cleanup user
+        await User.deleteOne({ email: 'winner_user@example.com' });
+    });
+
     it('Step 6: Should DELETE a game', async () => {
         const game = await Game.findOne({ note: 'API_TEST_GAME' });
         if (!game) throw new Error('Game not found');

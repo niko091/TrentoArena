@@ -118,7 +118,20 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'Only the creator can finish this game' });
         }
 
+        const { winnerIds } = req.body;
+
         game.isFinished = true;
+
+        if (winnerIds && Array.isArray(winnerIds)) {
+            game.participants.forEach(participant => {
+                if (winnerIds.includes(participant.user.toString())) {
+                    participant.winner = true;
+                } else {
+                    participant.winner = false;
+                }
+            });
+        }
+
         await game.save();
 
         res.json({ message: 'Game marked as finished', game });
