@@ -55,7 +55,8 @@ describe('Game Retrieval API Tests', function () {
             place: place1._id,
             creator: user1._id,
             date: new Date('2023-01-01T10:00:00Z'),
-            note: 'RETRIEVAL_TEST_1'
+            note: 'RETRIEVAL_TEST_1',
+            maxParticipants: 10
         });
 
         // Game 2: Sport1, Place1, User2, Future
@@ -64,7 +65,8 @@ describe('Game Retrieval API Tests', function () {
             place: place1._id,
             creator: user2._id,
             date: new Date('2030-01-01T10:00:00Z'),
-            note: 'RETRIEVAL_TEST_2'
+            note: 'RETRIEVAL_TEST_2',
+            maxParticipants: 10
         });
 
         // Game 3: Sport2, Place2, User1, Future
@@ -73,7 +75,8 @@ describe('Game Retrieval API Tests', function () {
             place: place2._id,
             creator: user1._id,
             date: new Date('2030-02-01T10:00:00Z'),
-            note: 'RETRIEVAL_TEST_3'
+            note: 'RETRIEVAL_TEST_3',
+            maxParticipants: 10
         });
     });
 

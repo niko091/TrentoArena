@@ -83,7 +83,8 @@ describe('Game API Tests', () => {
                 placeId,
                 date: '2026-10-10',
                 time: '18:00',
-                note: 'API_TEST_GAME'
+                note: 'API_TEST_GAME',
+                maxParticipants: 10
             })
             .expect(201);
 

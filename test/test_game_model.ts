@@ -59,6 +59,7 @@ describe('Game Model Tests', () => {
             creator: user._id,
             date: new Date(),
             note: 'This is a test game for verification.',
+            maxParticipants: 10
         });
 
         const savedGame = await newGame.save();
