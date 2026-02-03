@@ -119,7 +119,7 @@
 
             try {
                 const today = new Date().toISOString();
-                const response = await fetch(`/api/games?placeId=${placeId}&startDate=${today}`);
+                const response = await fetch(`/api/games?placeId=${placeId}&startDate=${today}&isFinished=false`);
                 if (!response.ok) throw new Error('Failed to fetch games');
 
                 const games = await response.json();
