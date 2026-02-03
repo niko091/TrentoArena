@@ -281,14 +281,14 @@
                     games.sort((a, b) => new Date(a.date) - new Date(b.date));
                 }
 
-                renderGames(games, containerId, emptyMessage);
+                renderGames(games, containerId, emptyMessage, userId);
             } catch (err) {
                 console.error(`Error loading games for ${containerId}:`, err);
                 document.getElementById(containerId).innerHTML = '<div class="col-12 text-danger">Failed to load games.</div>';
             }
         }
 
-        function renderGames(games, containerId, emptyMessage) {
+        function renderGames(games, containerId, emptyMessage, currentUserId = null) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
 
@@ -309,23 +309,49 @@
                 const card = document.createElement('div');
                 card.className = 'col-md-6 col-lg-4';
 
-                // Add grayscale filter style for finished games if desired, or just different badge
-                const cardStyle = isFinished ? 'opacity: 0.8;' : '';
+                let cardStyle = '';
+                let badgeHtml = '';
+                let borderClass = '';
+
+                if (isFinished) {
+                    cardStyle = 'opacity: 0.9;';
+                    // Determine outcome if userId is provided
+                    if (currentUserId && game.participants) {
+                        const participant = game.participants.find(p => {
+                            const pId = p.user._id || p.user;
+                            return pId === currentUserId;
+                        });
+
+                        if (participant) {
+                            if (participant.winner) {
+                                cardStyle += 'background-color: #d1e7dd;'; // Greenish
+                                borderClass = 'border-success';
+                                badgeHtml = '<span class="badge bg-success me-1">You Won! 🏆</span>';
+                            } else {
+                                cardStyle += 'background-color: #f8d7da;'; // Reddish
+                                borderClass = 'border-danger';
+                                badgeHtml = '<span class="badge bg-danger me-1">You Lost</span>';
+                            }
+                        }
+                    }
+                    if (!badgeHtml) badgeHtml = '<span class="badge bg-secondary me-1">Finished</span>';
+                } else {
+                    badgeHtml = `<span class="badge bg-secondary">${game.participants.length}/${game.maxParticipants}</span>`;
+                }
 
                 card.innerHTML = `
-                    <div class="card h-100 shadow-sm" style="cursor: pointer; transition: transform 0.2s; ${cardStyle}" onclick="openGameDetails('${game._id}')">
+                    <div class="card h-100 shadow-sm ${borderClass}" style="cursor: pointer; transition: transform 0.2s; ${cardStyle}" onclick="openGameDetails('${game._id}')">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="card-title fw-bold mb-0 text-primary">${sportName}</h5>
                                 <div>
-                                    ${isFinished ? '<span class="badge bg-secondary me-1">Finished</span>' : ''}
-                                    <span class="badge bg-secondary">${game.participants.length}/${game.maxParticipants}</span>
+                                    ${badgeHtml}
                                 </div>
                             </div>
                             <h6 class="card-subtitle mb-2 text-muted">${placeName}</h6>
                             <p class="card-text mb-2">
                                 📅 ${dateStr} at ${timeStr}
-                            </p>
+                             </p>
                              ${game.note ? `<p class="card-text small text-muted text-truncate">📝 ${game.note}</p>` : ''}
                         </div>
                     </div>
