@@ -106,6 +106,23 @@
                 return;
             }
 
+            // Check if user is viewing their own profile
+            fetch('/auth/current_user')
+                .then(response => response.json())
+                .then(currentUser => {
+                    if (currentUser && currentUser.username === username) {
+                        window.location.href = '/profile';
+                    } else {
+                        loadPublicProfile(username);
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth check skipped or failed:', error);
+                    loadPublicProfile(username);
+                });
+        });
+
+        function loadPublicProfile(username) {
             fetch(`/api/users/username/${username}`)
                 .then(response => {
                     if (!response.ok) throw new Error('User not found');
@@ -172,7 +189,7 @@
                     console.error('Error fetching user data:', error);
                     document.querySelector('.container').innerHTML = '<div class="alert alert-danger text-center">User not found</div>';
                 });
-        });
+        }
 
         function renderEloStats(user) {
             if (user.sportsElo && user.sportsElo.length > 0) {
