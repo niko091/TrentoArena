@@ -8,6 +8,7 @@ export interface IUser extends Document {
     friends: string[] | IUser[];
     friendRequests: string[] | IUser[];
     profilePicture?: string;
+    sportsElo: { sport: mongoose.Types.ObjectId | string, elo: number }[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -42,6 +43,17 @@ const UserSchema: Schema = new Schema({
     friendRequests: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
+    }],
+    sportsElo: [{
+        sport: {
+            type: Schema.Types.ObjectId,
+            ref: 'Sport',
+            required: true
+        },
+        elo: {
+            type: Number,
+            default: 1200
+        }
     }]
 });
 

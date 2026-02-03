@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import Game from '../models/Game';
+import User from '../models/User';
 
 const router = express.Router();
 
@@ -123,13 +124,72 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
         game.isFinished = true;
 
         if (winnerIds && Array.isArray(winnerIds)) {
+            const winners: string[] = [];
+            const losers: string[] = [];
+
             game.participants.forEach(participant => {
                 if (winnerIds.includes(participant.user.toString())) {
                     participant.winner = true;
+                    winners.push(participant.user.toString());
                 } else {
                     participant.winner = false;
+                    losers.push(participant.user.toString());
                 }
             });
+
+            // ELO Calculation
+            if (winners.length > 0 && losers.length > 0) {
+                const sportId = game.sport.toString();
+
+                // Fetch Users
+                const winnerUsers = await User.find({ _id: { $in: winners } });
+                const loserUsers = await User.find({ _id: { $in: losers } });
+
+                // Helper to get or init ELO
+                const getElo = (u: any, sId: string) => {
+                    const entry = u.sportsElo?.find((e: any) => e.sport.toString() === sId);
+                    return entry ? entry.elo : 1200;
+                };
+
+                // Calculate Average Team ELOs
+                const avgWinnerElo = winnerUsers.reduce((sum: number, u: any) => sum + getElo(u, sportId), 0) / winnerUsers.length;
+                const avgLoserElo = loserUsers.reduce((sum: number, u: any) => sum + getElo(u, sportId), 0) / loserUsers.length;
+
+                // Expected score for Winner Team
+                const expectedScore = 1 / (1 + Math.pow(10, (avgLoserElo - avgWinnerElo) / 400));
+
+                const K = 32;
+
+                // Update Winners
+                for (const user of winnerUsers) {
+                    if (!user.sportsElo) user.sportsElo = [];
+                    let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                    if (!entry) {
+                        user.sportsElo.push({ sport: sportId, elo: 1200 });
+                        entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                    }
+
+                    if (entry) {
+                        entry.elo = Math.round(entry.elo + K * (1 - expectedScore));
+                    }
+                    await user.save();
+                }
+
+                // Update Losers
+                for (const user of loserUsers) {
+                    if (!user.sportsElo) user.sportsElo = [];
+                    let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                    if (!entry) {
+                        user.sportsElo.push({ sport: sportId, elo: 1200 });
+                        entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                    }
+
+                    if (entry) {
+                        entry.elo = Math.round(entry.elo + K * (0 - expectedScore));
+                    }
+                    await user.save();
+                }
+            }
         }
 
         await game.save();
