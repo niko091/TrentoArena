@@ -66,9 +66,13 @@
                 <!-- ELO Statistics -->
                 <div id="eloStatsContainer" class="mb-5" style="display: none;">
                     <h5 class="fw-bold mb-3">Skill Levels</h5>
-                    <ul id="eloList" class="list-group list-group-flush">
-                        <!-- ELO items will be injected here -->
-                    </ul>
+                    <select id="eloSportSelect" class="form-select mb-3" aria-label="Select Sport for ELO">
+                        <option selected disabled>Select a sport...</option>
+                    </select>
+                    <div id="eloDisplay" class="text-center p-3 border rounded bg-light"
+                        style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                        <span class="text-muted">Select a sport to see your rating</span>
+                    </div>
                 </div>
 
                 <div class="d-grid gap-2 d-md-block">
@@ -170,22 +174,49 @@
                             // Render ELO Stats
                             if (user.sportsElo && user.sportsElo.length > 0) {
                                 const eloContainer = document.getElementById('eloStatsContainer');
-                                const eloList = document.getElementById('eloList');
-                                eloContainer.style.display = 'block';
-                                eloList.innerHTML = '';
+                                const sportSelect = document.getElementById('eloSportSelect');
+                                const eloDisplay = document.getElementById('eloDisplay');
 
-                                user.sportsElo.forEach(stat => {
+                                eloContainer.style.display = 'block';
+
+                                // Reset select
+                                sportSelect.innerHTML = '<option selected disabled value="">Select a sport...</option>';
+
+                                user.sportsElo.forEach((stat, index) => {
                                     const sportName = stat.sport ? stat.sport.name : 'Unknown Sport';
                                     const elo = Math.round(stat.elo);
 
-                                    const li = document.createElement('li');
-                                    li.className = 'list-group-item d-flex justify-content-between align-items-center bg-transparent px-0';
-                                    li.innerHTML = `
-                                        <span>${sportName}</span>
-                                        <span class="badge bg-info text-dark rounded-pill">${elo} pts</span>
-                                    `;
-                                    eloList.appendChild(li);
+                                    const option = document.createElement('option');
+                                    option.value = index; // Use index to retrieve data easily
+                                    option.textContent = sportName;
+                                    option.dataset.elo = elo;
+                                    option.dataset.sport = sportName;
+                                    sportSelect.appendChild(option);
                                 });
+
+                                // Handle Change
+                                sportSelect.addEventListener('change', (e) => {
+                                    const selectedOption = sportSelect.options[sportSelect.selectedIndex];
+                                    if (selectedOption.value !== "") {
+                                        const elo = selectedOption.dataset.elo;
+                                        const sport = selectedOption.dataset.sport;
+
+                                        eloDisplay.innerHTML = `
+                                            <div>
+                                                <h3 class="mb-0 text-primary fw-bold">${sport}</h3>
+                                                <div class="mt-2">
+                                                    <span class="badge bg-info text-dark rounded-pill fs-4">${elo} pts</span>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }
+                                });
+
+                                // Auto-select first sport if available
+                                if (user.sportsElo.length > 0) {
+                                    sportSelect.selectedIndex = 1; // Index 0 is the disabled placeholder
+                                    sportSelect.dispatchEvent(new Event('change'));
+                                }
                             }
 
                             // Setup Listeners with full user object

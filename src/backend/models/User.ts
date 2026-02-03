@@ -8,7 +8,11 @@ export interface IUser extends Document {
     friends: string[] | IUser[];
     friendRequests: string[] | IUser[];
     profilePicture?: string;
-    sportsElo: { sport: mongoose.Types.ObjectId | string, elo: number }[];
+    sportsElo: {
+        sport: mongoose.Types.ObjectId | string,
+        elo: number,
+        history: { elo: number, date: Date, change: number }[]
+    }[];
 }
 
 const UserSchema: Schema = new Schema({
@@ -53,7 +57,12 @@ const UserSchema: Schema = new Schema({
         elo: {
             type: Number,
             default: 1200
-        }
+        },
+        history: [{
+            elo: { type: Number, required: true },
+            date: { type: Date, default: Date.now },
+            change: { type: Number, required: true }
+        }]
     }]
 });
 

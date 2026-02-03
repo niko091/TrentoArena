@@ -92,6 +92,14 @@ describe('ELO System Tests', () => {
 
         if (wEloEntry.elo <= 1200) throw new Error('Winner ELO did not increase');
         if (lEloEntry.elo >= 1200) throw new Error('Loser ELO did not decrease');
+
+        // Verify History
+        if (!wEloEntry.history || wEloEntry.history.length === 0) throw new Error('Winner History not created');
+        if (!lEloEntry.history || lEloEntry.history.length === 0) throw new Error('Loser History not created');
+
+        const wHist = wEloEntry.history[0];
+        if (wHist.elo !== wEloEntry.elo) throw new Error('Winner History ELO mismatch');
+        if (wHist.change <= 0) throw new Error('Winner History Change incorrect');
     });
 
 });

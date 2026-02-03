@@ -165,12 +165,23 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
                     if (!user.sportsElo) user.sportsElo = [];
                     let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
                     if (!entry) {
-                        user.sportsElo.push({ sport: sportId, elo: 1200 });
+                        user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
                         entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
                     }
 
                     if (entry) {
-                        entry.elo = Math.round(entry.elo + K * (1 - expectedScore));
+                        const oldElo = entry.elo;
+                        const newElo = Math.round(oldElo + K * (1 - expectedScore));
+                        const change = newElo - oldElo;
+
+                        entry.elo = newElo;
+
+                        if (!entry.history) entry.history = [];
+                        entry.history.push({
+                            elo: newElo,
+                            date: new Date(),
+                            change: change
+                        });
                     }
                     await user.save();
                 }
@@ -180,12 +191,23 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
                     if (!user.sportsElo) user.sportsElo = [];
                     let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
                     if (!entry) {
-                        user.sportsElo.push({ sport: sportId, elo: 1200 });
+                        user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
                         entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
                     }
 
                     if (entry) {
-                        entry.elo = Math.round(entry.elo + K * (0 - expectedScore));
+                        const oldElo = entry.elo;
+                        const newElo = Math.round(oldElo + K * (0 - expectedScore));
+                        const change = newElo - oldElo;
+
+                        entry.elo = newElo;
+
+                        if (!entry.history) entry.history = [];
+                        entry.history.push({
+                            elo: newElo,
+                            date: new Date(),
+                            change: change
+                        });
                     }
                     await user.save();
                 }
