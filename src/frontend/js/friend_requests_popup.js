@@ -81,9 +81,12 @@ class FriendRequestsPopup {
                 const username = requester.username || 'Unknown';
                 const id = requester._id || requester;
 
+                const profilePic = requester.profilePicture || '/images/utenteDefault.png';
+
                 li.innerHTML = `
                     <div class="request-info">
-                        <span class="request-username">${username}</span>
+                        <img src="${profilePic}" alt="${username}" class="request-profile-pic">
+                        <a href="/user/${username}" class="request-username" style="text-decoration: none; color: inherit; font-weight: bold;">${username}</a>
                     </div>
                     <div class="request-actions">
                         <button class="btn btn-sm btn-success accept-btn" data-id="${id}">Accetta</button>

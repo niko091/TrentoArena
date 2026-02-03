@@ -32,6 +32,7 @@
                         style="width: 250px; height: 250px; object-fit: cover; border: 5px solid #fff; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
                 </div>
                 <h1 id="username" class="fw-bold mt-4 mb-2 display-6">Loading...</h1>
+                <button id="addFriendBtn" class="btn btn-primary mt-2" style="display: none;">Add Friend</button>
             </div>
 
             <!-- Middle Column: User Details -->
@@ -54,14 +55,6 @@
 
             <!-- Right Column: Friends List -->
             <div class="flex-shrink-0" style="width: 300px;">
-                <ul class="list-group list-group-flush mb-5">
-                    <li
-                        class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-top">
-                        <span class="fw-semibold fs-5">Friends</span>
-                        <span id="friendsCount" class="badge bg-primary rounded-pill fs-5">0</span>
-                    </li>
-                </ul>
-
                 <h4 class="fw-bold mb-3 border-bottom pb-2">Friends</h4>
                 <div id="friendsList" class="d-flex flex-wrap gap-2 justify-content-start">
                     <!-- Friend avatars will be injected here -->
@@ -113,16 +106,16 @@
                     if (currentUser && currentUser.username === username) {
                         window.location.href = '/profile';
                     } else {
-                        loadPublicProfile(username);
+                        loadPublicProfile(username, currentUser);
                     }
                 })
                 .catch(error => {
                     console.error('Auth check skipped or failed:', error);
-                    loadPublicProfile(username);
+                    loadPublicProfile(username, null);
                 });
         });
 
-        function loadPublicProfile(username) {
+        function loadPublicProfile(username, currentUser) {
             fetch(`/api/users/username/${username}`)
                 .then(response => {
                     if (!response.ok) throw new Error('User not found');
@@ -136,10 +129,60 @@
                         const user = await response.json();
 
                         document.getElementById('username').textContent = user.username;
-                        document.getElementById('friendsCount').textContent = user.friends ? user.friends.length : 0;
 
                         if (user.profilePicture) {
                             document.getElementById('profilePic').src = user.profilePicture;
+                        }
+
+                        // Configure Add Friend Button
+                        const addFriendBtn = document.getElementById('addFriendBtn');
+                        if (currentUser) {
+                            addFriendBtn.style.display = 'inline-block';
+
+                            // Check if already friends
+                            const isFriend = user.friends && user.friends.some(f => f._id === currentUser._id || f === currentUser._id);
+                            // Check if request already sent
+                            const hasSentRequest = user.friendRequests && user.friendRequests.some(r => r._id === currentUser._id || r === currentUser._id);
+
+                            if (isFriend) {
+                                addFriendBtn.textContent = 'Friends';
+                                addFriendBtn.classList.remove('btn-primary');
+                                addFriendBtn.classList.add('btn-success');
+                                addFriendBtn.disabled = true;
+                            } else if (hasSentRequest) {
+                                addFriendBtn.textContent = 'Request Sent';
+                                addFriendBtn.classList.remove('btn-primary');
+                                addFriendBtn.classList.add('btn-secondary');
+                                addFriendBtn.disabled = true;
+                            } else {
+                                addFriendBtn.textContent = 'Add Friend';
+                                addFriendBtn.classList.add('btn-primary');
+                                addFriendBtn.disabled = false;
+
+                                addFriendBtn.onclick = async () => {
+                                    try {
+                                        const res = await fetch(`/api/users/${user._id}/friend-requests`, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ requesterId: currentUser._id })
+                                        });
+
+                                        if (res.ok) {
+                                            alert('Friend request sent!');
+                                            addFriendBtn.textContent = 'Request Sent';
+                                            addFriendBtn.classList.remove('btn-primary');
+                                            addFriendBtn.classList.add('btn-secondary');
+                                            addFriendBtn.disabled = true;
+                                        } else {
+                                            const err = await res.json();
+                                            alert('Error: ' + err.message);
+                                        }
+                                    } catch (e) {
+                                        console.error('Error sending request:', e);
+                                        alert('Failed to send friend request.');
+                                    }
+                                };
+                            }
                         }
 
                         // Render Friends List

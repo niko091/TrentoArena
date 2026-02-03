@@ -7,7 +7,6 @@
     <title>TrentoArena - Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/friend_requests_popup.css">
     <link rel="stylesheet" href="css/game_popup.css">
     <link rel="stylesheet" href="css/game_popup_participants.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -70,22 +69,6 @@
 
             <!-- Right Column: Friends List -->
             <div class="flex-shrink-0" style="width: 300px;">
-                <ul class="list-group list-group-flush mb-5">
-                    <li
-                        class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 border-top">
-                        <span class="fw-semibold fs-5">Friends</span>
-                        <span id="friendsCount" class="badge bg-primary rounded-pill fs-5">0</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
-                        <span class="fw-semibold fs-5">Friend Requests</span>
-                        <div>
-                            <span id="friendRequestsCount"
-                                class="badge bg-warning text-dark rounded-pill fs-5 me-2">0</span>
-                            <button id="viewRequestsBtn" class="btn btn-sm btn-outline-dark">View</button>
-                        </div>
-                    </li>
-                </ul>
-
                 <h4 class="fw-bold mb-3 border-bottom pb-2">My Friends</h4>
                 <div id="friendsList" class="d-flex flex-wrap gap-2 justify-content-start">
                     <!-- Friend avatars will be injected here -->
@@ -118,7 +101,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/friend_requests_popup.js"></script>
+
     <script src="js/game_popup.js"></script>
 
     <script>
@@ -135,8 +118,6 @@
 
                             document.getElementById('username').textContent = user.username;
                             document.getElementById('email').textContent = user.email;
-                            document.getElementById('friendsCount').textContent = user.friends ? user.friends.length : 0;
-                            document.getElementById('friendRequestsCount').textContent = user.friendRequests ? user.friendRequests.length : 0;
 
                             if (user.profilePicture) {
                                 document.getElementById('profilePic').src = user.profilePicture;
@@ -372,17 +353,7 @@
 
             });
 
-            // Friend Requests Popup
-            const viewRequestsBtn = document.getElementById('viewRequestsBtn');
-            if (viewRequestsBtn) {
-                viewRequestsBtn.addEventListener('click', () => {
-                    if (window.FriendRequestsPopup) {
-                        window.FriendRequestsPopup.show();
-                    } else {
-                        console.error("FriendRequestsPopup not defined");
-                    }
-                });
-            }
+
         }
 
         let cachedGames = {};

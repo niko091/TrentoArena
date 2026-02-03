@@ -9,11 +9,13 @@
 
 <nav class="navbar  navbar-orange">
   <div class="container-fluid">
-    <div class="flex-grow-1"></div>
-    <h1>TrentoArena</h1>
-    <a class="nav-link" href="#"  style="margin-left: 15px;"><img src="../images/lenteRicerca.png" style="height: 60px; width: auto;"></a>
+    <a href="/dashboard" class="text-white text-decoration-none">
+      <h1>TrentoArena</h1>
+    </a>
+    <a class="nav-link" href="#" style="margin-left: 15px;"><img src="/images/lenteRicerca.png"
+        style="height: 60px; width: auto;"></a>
     <div class="flex-grow-1 d-flex justify-content-end">
-      <a class="nav-link" href="#" style="margin-right: 15px;" onclick="
+      <a class="nav-link" href="#" style="margin-right: 60px;" onclick="
         event.preventDefault();
         const cssPath = '/css/game_creation_popup.css';
         const jsPath = '/js/game_creation_popup.js';
@@ -33,9 +35,53 @@
             script.onload = () => window.GameCreationPopup.show();
             document.body.appendChild(script);
         }
-      ">Crea Partita</a>
-      <a class="nav-link" href="/map" style="margin-right: 15px;">Mappa</a>
-      <a class="nav-link" href="/profile">Profilo</a>
+      ">
+        <div class="d-flex flex-column align-items-center">
+          <img src="/images/add.png" alt="Crea Partita"
+            style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+          <span style="font-size: 12px;">Crea</span>
+        </div>
+      </a>
+      <a class="nav-link" href="/map" style="margin-right: 60px;">
+        <div class="d-flex flex-column align-items-center">
+          <img src="/images/map.png" alt="Mappa" style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+          <span style="font-size: 12px;">Mappa</span>
+        </div>
+      </a>
+      <a class="nav-link" href="#" style="margin-right: 60px;" onclick="
+        event.preventDefault();
+        const cssPathReq = '/css/friend_requests_popup.css';
+        const jsPathReq = '/js/friend_requests_popup.js';
+        
+        if (!document.querySelector(`link[href='${cssPathReq}']`)) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = cssPathReq;
+            document.head.appendChild(link);
+        }
+        
+        if (window.FriendRequestsPopup) {
+            window.FriendRequestsPopup.show();
+        } else {
+            const script = document.createElement('script');
+            script.src = jsPathReq;
+            script.onload = () => window.FriendRequestsPopup.show();
+            document.body.appendChild(script);
+        }
+      ">
+        <div class="d-flex flex-column align-items-center">
+          <img src="/images/bell.png" alt="Richieste"
+            style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+          <span style="font-size: 12px;">Richieste</span>
+        </div>
+      </a>
+      <a class="nav-link" href="/profile">
+        <div class="d-flex flex-column align-items-center">
+          <img src="/images/account.png" alt="Profilo"
+            style="height: 40px; width: auto; filter: brightness(0) invert(1);">
+          <span style="font-size: 12px;">Profilo</span>
+        </div>
+      </a>
     </div>
   </div>
 </nav>

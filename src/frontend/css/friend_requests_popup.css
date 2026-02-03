@@ -78,6 +78,15 @@
     gap: 15px;
 }
 
+.request-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
 .request-username {
     font-weight: bold;
     font-size: 1.1rem;
