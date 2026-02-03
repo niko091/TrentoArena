@@ -56,6 +56,11 @@ class GameDetailsPopup {
             }
         }
 
+        // Determine isCreator status early
+        const creatorId = gameData.creator._id || gameData.creator;
+        const isCreator = this.currentUser && creatorId === this.currentUser._id;
+        const isFinished = gameData.isFinished;
+
         const formattedDate = new Date(gameData.date).toLocaleDateString();
         const formattedTime = new Date(gameData.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -88,17 +93,26 @@ class GameDetailsPopup {
 
             ${gameData.participants && gameData.participants.length > 0 ? `
             <div class="game-popup-section">
-                <h4 class="game-popup-subtitle">Players</h4>
+                <h4 class="game-popup-subtitle">Players ${isCreator && !isFinished ? '<small style="font-size: 0.7em; font-weight: normal;">(Check winners)</small>' : ''}</h4>
                 <div class="game-popup-participants-list">
                     ${gameData.participants.map(p => {
             const user = p.user;
             const username = user.username || 'Unknown';
             const pic = user.profilePicture || '/images/utenteDefault.png';
+            const userId = user._id || user;
+
+            let extraHtml = '';
+            if (isCreator && !isFinished) {
+                extraHtml = `<input type="checkbox" class="winner-checkbox" value="${userId}" style="margin-right: 10px;">`;
+            } else if (p.winner) {
+                extraHtml = '<span class="participant-winner">🏆</span>';
+            }
+
             return `
-                        <div class="participant-item" title="${username}">
+                        <div class="participant-item" title="${username}" style="justify-content: start;">
+                            ${extraHtml}
                             <img src="${pic}" alt="${username}" class="participant-avatar">
-                            <span class="participant-name">${username}</span>
-                            ${p.winner ? '<span class="participant-winner">🏆</span>' : ''}
+                            <span class="participant-name" style="margin-left: 10px;">${username}</span>
                         </div>
                         `;
         }).join('')}
@@ -145,6 +159,13 @@ class GameDetailsPopup {
             actionHtml = `
                 <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
                     <button class="btn btn-success" onclick="window.GameDetailsPopup.joinGame('${gameData._id}')">Join Game</button>
+                </div>
+             `;
+        } else if (isCreator && !isFinished) {
+            // If creator and active, show Finish Game button primarily
+            actionHtml = `
+                <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
+                    <button class="btn btn-warning text-dark" onclick="window.GameDetailsPopup.finishGame('${gameData._id}')">Finish Game</button>
                 </div>
              `;
         } else if (isParticipant) {
@@ -197,6 +218,37 @@ class GameDetailsPopup {
             }
         } catch (error) {
             console.error('Error joining game:', error);
+            alert('Failed to connect to server.');
+        }
+    }
+
+    async finishGame(gameId) {
+        if (!confirm('Are you sure you want to finish this game?')) {
+            return;
+        }
+
+        const checkboxes = this.overlay.querySelectorAll('.winner-checkbox:checked');
+        const winnerIds = Array.from(checkboxes).map(cb => cb.value);
+
+        try {
+            const response = await fetch(`/api/games/${gameId}/finish`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ winnerIds })
+            });
+
+            if (response.ok) {
+                alert('Game finished successfully!');
+                this.hide();
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                alert('Error finishing game: ' + (error.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Error finishing game:', error);
             alert('Failed to connect to server.');
         }
     }
