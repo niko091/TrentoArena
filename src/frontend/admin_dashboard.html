@@ -107,6 +107,24 @@
                 </table>
             </div>
         </section>
+        <section class="dashboard-card" style="margin-top: 2rem;">
+            <h2>User Reports</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Reporter</th>
+                            <th>Reported User</th>
+                            <th>Motivation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reports-table-body">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -237,10 +255,38 @@
             }
         }
 
+        async function fetchReports() {
+            try {
+                const response = await fetch('/api/reports');
+                if (!response.ok) throw new Error('Failed to fetch reports');
+                const reports = await response.json();
+                const tableBody = document.getElementById('reports-table-body');
+                tableBody.innerHTML = '';
+
+                reports.forEach(report => {
+                    const row = document.createElement('tr');
+                    const dateStr = new Date(report.date).toLocaleDateString() + ' ' + new Date(report.date).toLocaleTimeString();
+                    const reporterName = report.reporter ? report.reporter.username : 'Unknown';
+                    const reportedName = report.reported ? report.reported.username : 'Unknown';
+
+                    row.innerHTML = `
+                        <td>${dateStr}</td>
+                        <td>${reporterName}</td>
+                        <td>${reportedName}</td>
+                        <td>${report.motivation}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading reports:', error);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             fetchPlaces();
             fetchSports();
-            fetchGames(); // Added fetchGames call
+            fetchGames();
+            fetchReports(); // Added fetchReports fetch call
 
             const form = document.getElementById('add-place-form');
             form.addEventListener('submit', async (e) => {
