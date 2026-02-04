@@ -129,8 +129,8 @@
                     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                     const gameDataStr = JSON.stringify({
-                        sport: game.sport && game.sport.name ? game.sport.name : 'Unknown',
-                        place: game.place && game.place.name ? game.place.name : 'Unknown', // This place name should be correct
+                        sport: game.sport ? game.sport : 'Unknown',
+                        place: game.place ? game.place : 'Unknown',
                         date: game.date,
                         creator: game.creator,
                         note: game.note,

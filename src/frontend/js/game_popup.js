@@ -57,7 +57,7 @@ class GameDetailsPopup {
         }
 
         // Determine isCreator status early
-        const creatorId = gameData.creator._id || gameData.creator;
+        const creatorId = gameData.creator._id;
         const isCreator = this.currentUser && creatorId === this.currentUser._id;
         const isFinished = gameData.isFinished;
 
@@ -67,7 +67,7 @@ class GameDetailsPopup {
         const bodyContent = `
             <div class="game-popup-row">
                 <span class="game-popup-label">Sport:</span>
-                <span class="game-popup-value">${typeof gameData.sport === 'object' ? gameData.sport.name : gameData.sport}</span>
+                <span class="game-popup-value">${gameData.sport.name}</span>
             </div>
             <div class="game-popup-row">
                 <span class="game-popup-label">Place:</span>
@@ -85,7 +85,9 @@ class GameDetailsPopup {
             </div>
             <div class="game-popup-row">
                 <span class="game-popup-label">Creator:</span>
-                <span class="game-popup-value">${gameData.creator.username || gameData.creator}</span>
+                <span class="game-popup-value">
+                    <a href="/user/${gameData.creator.username}" style="text-decoration: underline; color: inherit;">${gameData.creator.username}</a>
+                </span>
             </div>
             
             <div class="game-popup-row">
@@ -114,7 +116,9 @@ class GameDetailsPopup {
                         <div class="participant-item" title="${username}" style="justify-content: start;">
                             ${extraHtml}
                             <img src="${pic}" alt="${username}" class="participant-avatar">
-                            <span class="participant-name" style="margin-left: 10px;">${username}</span>
+                            <span class="participant-name" style="margin-left: 10px;">
+                                <a href="/user/${username}" style="text-decoration: underline; color: inherit;">${username}</a>
+                            </span>
                         </div>
                         `;
         }).join('')}
