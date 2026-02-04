@@ -49,11 +49,6 @@ class FriendRequestsPopup {
         container.innerHTML = '<p class="text-center text-muted">Caricamento...</p>';
 
         try {
-            const response = await fetch('/api/users/' + this.currentUserId); // Need current user ID first.
-            // Better approach: fetch /auth/current_user to be sure, or store it. 
-            // The profile page usually fetches current_user. Let's assume we fetch it again or pass it.
-            // But to be robust, let's fetch /auth/current_user.
-
             const authResp = await fetch('/auth/current_user');
             if (!authResp.ok) throw new Error('Not logged in');
             const currentUser = await authResp.json();
