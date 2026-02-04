@@ -22,7 +22,6 @@ const PORT = process.env.PORT || 3000;
 const frontendPath = path.join(__dirname, '../../src/frontend');
 
 // Connect to MongoDB
-// Connect to MongoDB
 connectDB();
 
 // Ensure uploads directory exists
@@ -32,6 +31,8 @@ if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+import MongoStore from 'connect-mongo';
+
 // Middleware
 app.use(express.json());
 app.use(
@@ -39,6 +40,9 @@ app.use(
         secret: process.env.SESSION_SECRET || 'secret',
         resave: false,
         saveUninitialized: false,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/trentoarena'
+        })
     })
 );
 app.use(passport.initialize());
