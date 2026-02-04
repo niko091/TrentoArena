@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node src/backend/server.ts",
+    "build": "npm install && tsc",
+    "start": "node dist/backend/server.js",
     "dev": "nodemon src/backend/server.ts",
     "test_db_connection": "mocha -r ts-node/register test/test_db_connection.ts --exit",
     "test_user_model": "mocha -r ts-node/register test/test_user_model.ts --exit",

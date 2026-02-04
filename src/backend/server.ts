@@ -19,6 +19,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const frontendPath = path.join(__dirname, '../../src/frontend');
 
 // Connect to MongoDB
 // Connect to MongoDB
@@ -26,7 +27,7 @@ connectDB();
 
 // Ensure uploads directory exists
 import fs from 'fs';
-const uploadDir = path.join(__dirname, '../frontend/uploads/profile_pictures');
+const uploadDir = path.join(frontendPath, '../frontend/uploads/profile_pictures');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -55,12 +56,12 @@ app.get('/login', (req, res) => {
     if (req.isAuthenticated()) {
         return res.redirect('/dashboard.html');
     }
-    res.sendFile(path.join(__dirname, '../frontend/login.html'));
+    res.sendFile(path.join(frontendPath, '../frontend/login.html'));
 });
 
 app.get('/dashboard', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/dashboard.html'));
+        res.sendFile(path.join(frontendPath, '../frontend/dashboard.html'));
     } else {
         res.redirect('/login');
     }
@@ -68,13 +69,13 @@ app.get('/dashboard', (req, res) => {
 
 app.get('/leaderboard.html', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/leaderboard.html'));
+        res.sendFile(path.join(frontendPath, '../frontend/leaderboard.html'));
     } else {
         res.redirect('/login');
     }
 });
 
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(frontendPath, '../frontend')));
 
 // Routes
 app.use('/auth', authRoutes);
@@ -89,18 +90,18 @@ app.use('/admin', basicAuth({
     users: { [process.env.ADMIN_USERNAME || 'admin']: process.env.ADMIN_PASSWORD || 'admin123' },
     challenge: true
 }), (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/admin_dashboard.html'));
+    res.sendFile(path.join(frontendPath, '../frontend/admin_dashboard.html'));
 });
 
 
 
 app.get('/registration', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/registrazione.html'));
+    res.sendFile(path.join(frontendPath, '../frontend/registrazione.html'));
 });
 
 app.get('/map', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/map.html'));
+        res.sendFile(path.join(frontendPath, '../frontend/map.html'));
     } else {
         res.redirect('/login');
     }
@@ -108,7 +109,7 @@ app.get('/map', (req, res) => {
 
 app.get('/profile', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/profile.html'));
+        res.sendFile(path.join(frontendPath, '../frontend/profile.html'));
     } else {
         res.redirect('/login');
     }
@@ -116,7 +117,7 @@ app.get('/profile', (req, res) => {
 
 app.get('/user/:username', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(__dirname, '../frontend/user_profile.html'));
+        res.sendFile(path.join(frontendPath, '../frontend/user_profile.html'));
     } else {
         res.redirect('/login');
     }
