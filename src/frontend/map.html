@@ -82,6 +82,7 @@
                 if (place.position && place.position.lat && place.position.lng) {
                     const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
                     const marker = L.marker([place.position.lat, place.position.lng], { icon: orangeIcon });
+                    marker.placeId = place._id; // Attach ID for lookup
 
                     const popupContent = `
                         <div style="min-width: 200px;">
@@ -109,14 +110,6 @@
         async function fetchGamesForPlace(placeId) {
             const container = document.getElementById(`games-list-${placeId}`);
             if (!container) return;
-
-            // Avoid re-fetching if already loaded (optional, but good for UX. 
-            // For now, let's refresh every time to ensure up-to-date info, or check content)
-            // If we want to refresh every time, we should reset to "Loading..." first?
-            // container.innerHTML = '<small>Loading...</small>'; 
-            // Actually, keep it simple. Leaflet destroys popup DOM when closed unless autoClose is handled differently, 
-            // but usually it recreates content. Let's assume we need to fetch.
-
             try {
                 const today = new Date().toISOString();
                 const response = await fetch(`/api/games?placeId=${placeId}&startDate=${today}&isFinished=false`);
@@ -199,6 +192,22 @@
                 allPlaces = places;
                 renderMarkers(allPlaces);
                 updateSportFilter(allPlaces);
+
+                // Check for placeId in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const placeId = urlParams.get('placeId');
+
+                if (placeId) {
+                    const place = allPlaces.find(p => p._id === placeId);
+                    if (place && place.position) {
+                        map.setView([place.position.lat, place.position.lng], 16);
+                        markersLayer.eachLayer(layer => {
+                            if (layer.placeId === placeId) {
+                                layer.openPopup();
+                            }
+                        });
+                    }
+                }
             })
             .catch(error => console.error('Error fetching places:', error));
     </script>
