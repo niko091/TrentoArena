@@ -166,6 +166,38 @@ router.post('/:id/friends/decline', async (req: Request, res: Response) => {
     }
 });
 
+// DELETE /api/users/:id/friends/:friendId - Remove a friend
+router.delete('/:id/friends/:friendId', async (req: Request, res: Response) => {
+    const userId = req.params.id;
+    const friendId = req.params.friendId;
+
+    try {
+        const user = await User.findById(userId);
+        const friend = await User.findById(friendId);
+
+        if (!user || !friend) {
+            return res.status(404).json({ message: 'User or friend not found' });
+        }
+
+        // Check if they are actually friends
+        if (!user.friends.includes(friendId as any)) {
+            return res.status(400).json({ message: 'Users are not friends' });
+        }
+
+        // Remove from both friend lists
+        user.friends = (user.friends as any[]).filter(id => id.toString() !== friendId);
+        friend.friends = (friend.friends as any[]).filter(id => id.toString() !== userId);
+
+        await user.save();
+        await friend.save();
+
+        res.json({ message: 'Friend removed successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // POST /api/users/:id/profile-picture - Upload profile picture
 router.post('/:id/profile-picture', upload.single('profilePicture'), async (req: Request, res: Response) => {
     try {

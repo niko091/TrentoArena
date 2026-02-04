@@ -1,5 +1,6 @@
 
 import mongoose from 'mongoose';
+import '../src/backend/models/Sport'; // Register Sport model
 import User from '../src/backend/models/User';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -111,6 +112,28 @@ describe('User API Tests', () => {
         }
         if (finalUserRes.body.friendRequests.length !== 0) {
             throw new Error('Friend request not removed');
+        }
+    });
+
+    it('Step 4: Should remove a friend', async () => {
+
+        // Re-fetch user to get the friend ID
+        const userRes = await request(app).get(`/api/users/${userId}`);
+        const friendId = userRes.body.friends[0]._id;
+
+        await request(app)
+            .delete(`/api/users/${userId}/friends/${friendId}`)
+            .expect(200);
+
+        // Verify removal
+        const finalUserRes = await request(app).get(`/api/users/${userId}`);
+        if (finalUserRes.body.friends.length !== 0) {
+            throw new Error('Friend not removed from user');
+        }
+
+        const finalFriendRes = await request(app).get(`/api/users/${friendId}`);
+        if (finalFriendRes.body.friends.length !== 0) {
+            throw new Error('User not removed from friend\'s list');
         }
     });
 
