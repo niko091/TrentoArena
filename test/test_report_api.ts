@@ -78,4 +78,14 @@ describe('Report API Tests', () => {
             })
             .expect(404);
     });
+
+    it('Step 4: Should fetch all reports', async () => {
+        const res = await request(app)
+            .get('/api/reports')
+            .expect(200);
+
+        if (!Array.isArray(res.body)) throw new Error('Response is not an array');
+        if (res.body.length === 0) throw new Error('No reports found');
+        if (!res.body[0].reporter.username) throw new Error('Reporter not populated');
+    });
 });

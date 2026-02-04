@@ -35,4 +35,18 @@ router.post('/', async (req: Request, res: Response) => {
     }
 });
 
+// GET /api/reports - Get all reports
+router.get('/', async (req: Request, res: Response) => {
+    try {
+        const reports = await Report.find()
+            .populate('reporter', 'username email')
+            .populate('reported', 'username email')
+            .sort({ date: -1 });
+        res.json(reports);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 export default router;
