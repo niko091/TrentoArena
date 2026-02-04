@@ -7,6 +7,28 @@ import path from 'path';
 
 const router = express.Router();
 
+// GET /api/users/search - Search users by username
+router.get('/search', async (req: Request, res: Response) => {
+    const { query } = req.query;
+
+    if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    try {
+        const users = await User.find({
+            username: { $regex: query, $options: 'i' }
+        })
+            .select('username profilePicture')
+            .limit(10); // Limit results
+
+        res.json(users);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // GET /api/users/leaderboard - Get leaderboard for a sport
 router.get('/leaderboard', async (req: Request, res: Response) => {
     const { sportId } = req.query;

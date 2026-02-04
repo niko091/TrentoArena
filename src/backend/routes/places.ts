@@ -3,6 +3,26 @@ import Place from '../models/Place';
 
 const router = express.Router();
 
+// GET /api/places/search - Search places by name
+router.get('/search', async (req: Request, res: Response) => {
+    const { query } = req.query;
+
+    if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
+    try {
+        const places = await Place.find({
+            name: { $regex: query, $options: 'i' }
+        }).populate('sport');
+
+        res.json(places);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 // GET /api/places - Retrieve all places
 router.get('/', async (req: Request, res: Response) => {
     try {
