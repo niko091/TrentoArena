@@ -11,6 +11,7 @@ import placeRoutes from './routes/places';
 import sportRoutes from './routes/sports';
 import gameRoutes from './routes/games';
 import userRoutes from './routes/users';
+import reportRoutes from './routes/reports'; // Import report routes
 import basicAuth from 'express-basic-auth';
 
 
@@ -73,6 +74,7 @@ app.use('/api/places', placeRoutes);
 app.use('/api/sports', sportRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/reports', reportRoutes); // Register report routes
 
 // Admin Dashboard Route
 app.use('/admin', basicAuth({
