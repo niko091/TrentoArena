@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/game_popup.css">
     <link rel="stylesheet" href="/css/game_popup_participants.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -33,6 +33,9 @@
                 </div>
                 <h1 id="username" class="fw-bold mt-4 mb-2 display-6">Loading...</h1>
                 <button id="addFriendBtn" class="btn btn-primary mt-2" style="display: none;">Add Friend</button>
+                <br>
+                <button id="reportUserBtn" class="btn btn-outline-danger mt-3 btn-sm" style="display: none;">Report
+                    User</button>
             </div>
 
             <!-- Middle Column: User Details -->
@@ -82,6 +85,33 @@
                 <div class="col-12">
                     <span class="text-muted">Loading past games...</span>
                 </div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Report User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm">
+                        <div class="mb-3">
+                            <label for="reportMotivation" class="form-label">Motivation</label>
+                            <textarea class="form-control" id="reportMotivation" rows="3" required
+                                placeholder="Describe the reason for reporting..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="submitReportBtn">Submit Report</button>
+                </div>
             </div>
         </div>
     </div>
@@ -99,10 +129,13 @@
                 return;
             }
 
+            let currentSessionUser = null;
+
             // Check if user is viewing their own profile
             fetch('/auth/current_user')
                 .then(response => response.json())
                 .then(currentUser => {
+                    currentSessionUser = currentUser;
                     if (currentUser && currentUser.username === username) {
                         window.location.href = '/profile';
                     } else {
@@ -113,6 +146,53 @@
                     console.error('Auth check skipped or failed:', error);
                     loadPublicProfile(username, null);
                 });
+
+            // Global Report Logic
+            const submitReportBtn = document.getElementById('submitReportBtn');
+            submitReportBtn.addEventListener('click', async () => {
+                if (!currentSessionUser) {
+                    alert('You must be logged in to report a user.');
+                    return;
+                }
+
+                const modalElement = document.getElementById('reportModal');
+                const reportedId = modalElement.dataset.reportedId;
+                const motivation = document.getElementById('reportMotivation').value;
+
+                if (!reportedId) {
+                    alert('Error: No user selected.');
+                    return;
+                }
+                if (!motivation.trim()) {
+                    alert('Please provide a motivation.');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/reports', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            reporterId: currentSessionUser._id,
+                            reportedId: reportedId,
+                            motivation: motivation
+                        })
+                    });
+
+                    if (res.ok) {
+                        alert('Report submitted successfully.');
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        modal.hide();
+                        document.getElementById('reportForm').reset();
+                    } else {
+                        const data = await res.json();
+                        alert('Error: ' + data.message);
+                    }
+                } catch (err) {
+                    console.error('Error submitting report:', err);
+                    alert('Failed to submit report.');
+                }
+            });
         });
 
         function loadPublicProfile(username, currentUser) {
@@ -204,6 +284,23 @@
                                     }
                                 };
                             }
+                        }
+
+                        // Configure Report Button
+                        const reportBtn = document.getElementById('reportUserBtn');
+                        if (currentUser && currentUser._id !== user._id) {
+                            reportBtn.style.display = 'inline-block';
+
+                            reportBtn.onclick = () => {
+                                const modalElement = document.getElementById('reportModal');
+                                modalElement.dataset.reportedId = user._id; // Set ID
+
+                                let modal = bootstrap.Modal.getInstance(modalElement);
+                                if (!modal) {
+                                    modal = new bootstrap.Modal(modalElement);
+                                }
+                                modal.show();
+                            };
                         }
 
                         // Render Friends List
