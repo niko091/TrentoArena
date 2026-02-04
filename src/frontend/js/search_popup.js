@@ -113,13 +113,13 @@ class SearchPopup {
             places.forEach(place => {
                 const icon = '/images/map.png'; // Generic map icon for places
                 html += `
-                    <div class="result-item" style="cursor: default;">
+                    <a href="/map?placeId=${place._id}" class="result-item">
                         <img src="${icon}" class="result-img" style="padding: 8px; background: #eee;" alt="${place.name}">
                         <div class="result-info">
                             <span class="result-name">${place.name}</span>
                             <span class="result-sub">${place.sport ? place.sport.name : ''}</span>
                         </div>
-                    </div>
+                    </a>
                 `;
             });
         }

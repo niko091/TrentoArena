@@ -71,7 +71,9 @@ class GameDetailsPopup {
             </div>
             <div class="game-popup-row">
                 <span class="game-popup-label">Place:</span>
-                <span class="game-popup-value">${typeof gameData.place === 'object' ? gameData.place.name : gameData.place}</span>
+                <span class="game-popup-value">
+                    <a href="/map?placeId=${gameData.place._id}" style="text-decoration: underline; color: inherit;">${gameData.place.name}</a>
+                </span>
             </div>
             <div class="game-popup-row">
                 <span class="game-popup-label">Date:</span>
