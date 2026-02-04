@@ -66,6 +66,14 @@ app.get('/dashboard', (req, res) => {
     }
 });
 
+app.get('/leaderboard.html', (req, res) => {
+    if (req.isAuthenticated()) {
+        res.sendFile(path.join(__dirname, '../frontend/leaderboard.html'));
+    } else {
+        res.redirect('/login');
+    }
+});
+
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Routes
