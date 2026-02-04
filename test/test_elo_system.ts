@@ -16,6 +16,8 @@ describe('ELO System Tests', () => {
     let sportId: string;
     let placeId: string;
 
+    const ELO_TEST_SPORT_NAME = 'FakeChessForEloTest';
+
     before(async () => {
         if (mongoose.connection.readyState === 0) {
             await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/trentoArena');
@@ -24,9 +26,9 @@ describe('ELO System Tests', () => {
         // Cleanup
         await User.deleteMany({ username: new RegExp(ELO_TEST_PREFIX) });
         await Game.deleteMany({ note: ELO_TEST_PREFIX });
+        await Sport.deleteOne({ name: ELO_TEST_SPORT_NAME });
 
-        let sport = await Sport.findOne({ name: 'Chess' });
-        if (!sport) sport = await Sport.create({ name: 'Chess' });
+        let sport = await Sport.create({ name: ELO_TEST_SPORT_NAME });
         sportId = sport._id.toString();
 
         let place = await Place.findOne();
@@ -37,6 +39,7 @@ describe('ELO System Tests', () => {
     after(async () => {
         await User.deleteMany({ username: new RegExp(ELO_TEST_PREFIX) });
         await Game.deleteMany({ note: ELO_TEST_PREFIX });
+        await Sport.deleteOne({ _id: sportId });
     });
 
     it('Step 1: Should update ELOs correctly after a game', async () => {
