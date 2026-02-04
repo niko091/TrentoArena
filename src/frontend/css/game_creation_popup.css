@@ -1,5 +1,4 @@
 /* Game Creation Popup Styles */
-/* Inherits and extends basic structure from game_popup.css if available, or redefines it for standalone usage */
 
 .game-creation-popup-overlay {
     position: fixed;
@@ -15,6 +14,7 @@
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
 .game-creation-popup-overlay.active {
