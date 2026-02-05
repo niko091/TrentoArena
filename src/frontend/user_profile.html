@@ -315,7 +315,7 @@
                                 friendDiv.style.width = '60px';
 
                                 const img = document.createElement('img');
-                                img.src = friend.profilePicture || '/images/utenteDefault.png';
+                                img.src = friend.profilePicture ? ("/" + friend.profilePicture) : '/images/utenteDefault.png';
                                 img.alt = friend.username;
                                 img.className = 'rounded-circle shadow-sm border border-white';
                                 img.style.width = '50px';
