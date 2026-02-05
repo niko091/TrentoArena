@@ -73,4 +73,30 @@ router.delete('/:id', async (req: Request, res: Response) => {
     }
 });
 
+// PUT /api/places/:id - Update a place
+router.put('/:id', async (req: Request, res: Response) => {
+    const { name, position, sport } = req.body;
+
+    if (!name || !position || !position.lat || !position.lng || !sport) {
+        return res.status(400).json({ message: 'Please provide all required fields' });
+    }
+
+    try {
+        const place = await Place.findByIdAndUpdate(
+            req.params.id,
+            { name, position, sport },
+            { new: true, runValidators: true }
+        ).populate('sport');
+
+        if (!place) {
+            return res.status(404).json({ message: 'Place not found' });
+        }
+
+        res.json(place);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 export default router;

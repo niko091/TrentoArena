@@ -121,6 +121,7 @@ class GameDetailsPopup extends BasePopup {
         // Check if creator
         const creatorId = gameData.creator._id || gameData.creator;
         const isCreator = this.currentUser && creatorId === this.currentUser._id;
+        const isGameTimePassed = new Date() >= new Date(gameData.date);
 
         let actionHtml = '';
 
@@ -131,12 +132,21 @@ class GameDetailsPopup extends BasePopup {
                 </div>
              `;
         } else if (isCreator && !isFinished) {
-            // If creator and active, show Finish Game button
-            actionHtml = `
-                <div class="popup-actions" style="justify-content: center;">
-                    <button class="btn btn-warning text-dark" onclick="window.GameDetailsPopup.finishGame('${gameData._id}')">Finish Game</button>
-                </div>
-             `;
+            if (isGameTimePassed) {
+                // If creator and active and time passed, show Finish Game button
+                actionHtml = `
+                    <div class="popup-actions" style="justify-content: center;">
+                        <button class="btn btn-warning text-dark" onclick="window.GameDetailsPopup.finishGame('${gameData._id}')">Finish Game</button>
+                    </div>
+                 `;
+            } else {
+                // Game hasn't started yet
+                actionHtml = `
+                    <div class="popup-actions" style="justify-content: center;">
+                        <button class="btn btn-secondary" disabled title="Cannot finish game before start time">Game Not Started</button>
+                    </div>
+                 `;
+            }
         } else if (isParticipant) {
             actionHtml = `
                 <div class="popup-actions" style="justify-content: center;">

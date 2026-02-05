@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -127,6 +128,42 @@
         </section>
     </div>
 
+    <!-- Edit Place Modal -->
+    <div class="modal fade" id="editPlaceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Place</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-place-form">
+                        <input type="hidden" id="edit-place-id">
+                        <div class="mb-3">
+                            <label for="edit-name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="edit-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-sport" class="form-label">Sport</label>
+                            <select class="form-control" id="edit-sport" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-lat" class="form-label">Latitude</label>
+                            <input type="number" class="form-control" id="edit-lat" step="any" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-lng" class="form-label">Longitude</label>
+                            <input type="number" class="form-control" id="edit-lng" step="any" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Fetch and display games
         async function fetchGames() {
@@ -188,6 +225,7 @@
                         <td>${place.position.lat}</td>
                         <td>${place.position.lng}</td>
                         <td>
+                            <button onclick="openEditModal('${place._id}')" class="btn btn-warning me-2">Edit</button>
                             <button onclick="deletePlace('${place._id}')" class="btn btn-danger">Delete</button>
                         </td>
                     `;
@@ -350,8 +388,91 @@
                     alert('Error adding sport');
                 }
             });
+
+            // Edit Place Handler
+            const editForm = document.getElementById('edit-place-form');
+            editForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-place-id').value;
+                const formData = {
+                    name: document.getElementById('edit-name').value,
+                    sport: document.getElementById('edit-sport').value,
+                    position: {
+                        lat: parseFloat(document.getElementById('edit-lat').value),
+                        lng: parseFloat(document.getElementById('edit-lng').value)
+                    }
+                };
+
+                try {
+                    const response = await fetch(`/api/places/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        alert('Place updated successfully!');
+                        const modalElement = document.getElementById('editPlaceModal');
+                        const modal = bootstrap.Modal.getInstance(modalElement);
+                        modal.hide();
+                        fetchPlaces();
+                    } else {
+                        const data = await response.json();
+                        alert(`Error updating place: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating place:', error);
+                    alert('Error updating place');
+                }
+            });
         });
+
+        // Open Edit Modal
+        window.openEditModal = async function (id) {
+            try {
+                const sportsRes = await fetch('/api/sports');
+                const sports = await sportsRes.json();
+
+                const sportSelect = document.getElementById('edit-sport');
+                sportSelect.innerHTML = '<option value="" disabled>Select a sport</option>';
+                sports.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s._id;
+                    option.textContent = s.name;
+                    sportSelect.appendChild(option);
+                });
+
+                const placesRes = await fetch('/api/places');
+                const places = await placesRes.json();
+                const place = places.find(p => p._id === id);
+
+                if (!place) {
+                    alert('Place not found');
+                    return;
+                }
+
+                document.getElementById('edit-place-id').value = place._id;
+                document.getElementById('edit-name').value = place.name;
+                document.getElementById('edit-lat').value = place.position.lat;
+                document.getElementById('edit-lng').value = place.position.lng;
+
+                // Select sport
+                if (place.sport) {
+                    // sport might be populated object or ID
+                    const sportId = place.sport._id || place.sport;
+                    sportSelect.value = sportId;
+                }
+
+                const modal = new bootstrap.Modal(document.getElementById('editPlaceModal'));
+                modal.show();
+
+            } catch (err) {
+                console.error("Error opening edit modal", err);
+                alert("Failed to load edit modal");
+            }
+        };
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

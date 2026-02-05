@@ -119,6 +119,11 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
             return res.status(403).json({ message: 'Only the creator can finish this game' });
         }
 
+        // Check if the game date has passed
+        if (new Date() < new Date(game.date)) {
+            return res.status(400).json({ message: 'Cannot finish a game before it has started' });
+        }
+
         const { winnerIds } = req.body;
 
         game.isFinished = true;
