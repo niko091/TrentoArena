@@ -214,7 +214,7 @@
                         document.getElementById('username').textContent = user.username;
 
                         if (user.profilePicture) {
-                            document.getElementById('profilePic').src = "/" + user.profilePicture;
+                            document.getElementById('profilePic').src = user.profilePicture;
                         }
 
                         // Configure Add Friend Button
@@ -348,7 +348,9 @@
                                 friendDiv.style.width = '60px';
 
                                 const img = document.createElement('img');
-                                img.src = friend.profilePicture ? ("/" + friend.profilePicture) : '/images/utenteDefault.png';
+                                const picPath = friend.profilePicture;
+                                const picSrc = picPath ? (picPath.startsWith('http') ? picPath : '/' + picPath) : '/images/utenteDefault.png';
+                                img.src = picSrc;
                                 img.alt = friend.username;
                                 img.className = 'rounded-circle shadow-sm border border-white';
                                 img.style.width = '50px';

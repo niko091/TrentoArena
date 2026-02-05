@@ -100,7 +100,7 @@ class SearchPopup extends BasePopup {
         if (users && users.length > 0) {
             html += '<div class="section-title">Utenti</div>';
             users.forEach(user => {
-                const pic = user.profilePicture || '/images/utenteDefault.png';
+                const pic = user.profilePicture ? user.profilePicture : '/images/utenteDefault.png';
                 html += `
                     <a href="/user/${user.username}" class="result-item">
                         <img src="${pic}" class="result-img" alt="${user.username}">
