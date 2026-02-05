@@ -259,33 +259,64 @@
                                 addFriendBtn.classList.add('btn-secondary');
                                 addFriendBtn.disabled = true;
                             } else {
-                                addFriendBtn.textContent = 'Add Friend';
-                                addFriendBtn.classList.add('btn-primary');
-                                addFriendBtn.disabled = false;
+                                // Check if THEY sent US a request
+                                const hasReceivedRequest = currentUser.friendRequests && currentUser.friendRequests.some(r => r._id === user._id || r === user._id || r === user._id.toString());
 
-                                addFriendBtn.onclick = async () => {
-                                    try {
-                                        const res = await fetch(`/api/users/${user._id}/friend-requests`, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ requesterId: currentUser._id })
-                                        });
+                                if (hasReceivedRequest) {
+                                    addFriendBtn.textContent = 'Accept Request';
+                                    addFriendBtn.classList.remove('btn-primary', 'btn-danger', 'btn-secondary');
+                                    addFriendBtn.classList.add('btn-success');
+                                    addFriendBtn.disabled = false;
 
-                                        if (res.ok) {
-                                            alert('Friend request sent!');
-                                            addFriendBtn.textContent = 'Request Sent';
-                                            addFriendBtn.classList.remove('btn-primary');
-                                            addFriendBtn.classList.add('btn-secondary');
-                                            addFriendBtn.disabled = true;
-                                        } else {
-                                            const err = await res.json();
-                                            alert('Error: ' + err.message);
+                                    addFriendBtn.onclick = async () => {
+                                        try {
+                                            const res = await fetch(`/api/users/${currentUser._id}/friends/accept`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ requesterId: user._id })
+                                            });
+
+                                            if (res.ok) {
+                                                alert('Friend request accepted!');
+                                                window.location.reload();
+                                            } else {
+                                                const err = await res.json();
+                                                alert('Error: ' + err.message);
+                                            }
+                                        } catch (e) {
+                                            console.error('Error accepting request:', e);
+                                            alert('Failed to accept friend request.');
                                         }
-                                    } catch (e) {
-                                        console.error('Error sending request:', e);
-                                        alert('Failed to send friend request.');
-                                    }
-                                };
+                                    };
+                                } else {
+                                    addFriendBtn.textContent = 'Add Friend';
+                                    addFriendBtn.classList.add('btn-primary');
+                                    addFriendBtn.disabled = false;
+
+                                    addFriendBtn.onclick = async () => {
+                                        try {
+                                            const res = await fetch(`/api/users/${user._id}/friend-requests`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ requesterId: currentUser._id })
+                                            });
+
+                                            if (res.ok) {
+                                                alert('Friend request sent!');
+                                                addFriendBtn.textContent = 'Request Sent';
+                                                addFriendBtn.classList.remove('btn-primary');
+                                                addFriendBtn.classList.add('btn-secondary');
+                                                addFriendBtn.disabled = true;
+                                            } else {
+                                                const err = await res.json();
+                                                alert('Error: ' + err.message);
+                                            }
+                                        } catch (e) {
+                                            console.error('Error sending request:', e);
+                                            alert('Failed to send friend request.');
+                                        }
+                                    };
+                                }
                             }
                         }
 
