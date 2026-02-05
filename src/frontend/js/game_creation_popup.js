@@ -1,79 +1,54 @@
-class GameCreationPopup {
+class GameCreationPopup extends BasePopup {
     constructor() {
-        this.overlay = null;
+        super('game-creation-popup');
         this.allPlaces = [];
-        this.init();
     }
 
     init() {
-        // Check if popup already exists
-        if (document.querySelector('.game-creation-popup-overlay')) {
-            this.overlay = document.querySelector('.game-creation-popup-overlay');
-            return;
-        }
+        super.init();
+        this.setTitle('Crea Partita');
 
-        // Create popup DOM structure
-        this.overlay = document.createElement('div');
-        this.overlay.className = 'game-creation-popup-overlay';
-        this.overlay.innerHTML = `
-            <div class="game-creation-popup-content">
-                <button class="game-creation-popup-close">&times;</button>
-                <div class="game-creation-popup-header">
-                    <h2 class="game-creation-popup-title">Crea Partita</h2>
+        this.setBody(`
+            <div class="popup-form-group">
+                <label class="popup-label" for="popupInputSport">Sport</label>
+                <select id="popupInputSport" class="popup-select">
+                    <option selected>Choose...</option>
+                </select>
+            </div>
+
+            <div class="popup-form-group">
+                <label class="popup-label" for="popupInputMap">Luogo</label>
+                <select id="popupInputMap" class="popup-select">
+                    <option selected>Choose...</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <div class="popup-form-group" style="flex: 1;">
+                    <label class="popup-label" for="popupDateInput">Data</label>
+                    <input type="date" class="popup-input" id="popupDateInput">
                 </div>
-                <div class="game-creation-popup-body">
-                    <div class="form-group">
-                        <strong for="popupInputSport">Sport</strong>
-                        <select id="popupInputSport" class="form-control">
-                            <option selected>Choose...</option>
-                        </select>
-                    </div>
 
-                    <div class="form-group">
-                        <strong for="popupInputMap">Luogo</strong>
-                        <select id="popupInputMap" class="form-control">
-                            <option selected>Choose...</option>
-                        </select>
-                    </div>
-
-                    <div class="containerTimeInput">
-                        <div class="form-group">
-                            <strong for="popupDateInput">Data</strong>
-                            <input type="date" class="form-control" id="popupDateInput">
-                        </div>
-
-                        <div class="form-group">
-                            <strong for="popupTimeInput">Orario</strong>
-                            <input type="time" class="form-control" id="popupTimeInput">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <strong for="popupInputNote">Note</strong>
-                        <textarea class="form-control" id="popupInputNote" rows="3"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <strong for="popupMaxParticipants">Max Partecipanti</strong>
-                        <input type="number" class="form-control" id="popupMaxParticipants" value="10" min="2">
-                    </div>
-
-                    <div class="form-group mt-4" style="text-align: center;">
-                        <button type="button" class="btn btn-primary" id="popupCreateBtn">Create Game</button>
-                    </div>
+                <div class="popup-form-group" style="flex: 1;">
+                    <label class="popup-label" for="popupTimeInput">Orario</label>
+                    <input type="time" class="popup-input" id="popupTimeInput">
                 </div>
             </div>
-        `;
 
-        document.body.appendChild(this.overlay);
+            <div class="popup-form-group">
+                <label class="popup-label" for="popupInputNote">Note</label>
+                <textarea class="popup-textarea" id="popupInputNote" rows="3"></textarea>
+            </div>
 
-        // Event listeners
-        this.overlay.querySelector('.game-creation-popup-close').addEventListener('click', () => this.hide());
-        this.overlay.addEventListener('click', (e) => {
-            if (e.target === this.overlay) {
-                this.hide();
-            }
-        });
+            <div class="popup-form-group">
+                <label class="popup-label" for="popupMaxParticipants">Max Partecipanti</label>
+                <input type="number" class="popup-input" id="popupMaxParticipants" value="10" min="2">
+            </div>
+
+            <div class="popup-actions" style="justify-content: center; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-primary" id="popupCreateBtn" style="padding: 10px 30px;">Create Game</button>
+            </div>
+        `);
 
         this.overlay.querySelector('#popupInputSport').addEventListener('change', (e) => this.filterPlacesBySport(e));
         this.overlay.querySelector('#popupCreateBtn').addEventListener('click', () => this.createGame());
@@ -90,15 +65,7 @@ class GameCreationPopup {
             await this.loadPlaces();
         }
 
-        // Timeout to allow DOM to update before adding active class for animation
-        setTimeout(() => {
-            this.overlay.classList.add('active');
-        }, 10);
-    }
-
-    hide() {
-        this.overlay.classList.remove('active');
-        // Optional: clear form
+        this.open();
     }
 
     async loadSports() {
@@ -206,9 +173,7 @@ class GameCreationPopup {
 
             if (response.ok) {
                 alert('Game created successfully!');
-                this.hide();
-                // Optional: Trigger a refresh of games on the map if possible
-                // e.g. window.dispatchEvent(new CustomEvent('gameCreated'));
+                this.close();
             } else {
                 const error = await response.json();
                 alert('Error creating game: ' + (error.message || 'Unknown error'));

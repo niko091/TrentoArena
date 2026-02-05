@@ -1,41 +1,12 @@
-class GameDetailsPopup {
+class GameDetailsPopup extends BasePopup {
     constructor() {
-        this.overlay = null;
+        super('game-details-popup');
         this.currentUser = null;
-        this.init();
     }
 
     init() {
-        // Check if popup already exists
-        if (document.querySelector('.game-popup-overlay')) {
-            this.overlay = document.querySelector('.game-popup-overlay');
-            return;
-        }
-
-        // Create popup DOM structure
-        this.overlay = document.createElement('div');
-        this.overlay.className = 'game-popup-overlay';
-        this.overlay.innerHTML = `
-            <div class="game-popup-content">
-                <button class="game-popup-close">&times;</button>
-                <div class="game-popup-header">
-                    <h2 class="game-popup-title">Game Details</h2>
-                </div>
-                <div class="game-popup-body">
-                    <!-- Dynamic content will be injected here -->
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(this.overlay);
-
-        // Event listeners
-        this.overlay.querySelector('.game-popup-close').addEventListener('click', () => this.hide());
-        this.overlay.addEventListener('click', (e) => {
-            if (e.target === this.overlay) {
-                this.hide();
-            }
-        });
+        super.init();
+        this.setTitle('Game Details');
     }
 
     async show(gameData) {
@@ -65,40 +36,40 @@ class GameDetailsPopup {
         const formattedTime = new Date(gameData.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         const bodyContent = `
-            <div class="game-popup-row">
-                <span class="game-popup-label">Sport:</span>
-                <span class="game-popup-value">${gameData.sport.name}</span>
+            <div class="popup-form-group" style="display: flex; justify-content: space-between;">
+                <span class="popup-label" style="display: inline;">Sport:</span>
+                <span class="popup-value" style="font-weight: 500;">${gameData.sport.name}</span>
             </div>
-            <div class="game-popup-row">
-                <span class="game-popup-label">Place:</span>
-                <span class="game-popup-value">
+            <div class="popup-form-group" style="display: flex; justify-content: space-between;">
+                <span class="popup-label" style="display: inline;">Place:</span>
+                <span class="popup-value" style="font-weight: 500;">
                     <a href="/map?placeId=${gameData.place._id}" style="text-decoration: underline; color: inherit;">${gameData.place.name}</a>
                 </span>
             </div>
-            <div class="game-popup-row">
-                <span class="game-popup-label">Date:</span>
-                <span class="game-popup-value">${formattedDate}</span>
+            <div class="popup-form-group" style="display: flex; justify-content: space-between;">
+                <span class="popup-label" style="display: inline;">Date:</span>
+                <span class="popup-value" style="font-weight: 500;">${formattedDate}</span>
             </div>
-            <div class="game-popup-row">
-                <span class="game-popup-label">Time:</span>
-                <span class="game-popup-value">${formattedTime}</span>
+            <div class="popup-form-group" style="display: flex; justify-content: space-between;">
+                <span class="popup-label" style="display: inline;">Time:</span>
+                <span class="popup-value" style="font-weight: 500;">${formattedTime}</span>
             </div>
-            <div class="game-popup-row">
-                <span class="game-popup-label">Creator:</span>
-                <span class="game-popup-value">
+            <div class="popup-form-group" style="display: flex; justify-content: space-between;">
+                <span class="popup-label" style="display: inline;">Creator:</span>
+                <span class="popup-value" style="font-weight: 500;">
                     <a href="/user/${gameData.creator.username}" style="text-decoration: underline; color: inherit;">${gameData.creator.username}</a>
                 </span>
             </div>
             
-            <div class="game-popup-row">
-                <span class="game-popup-label">Participants:</span>
-                <span class="game-popup-value">${gameData.participants ? gameData.participants.length : 0} / ${gameData.maxParticipants || '?'}</span>
+            <div class="popup-form-group" style="display: flex; justify-content: space-between;">
+                <span class="popup-label" style="display: inline;">Participants:</span>
+                <span class="popup-value" style="font-weight: 500;">${gameData.participants ? gameData.participants.length : 0} / ${gameData.maxParticipants || '?'}</span>
             </div>
 
             ${gameData.participants && gameData.participants.length > 0 ? `
-            <div class="game-popup-section">
-                <h4 class="game-popup-subtitle">Players ${isCreator && !isFinished ? '<small style="font-size: 0.7em; font-weight: normal;">(Check winners)</small>' : ''}</h4>
-                <div class="game-popup-participants-list">
+            <div class="popup-section" style="margin-top: 15px;">
+                <h4 style="font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px;">Players ${isCreator && !isFinished ? '<small style="font-size: 0.7em; font-weight: normal;">(Check winners)</small>' : ''}</h4>
+                <div class="game-popup-participants-list" style="max-height: 150px; overflow-y: auto;">
                     ${gameData.participants.map(p => {
             const user = p.user;
             const username = user.username || 'Unknown';
@@ -113,11 +84,11 @@ class GameDetailsPopup {
             }
 
             return `
-                        <div class="participant-item" title="${username}" style="justify-content: start;">
+                        <div class="participant-item" title="${username}" style="display: flex; align-items: center; padding: 5px 0;">
                             ${extraHtml}
-                            <img src="${pic}" alt="${username}" class="participant-avatar">
-                            <span class="participant-name" style="margin-left: 10px;">
-                                <a href="/user/${username}" style="text-decoration: underline; color: inherit;">${username}</a>
+                            <img src="${pic}" alt="${username}" class="participant-avatar" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
+                            <span class="participant-name">
+                                <a href="/user/${username}" style="text-decoration: none; color: inherit;">${username}</a>
                             </span>
                         </div>
                         `;
@@ -127,23 +98,15 @@ class GameDetailsPopup {
             ` : ''}
 
             ${gameData.note ? `
-            <div class="game-popup-note">
+            <div class="game-popup-note" style="margin-top: 1rem; padding: 10px; background: #f9f9f9; border-radius: 8px; font-style: italic; color: #666;">
                 <strong>Note:</strong> ${gameData.note}
             </div>` : ''}
 
             ${this.getActionButtonHTML(gameData)}
         `;
 
-        this.overlay.querySelector('.game-popup-body').innerHTML = bodyContent;
-
-        // Timeout to allow DOM to update before adding active class for animation
-        setTimeout(() => {
-            this.overlay.classList.add('active');
-        }, 10);
-    }
-
-    hide() {
-        this.overlay.classList.remove('active');
+        this.setBody(bodyContent);
+        this.open();
     }
 
     getActionButtonHTML(gameData) {
@@ -163,32 +126,32 @@ class GameDetailsPopup {
 
         if (this.currentUser && !isFinished && !isFull && !isParticipant) {
             actionHtml = `
-                <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
+                <div class="popup-actions" style="justify-content: center;">
                     <button class="btn btn-success" onclick="window.GameDetailsPopup.joinGame('${gameData._id}')">Join Game</button>
                 </div>
              `;
         } else if (isCreator && !isFinished) {
-            // If creator and active, show Finish Game button primarily
+            // If creator and active, show Finish Game button
             actionHtml = `
-                <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
+                <div class="popup-actions" style="justify-content: center;">
                     <button class="btn btn-warning text-dark" onclick="window.GameDetailsPopup.finishGame('${gameData._id}')">Finish Game</button>
                 </div>
              `;
         } else if (isParticipant) {
             actionHtml = `
-                <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
+                <div class="popup-actions" style="justify-content: center;">
                     <span class="badge bg-success" style="font-size: 1rem;">You are a participant</span>
                 </div>
              `;
         } else if (isFull) {
             actionHtml = `
-                <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
+                <div class="popup-actions" style="justify-content: center;">
                     <span class="badge bg-danger" style="font-size: 1rem;">Game Full</span>
                 </div>
              `;
         } else if (isFinished) {
             actionHtml = `
-                <div class="game-popup-actions" style="text-align: center; margin-top: 15px;">
+                <div class="popup-actions" style="justify-content: center;">
                     <span class="badge bg-secondary" style="font-size: 1rem;">Game Finished</span>
                 </div>
              `;
@@ -196,7 +159,7 @@ class GameDetailsPopup {
 
         if (isCreator) {
             actionHtml += `
-                <div class="game-popup-actions" style="text-align: center; margin-top: 10px;">
+                <div class="popup-actions" style="justify-content: center; margin-top: 10px;">
                     <button class="btn btn-danger" onclick="window.GameDetailsPopup.deleteGame('${gameData._id}')">Delete Game</button>
                 </div>
             `;
@@ -216,7 +179,7 @@ class GameDetailsPopup {
 
             if (response.ok) {
                 alert('Successfully joined the game!');
-                this.hide();
+                this.close();
                 window.location.reload(); // Reload to update UI
             } else {
                 const error = await response.json();
@@ -247,7 +210,7 @@ class GameDetailsPopup {
 
             if (response.ok) {
                 alert('Game finished successfully!');
-                this.hide();
+                this.close();
                 window.location.reload();
             } else {
                 const error = await response.json();
@@ -271,7 +234,7 @@ class GameDetailsPopup {
 
             if (response.ok) {
                 alert('Game deleted successfully');
-                this.hide();
+                this.close();
                 window.location.reload(); // Reload to remove game from view
             } else {
                 const error = await response.json();

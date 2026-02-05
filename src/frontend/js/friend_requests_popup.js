@@ -1,51 +1,24 @@
-class FriendRequestsPopup {
+class FriendRequestsPopup extends BasePopup {
     constructor() {
-        this.overlay = null;
+        super('friend-requests-popup');
         this.currentUserId = null;
-        this.init();
     }
 
     init() {
-        if (document.querySelector('.friend-requests-popup-overlay')) {
-            this.overlay = document.querySelector('.friend-requests-popup-overlay');
-            return;
-        }
-
-        this.overlay = document.createElement('div');
-        this.overlay.className = 'friend-requests-popup-overlay';
-        this.overlay.innerHTML = `
-            <div class="friend-requests-popup-content">
-                <button class="friend-requests-popup-close">&times;</button>
-                <h2 class="friend-requests-popup-title">Richieste di Amicizia</h2>
-                <div class="friend-requests-body">
-                    <p class="text-center text-muted">Caricamento...</p>
-                </div>
-            </div>
-        `;
-
-        document.body.appendChild(this.overlay);
-
-        this.overlay.querySelector('.friend-requests-popup-close').addEventListener('click', () => this.hide());
-        this.overlay.addEventListener('click', (e) => {
-            if (e.target === this.overlay) {
-                this.hide();
-            }
-        });
+        super.init();
+        this.setTitle('Richieste di Amicizia');
+        this.setBody('<p class="text-center text-muted">Caricamento...</p>');
     }
 
     async show() {
-        setTimeout(() => {
-            this.overlay.classList.add('active');
-        }, 10);
+        this.open();
         await this.loadRequests();
     }
 
-    hide() {
-        this.overlay.classList.remove('active');
-    }
-
     async loadRequests() {
-        const container = this.overlay.querySelector('.friend-requests-body');
+        const container = this.overlay.querySelector('.popup-body');
+        if (!container) return;
+
         container.innerHTML = '<p class="text-center text-muted">Caricamento...</p>';
 
         try {
@@ -66,24 +39,30 @@ class FriendRequestsPopup {
 
             const ul = document.createElement('ul');
             ul.className = 'friend-requests-list';
+            ul.style.listStyle = 'none';
+            ul.style.padding = '0';
+            ul.style.margin = '0';
 
             user.friendRequests.forEach(requester => {
                 const li = document.createElement('li');
                 li.className = 'friend-request-item';
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.style.alignItems = 'center';
+                li.style.padding = '10px 0';
+                li.style.borderBottom = '1px solid #f0f0f0';
 
-                // Requester might be populated object or ID string depending on backend.
-                // Endpoint /api/users/:id populates friendRequests with 'username email'.
                 const username = requester.username || 'Unknown';
-                const id = requester._id || requester;
+                const id = requester._id;
 
                 const profilePic = requester.profilePicture || '/images/utenteDefault.png';
 
                 li.innerHTML = `
-                    <div class="request-info">
-                        <img src="${profilePic}" alt="${username}" class="request-profile-pic">
-                        <a href="/user/${username}" class="request-username" style="text-decoration: none; color: inherit; font-weight: bold;">${username}</a>
+                    <div class="request-info" style="display: flex; align-items: center;">
+                        <img src="${profilePic}" alt="${username}" class="request-profile-pic" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; object-fit: cover;">
+                        <a href="/user/${username}" class="request-username" style="text-decoration: none; color: #333; font-weight: 600;">${username}</a>
                     </div>
-                    <div class="request-actions">
+                    <div class="request-actions" style="display: flex; gap: 8px;">
                         <button class="btn btn-sm btn-success accept-btn" data-id="${id}">Accetta</button>
                         <button class="btn btn-sm btn-danger decline-btn" data-id="${id}">Rifiuta</button>
                     </div>
@@ -119,12 +98,6 @@ class FriendRequestsPopup {
             if (response.ok) {
                 // Refresh list
                 await this.loadRequests();
-                // Optionally refresh main profile page counters if needed
-                if (window.location.reload) {
-                    // A full reload might be jarring, maybe just dispatch an event?
-                    // For now, simplicity: just reload requests list.
-                    // The user can refresh page to see updated friend count.
-                }
             } else {
                 alert('Errore durante l\'operazione');
             }

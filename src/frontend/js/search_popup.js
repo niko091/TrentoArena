@@ -1,72 +1,74 @@
-class SearchPopup {
+class SearchPopup extends BasePopup {
     constructor() {
-        this.overlay = null;
+        super('search-popup');
         this.input = null;
         this.resultsContainer = null;
         this.debounceTimer = null;
     }
 
-    create() {
-        this.overlay = document.createElement('div');
-        this.overlay.className = 'search-popup-overlay';
-        this.overlay.onclick = (e) => {
-            if (e.target === this.overlay) this.close();
-        };
+    init() {
+        super.init();
+        this.setTitle('Cerca');
 
-        this.overlay.innerHTML = `
-            <div class="search-popup-content">
-                <div class="search-popup-header">
-                    <h2>Cerca</h2>
-                    <button type="button" class="btn-close" onclick="window.SearchPopupInstance.close()"></button>
-                </div>
-                
-                <div class="search-input-container">
-                    <img src="/images/search.png" class="search-icon" alt="">
-                    <input type="text" class="search-input" placeholder="Cerca persone o luoghi..." autofocus>
-                </div>
-
-                <div class="search-results-section" id="searchResults">
-                    <div class="no-results">Inizia a digitare per cercare...</div>
-                </div>
+        this.setBody(`
+            <div class="search-input-container">
+                <img src="/images/search.png" class="search-icon" alt="Search">
+                <input type="text" id="popupSearchInput" class="popup-input search-input" placeholder="Cerca persone o luoghi..." autofocus>
             </div>
-        `;
 
-        document.body.appendChild(this.overlay);
+            <div class="search-results-section" id="popupSearchResults">
+                <div class="no-results">Inizia a digitare per cercare...</div>
+            </div>
+        `);
 
-        this.input = this.overlay.querySelector('.search-input');
-        this.resultsContainer = this.overlay.querySelector('#searchResults');
+        this.input = document.getElementById('popupSearchInput');
+        this.resultsContainer = document.getElementById('popupSearchResults');
 
-        this.input.addEventListener('input', (e) => this.handleInput(e.target.value));
+        if (this.input) {
+            this.input.addEventListener('input', (e) => {
+                this.handleInput(e.target.value);
+            });
+        }
     }
 
     show() {
-        if (!this.overlay) {
-            this.create();
-        }
-        this.overlay.style.display = 'flex';
-        this.input.value = '';
-        this.resultsContainer.innerHTML = '<div class="no-results">Inizia a digitare per cercare...</div>';
-        setTimeout(() => this.input.focus(), 50);
-    }
+        super.open();
 
-    close() {
-        if (this.overlay) {
-            this.overlay.style.display = 'none';
+        if (!this.input) this.input = document.getElementById('popupSearchInput');
+        if (!this.resultsContainer) this.resultsContainer = document.getElementById('popupSearchResults');
+
+        if (this.input) {
+            this.input.value = '';
+            // Focus with a small delay to handle transition
+            setTimeout(() => this.input.focus(), 50);
+        }
+
+        if (this.resultsContainer) {
+            this.resultsContainer.innerHTML = '<div class="no-results">Inizia a digitare per cercare...</div>';
         }
     }
 
     handleInput(query) {
         clearTimeout(this.debounceTimer);
 
-        if (query.length < 2) {
+        if (!this.resultsContainer) this.resultsContainer = document.getElementById('popupSearchResults');
+
+        if (!this.resultsContainer) {
+            console.error('SearchPopup: resultsContainer missing');
+            return;
+        }
+
+        if (query.trim().length < 2) {
             this.resultsContainer.innerHTML = '<div class="no-results">Digita almeno 2 caratteri...</div>';
             return;
         }
 
-        this.debounceTimer = setTimeout(() => this.performSearch(query), 300);
+        this.debounceTimer = setTimeout(() => this.performSearch(query.trim()), 300);
     }
 
     async performSearch(query) {
+        if (!this.resultsContainer) return;
+
         this.resultsContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
 
         try {
@@ -86,6 +88,8 @@ class SearchPopup {
     }
 
     renderResults(users, places) {
+        if (!this.resultsContainer) return;
+
         if ((!users || users.length === 0) && (!places || places.length === 0)) {
             this.resultsContainer.innerHTML = '<div class="no-results">Nessun risultato trovato</div>';
             return;
@@ -111,13 +115,13 @@ class SearchPopup {
         if (places && places.length > 0) {
             html += '<div class="section-title">Luoghi</div>';
             places.forEach(place => {
-                const icon = '/images/map.png'; // Generic map icon for places
+                const sportName = place.sport ? place.sport.name : '';
                 html += `
                     <a href="/map?placeId=${place._id}" class="result-item">
-                        <img src="${icon}" class="result-img" style="padding: 8px; background: #eee;" alt="${place.name}">
+                        <img src="/images/map.png" class="result-img" style="padding: 8px; background: #eee;" alt="${place.name}">
                         <div class="result-info">
                             <span class="result-name">${place.name}</span>
-                            <span class="result-sub">${place.sport ? place.sport.name : ''}</span>
+                            <span class="result-sub">${sportName}</span>
                         </div>
                     </a>
                 `;
@@ -128,5 +132,4 @@ class SearchPopup {
     }
 }
 
-// Singleton instance
 window.SearchPopupInstance = new SearchPopup();
