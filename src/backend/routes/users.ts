@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express';
+import sharp from 'sharp';
 import mongoose from 'mongoose';
 import User from '../models/User';
 import upload from '../config/uploadConfig';
 import fs from 'fs';
 import path from 'path';
-import { rootDir } from '../config/paths';
+import { uploadDir, frontendPath } from '../config/paths';
 
 
 const router = express.Router();
@@ -236,7 +237,7 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
 
         // Delete old profile picture if exists
         if (user.profilePicture) {
-            const oldPath = path.join(rootDir, user.profilePicture);
+            const oldPath = path.join(frontendPath, user.profilePicture);
             if (fs.existsSync(oldPath)) {
                 try {
                     fs.unlinkSync(oldPath);
@@ -246,13 +247,25 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
             }
         }
 
-        // Relative path to be stored in DB and used in frontend
-        const profilePicturePath = `uploads/profile_pictures/${req.file.filename}`;
+        // Generate filename
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const filename = `user-${req.params.id}-${uniqueSuffix}.jpeg`; // Always converting to JPEG
+        const relativePath = `uploads/profile_pictures/${filename}`;
+        const absolutePath = path.join(uploadDir, filename);
 
-        user.profilePicture = profilePicturePath;
+        // Resize and save using sharp
+        await sharp(req.file.buffer)
+            .resize(500, 500, { // Max dimensions
+                fit: 'cover',
+                position: 'center'
+            })
+            .toFormat('jpeg', { quality: 80 })
+            .toFile(absolutePath);
+
+        user.profilePicture = relativePath;
         await user.save();
 
-        res.json({ message: 'Profile picture updated', profilePicture: profilePicturePath });
+        res.json({ message: 'Profile picture updated', profilePicture: relativePath });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });
@@ -268,7 +281,7 @@ router.delete('/:id/profile-picture', async (req: Request, res: Response) => {
         }
 
         if (user.profilePicture) {
-            const filePath = path.join(rootDir, user.profilePicture);
+            const filePath = path.join(frontendPath, user.profilePicture);
             if (fs.existsSync(filePath)) {
                 try {
                     fs.unlinkSync(filePath);
