@@ -4,6 +4,8 @@ import User from '../models/User';
 import upload from '../config/uploadConfig';
 import fs from 'fs';
 import path from 'path';
+import { rootDir } from '../config/paths';
+
 
 const router = express.Router();
 
@@ -234,7 +236,7 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
 
         // Delete old profile picture if exists
         if (user.profilePicture) {
-            const oldPath = path.join(__dirname, '../../frontend', user.profilePicture);
+            const oldPath = path.join(rootDir, user.profilePicture);
             if (fs.existsSync(oldPath)) {
                 try {
                     fs.unlinkSync(oldPath);
@@ -245,7 +247,7 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
         }
 
         // Relative path to be stored in DB and used in frontend
-        const profilePicturePath = `/uploads/profile_pictures/${req.file.filename}`;
+        const profilePicturePath = `uploads/profile_pictures/${req.file.filename}`;
 
         user.profilePicture = profilePicturePath;
         await user.save();
@@ -266,7 +268,7 @@ router.delete('/:id/profile-picture', async (req: Request, res: Response) => {
         }
 
         if (user.profilePicture) {
-            const filePath = path.join(__dirname, '../../frontend', user.profilePicture);
+            const filePath = path.join(rootDir, user.profilePicture);
             if (fs.existsSync(filePath)) {
                 try {
                     fs.unlinkSync(filePath);

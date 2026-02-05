@@ -1,9 +1,8 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { uploadDir } from './paths';
 
-// Ensure directory exists
-const uploadDir = path.join(__dirname, '../../frontend/uploads/profile_pictures');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }

@@ -212,7 +212,7 @@
                         document.getElementById('username').textContent = user.username;
 
                         if (user.profilePicture) {
-                            document.getElementById('profilePic').src = user.profilePicture;
+                            document.getElementById('profilePic').src = "/" + user.profilePicture;
                         }
 
                         // Configure Add Friend Button
