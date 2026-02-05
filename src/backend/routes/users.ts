@@ -255,7 +255,7 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
 
         // Resize and save using sharp
         await sharp(req.file.buffer)
-            .resize(500, 500, { // Max dimensions
+            .resize(200, 200, { // Max dimensions
                 fit: 'cover',
                 position: 'center'
             })
