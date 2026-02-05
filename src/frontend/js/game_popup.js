@@ -73,7 +73,7 @@ class GameDetailsPopup extends BasePopup {
                     ${gameData.participants.map(p => {
             const user = p.user;
             const username = user.username || 'Unknown';
-            const pic = user.profilePicture || '/images/utenteDefault.png';
+            const pic = user.profilePicture ? user.profilePicture : '/images/utenteDefault.png';
             const userId = user._id || user;
 
             let extraHtml = '';

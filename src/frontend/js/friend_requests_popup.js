@@ -54,8 +54,7 @@ class FriendRequestsPopup extends BasePopup {
 
                 const username = requester.username || 'Unknown';
                 const id = requester._id;
-
-                const profilePic = requester.profilePicture || '/images/utenteDefault.png';
+                const profilePic = requester.profilePicture ? requester.profilePicture : '/images/utenteDefault.png';
 
                 li.innerHTML = `
                     <div class="request-info" style="display: flex; align-items: center;">

@@ -1,12 +1,15 @@
 import express, { Request, Response } from 'express';
-import sharp from 'sharp';
 import mongoose from 'mongoose';
 import User from '../models/User';
 import upload from '../config/uploadConfig';
-import fs from 'fs';
-import path from 'path';
-import { uploadDir, frontendPath } from '../config/paths';
+import { v2 as cloudinary } from 'cloudinary';
 
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const router = express.Router();
 
@@ -235,37 +238,29 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Delete old profile picture if exists
-        if (user.profilePicture) {
-            const oldPath = path.join(frontendPath, user.profilePicture);
-            if (fs.existsSync(oldPath)) {
-                try {
-                    fs.unlinkSync(oldPath);
-                } catch (err) {
-                    console.error('Failed to delete old profile picture:', err);
+        // Upload to Cloudinary
+        const result = await new Promise<any>((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                {
+                    folder: 'trento_arena_avatars',
+                    width: 200,
+                    height: 200,
+                    crop: 'thumb',
+                    quality: 'auto',
+                    fetch_format: 'auto'
+                },
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
                 }
-            }
-        }
+            );
+            stream.end(req.file!.buffer);
+        });
 
-        // Generate filename
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const filename = `user-${req.params.id}-${uniqueSuffix}.jpeg`; // Always converting to JPEG
-        const relativePath = `uploads/profile_pictures/${filename}`;
-        const absolutePath = path.join(uploadDir, filename);
-
-        // Resize and save using sharp
-        await sharp(req.file.buffer)
-            .resize(200, 200, { // Max dimensions
-                fit: 'cover',
-                position: 'center'
-            })
-            .toFormat('jpeg', { quality: 80 })
-            .toFile(absolutePath);
-
-        user.profilePicture = relativePath;
+        user.profilePicture = result.secure_url;
         await user.save();
 
-        res.json({ message: 'Profile picture updated', profilePicture: relativePath });
+        res.json({ message: 'Profile picture updated', profilePicture: user.profilePicture });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server Error' });
@@ -280,18 +275,8 @@ router.delete('/:id/profile-picture', async (req: Request, res: Response) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if (user.profilePicture) {
-            const filePath = path.join(frontendPath, user.profilePicture);
-            if (fs.existsSync(filePath)) {
-                try {
-                    fs.unlinkSync(filePath);
-                } catch (err) {
-                    console.error('Failed to delete profile picture:', err);
-                }
-            }
-            user.profilePicture = undefined;
-            await user.save();
-        }
+        user.profilePicture = undefined;
+        await user.save();
 
         res.json({ message: 'Profile picture removed' });
     } catch (err) {

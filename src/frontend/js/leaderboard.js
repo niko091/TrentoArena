@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (index === 1) rankDisplay = `<span class="badge bg-secondary fs-6">🥈 2</span>`;
             else if (index === 2) rankDisplay = `<span class="badge text-bg-custom-bronze fs-6" style="background-color: #cd7f32; color: white;">🥉 3</span>`;
 
-            const profilePic = user.profilePicture || '/images/utenteDefault.png';
+            const profilePic = user.profilePicture ? user.profilePicture : '/images/utenteDefault.png';
 
             row.innerHTML = `
                 <td class="align-middle">${rankDisplay}</td>
