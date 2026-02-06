@@ -40,7 +40,7 @@ router.get('/', async (req: Request, res: Response) => {
     try {
         const reports = await Report.find()
             .populate('reporter', 'username email')
-            .populate('reported', 'username email')
+            .populate('reported', 'username email isBanned')
             .sort({ date: -1 });
         res.json(reports);
     } catch (err) {

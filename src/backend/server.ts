@@ -12,6 +12,8 @@ import sportRoutes from './routes/sports';
 import gameRoutes from './routes/games';
 import userRoutes from './routes/users';
 import reportRoutes from './routes/reports'; // Import report routes
+import adminRoutes from './routes/admin';
+import { checkBan } from './middleware/checkBan';
 import basicAuth from 'express-basic-auth';
 
 
@@ -46,6 +48,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(checkBan);
 
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
@@ -87,6 +90,12 @@ app.use('/api/sports', sportRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes); // Register report routes
+
+// Admin API Routes
+app.use('/api/admin', basicAuth({
+    users: { [process.env.ADMIN_USERNAME || 'admin']: process.env.ADMIN_PASSWORD || 'admin123' },
+    challenge: true
+}), adminRoutes);
 
 // Admin Dashboard Route
 app.use('/admin', basicAuth({
