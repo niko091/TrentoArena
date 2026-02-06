@@ -96,6 +96,13 @@ app.use('/admin', basicAuth({
     res.sendFile(path.join(frontendPath, '/admin_dashboard.html'));
 });
 
+// Stats Route
+app.use('/stats', basicAuth({
+    users: { [process.env.STATS_USERNAME || 'stats']: process.env.STATS_PASSWORD || 'stats123' },
+    challenge: true
+}), (req, res) => {
+    res.sendFile(path.join(frontendPath, '/stats.html'));
+});
 
 
 app.get('/registration', (req, res) => {

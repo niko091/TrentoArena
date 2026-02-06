@@ -20,11 +20,6 @@
     --radius: 0.5rem;
 }
 
-body {
-    /* Optional: Add a subtle background image or color toggle if needed beyond bootstrap defaults */
-}
-
-/* Ensure icons align well */
 .bi {
     fill: currentColor;
 }
