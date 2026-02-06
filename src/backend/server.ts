@@ -12,6 +12,8 @@ import sportRoutes from './routes/sports';
 import gameRoutes from './routes/games';
 import userRoutes from './routes/users';
 import reportRoutes from './routes/reports'; // Import report routes
+import adminRoutes from './routes/admin';
+import { checkBan } from './middleware/checkBan';
 import basicAuth from 'express-basic-auth';
 
 
@@ -34,6 +36,19 @@ import MongoStore from 'connect-mongo';
 
 // Middleware
 app.use(express.json());
+
+// Content Security Policy
+app.use((req, res, next) => {
+    res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https: blob: https://tile.openstreetmap.org; font-src 'self' data: https:; connect-src 'self' https:;"
+    );
+    next();
+});
+
+// Favicon handler
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.use(
     session({
         secret: process.env.SESSION_SECRET || 'secret',
@@ -46,6 +61,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(checkBan);
 
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
@@ -70,7 +86,7 @@ app.get('/dashboard', (req, res) => {
     }
 });
 
-app.get('/leaderboard.html', (req, res) => {
+app.get('/leaderboard', (req, res) => {
     if (req.isAuthenticated()) {
         res.sendFile(path.join(frontendPath, '/leaderboard.html'));
     } else {
@@ -88,6 +104,12 @@ app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes); // Register report routes
 
+// Admin API Routes
+app.use('/api/admin', basicAuth({
+    users: { [process.env.ADMIN_USERNAME || 'admin']: process.env.ADMIN_PASSWORD || 'admin123' },
+    challenge: true
+}), adminRoutes);
+
 // Admin Dashboard Route
 app.use('/admin', basicAuth({
     users: { [process.env.ADMIN_USERNAME || 'admin']: process.env.ADMIN_PASSWORD || 'admin123' },
@@ -96,6 +118,13 @@ app.use('/admin', basicAuth({
     res.sendFile(path.join(frontendPath, '/admin_dashboard.html'));
 });
 
+// Stats Route
+app.use('/stats', basicAuth({
+    users: { [process.env.STATS_USERNAME || 'stats']: process.env.STATS_PASSWORD || 'stats123' },
+    challenge: true
+}), (req, res) => {
+    res.sendFile(path.join(frontendPath, '/stats.html'));
+});
 
 
 app.get('/registration', (req, res) => {

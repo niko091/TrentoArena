@@ -205,7 +205,7 @@
                     return response.json();
                 })
                 .then(async (publicUser) => {
-                    // Fetch full details using ID to get ELO and populated friends for sure
+                    // Fetch full details using ID to get ELO and populated friends
                     try {
                         const response = await fetch(`/api/users/${publicUser._id}`);
                         if (!response.ok) throw new Error('Failed to fetch user details');
@@ -215,6 +215,20 @@
 
                         if (user.profilePicture) {
                             document.getElementById('profilePic').src = user.profilePicture;
+                        }
+
+                        // Check ban status
+                        if (publicUser.isBanned) {
+                            const usernameEl = document.getElementById('username');
+                            // Check if already exists to avoid duplicates if re-rendered
+                            if (!document.getElementById('ban-badge')) {
+                                const banBadge = document.createElement('div');
+                                banBadge.id = 'ban-badge';
+                                banBadge.className = 'badge bg-danger fs-6 mt-2 mb-2 d-block mx-auto';
+                                banBadge.style.maxWidth = 'fit-content';
+                                banBadge.innerText = '⚠️ This user is banned';
+                                usernameEl.parentNode.insertBefore(banBadge, usernameEl.nextSibling);
+                            }
                         }
 
                         // Configure Add Friend Button

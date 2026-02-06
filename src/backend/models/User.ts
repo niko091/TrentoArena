@@ -8,6 +8,9 @@ export interface IUser extends Document {
     friends: string[] | IUser[];
     friendRequests: string[] | IUser[];
     profilePicture?: string;
+    isBanned?: boolean;
+    banExpiresAt?: Date;
+    banReason?: string;
     sportsElo: {
         sport: mongoose.Types.ObjectId | string,
         elo: number,
@@ -39,6 +42,16 @@ const UserSchema: Schema = new Schema({
     profilePicture: {
         type: String,
         required: false,
+    },
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
+    banExpiresAt: {
+        type: Date
+    },
+    banReason: {
+        type: String
     },
     friends: [{
         type: Schema.Types.ObjectId,

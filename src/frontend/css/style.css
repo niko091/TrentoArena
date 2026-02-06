@@ -20,11 +20,6 @@
     --radius: 0.5rem;
 }
 
-body {
-    /* Optional: Add a subtle background image or color toggle if needed beyond bootstrap defaults */
-}
-
-/* Ensure icons align well */
 .bi {
     fill: currentColor;
 }
@@ -86,6 +81,68 @@ a {
     padding: var(--space-md);
     width: 100%;
 }
+
+/* Navbar Styles*/
+.navbar {
+    background-color: var(--accent-primary);
+    box-shadow: var(--shadow-md);
+    padding: 0.75rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-brand h1 {
+    color: white;
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.nav-items {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nav-link {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.2s;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.nav-link img {
+    height: 24px;
+    width: auto;
+    margin-bottom: 4px;
+    filter: brightness(0) invert(1);
+    transition: filter 0.2s;
+    opacity: 0.9;
+}
+
+.nav-link:hover {
+    color: white;
+    transform: translateY(-2px);
+}
+
+.nav-link:hover img {
+    filter: brightness(0) invert(1);
+    opacity: 1;
+}
+
 
 /* Dashboard Styles */
 .dashboard-header {

@@ -89,7 +89,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/username/:username', async (req: Request, res: Response) => {
     try {
         const user = await User.findOne({ username: req.params.username })
-            .select('username friends profilePicture') // Only public info
+            .select('username friends profilePicture isBanned') // Only public info
             .populate('friends', 'username profilePicture'); // Just usernames and pics of friends
 
         if (!user) {

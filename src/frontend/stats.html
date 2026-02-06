@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrentoArena - Statistics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .stats-container {
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-select {
+            width: auto;
+            min-width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container stats-container">
+        <h1 class="text-center mb-5">Game Statistics</h1>
+
+        <div class="row mb-5">
+            <!-- Games by Sport -->
+            <div class="col-md-7">
+                <div class="chart-card h-100">
+                    <div class="chart-header">
+                        <div class="chart-title">Games played by Sport</div>
+                        <select id="sportSelect" class="form-select">
+                            <option value="" disabled selected>Select a Sport</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                    <canvas id="sportChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Sports -->
+            <div class="col-md-5">
+                <div class="chart-card h-100">
+                    <div class="chart-header">
+                        <div class="chart-title">Most Played Sports</div>
+                        <select id="topSportsPeriod" class="form-select">
+                            <option value="year" selected>Last Year</option>
+                            <option value="month">Last Month</option>
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <ul id="topSportsList" class="list-group list-group-flush">
+                            <!-- Options populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Games by Place -->
+            <div class="col-md-7">
+                <div class="chart-card h-100">
+                    <div class="chart-header">
+                        <div class="chart-title">Games played by Place</div>
+                        <select id="placeSelect" class="form-select">
+                            <option value="" disabled selected>Select a Place</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                    <canvas id="placeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Places -->
+            <div class="col-md-5">
+                <div class="chart-card h-100">
+                    <div class="chart-header">
+                        <div class="chart-title">Most Popular Places</div>
+                        <select id="topPlacesPeriod" class="form-select">
+                            <option value="year" selected>Last Year</option>
+                            <option value="month">Last Month</option>
+                            <option value="all">All Time</option>
+                        </select>
+                    </div>
+                    <div class="card-body">
+                        <ul id="topPlacesList" class="list-group list-group-flush">
+                            <!-- Options populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/stats.js"></script>
+</body>
+
+</html>
