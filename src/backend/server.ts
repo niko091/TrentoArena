@@ -36,6 +36,19 @@ import MongoStore from 'connect-mongo';
 
 // Middleware
 app.use(express.json());
+
+// Content Security Policy
+app.use((req, res, next) => {
+    res.setHeader(
+        "Content-Security-Policy",
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: https: blob: https://tile.openstreetmap.org; font-src 'self' data: https:; connect-src 'self' https:;"
+    );
+    next();
+});
+
+// Favicon handler
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.use(
     session({
         secret: process.env.SESSION_SECRET || 'secret',
@@ -73,7 +86,7 @@ app.get('/dashboard', (req, res) => {
     }
 });
 
-app.get('/leaderboard.html', (req, res) => {
+app.get('/leaderboard', (req, res) => {
     if (req.isAuthenticated()) {
         res.sendFile(path.join(frontendPath, '/leaderboard.html'));
     } else {
