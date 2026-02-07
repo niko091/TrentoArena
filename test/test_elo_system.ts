@@ -58,7 +58,7 @@ describe('ELO System Tests', () => {
 
         // Create Game (Winner is creator)
         const gameRes = await agentW.post('/api/games').send({
-            sportId, placeId, date: '2026-12-12', time: '10:00',
+            sportId, placeId, date: '2026-01-01', time: '10:00',
             note: ELO_TEST_PREFIX, maxParticipants: 2
         }).expect(201);
         const gameId = gameRes.body._id;

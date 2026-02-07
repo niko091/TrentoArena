@@ -81,7 +81,7 @@ describe('Game API Tests', () => {
             .send({
                 sportId,
                 placeId,
-                date: '2026-10-10',
+                date: '2026-01-01',
                 time: '18:00',
                 note: 'API_TEST_GAME',
                 maxParticipants: 10
@@ -104,7 +104,7 @@ describe('Game API Tests', () => {
             .send({
                 sportId,
                 placeId,
-                date: '2026-10-10',
+                date: '2026-01-01',
                 time: '18:00'
             })
             .expect(401);
