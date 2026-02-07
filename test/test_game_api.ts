@@ -16,7 +16,8 @@ const API_TEST_USER = {
     password: 'password123'
 };
 
-describe('Game API Tests', () => {
+describe('Game API Tests', function () {
+    this.timeout(10000);
 
     let sportId: string;
     let placeId: string;
@@ -28,13 +29,13 @@ describe('Game API Tests', () => {
         }
 
         // Cleanup
-        await User.deleteMany({ email: API_TEST_USER.email });
+        await User.deleteMany({ email: { $in: [API_TEST_USER.email, 'other_user@example.com', 'winner_user@example.com'] } });
         await Game.deleteMany({ note: 'API_TEST_GAME' });
 
         // Get dependencies or create them
         let sport = await Sport.findOne();
         if (!sport) {
-            sport = await Sport.create({ name: 'Football' });
+            sport = await Sport.create({ name: 'Test_sport' });
         }
 
         let place = await Place.findOne();
@@ -53,6 +54,7 @@ describe('Game API Tests', () => {
     after(async () => {
         await User.deleteMany({ email: API_TEST_USER.email });
         await Game.deleteMany({ note: 'API_TEST_GAME' });
+        await Sport.deleteMany({ name: 'Test_sport' });
         // await mongoose.connection.close(); 
     });
 

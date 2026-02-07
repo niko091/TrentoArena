@@ -21,7 +21,7 @@ describe('Game Model Tests', () => {
         // Ensure dependencies exist
         sport = await Sport.findOne();
         if (!sport) {
-            sport = await Sport.create({ name: 'Football' });
+            sport = await Sport.create({ name: 'Test_sport' });
         }
 
         place = await Place.findOne();
@@ -50,6 +50,7 @@ describe('Game Model Tests', () => {
     after(async () => {
         await Game.deleteMany({ note: 'This is a test game for verification.' });
         await User.deleteOne({ email: 'testgame_model@example.com' });
+        await Sport.deleteOne({ name: 'Test_sport' });
     });
 
     it('Step 1: Should create and save a game', async () => {

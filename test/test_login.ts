@@ -47,9 +47,7 @@ describe('Login API', () => {
         const res = await request(app)
             .post('/auth/login')
             .send({
-                email: API_TEST_USER.username, // Passport local strategy uses 'username' field, but we configured it to map to 'email' field in request??
-                // Wait, let's check passport config. Usually it's `usernameField: 'email'`.
-                // Actually, our previous test sent username in the email field.
+                email: API_TEST_USER.username,
                 password: API_TEST_USER.password
             })
             .expect(200);

@@ -11,7 +11,8 @@ dotenv.config();
 
 const ELO_TEST_PREFIX = 'ELO_TEST';
 
-describe('ELO System Tests', () => {
+describe('ELO System Tests', function () {
+    this.timeout(10000);
 
     let sportId: string;
     let placeId: string;

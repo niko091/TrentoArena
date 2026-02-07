@@ -87,11 +87,15 @@ router.get('/', async (req: Request, res: Response) => {
             query.isFinished = isFinished === 'true';
         }
 
+        const limit = parseInt(req.query.limit as string) || 0;
+
         const games = await Game.find(query)
+            .limit(limit)
             .populate('sport')
             .populate('place')
             .populate('creator', '-password') // Exclude password from creator
-            .populate('participants.user', 'username profilePicture email'); // Populate participants info
+            .populate('participants.user', 'username profilePicture email') // Populate participants info
+            .lean();
 
         res.json(games);
 
@@ -167,7 +171,7 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
                 const K = 32;
 
                 // Update Winners
-                for (const user of winnerUsers) {
+                await Promise.all(winnerUsers.map(async (user) => {
                     if (!user.sportsElo) user.sportsElo = [];
                     let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
                     if (!entry) {
@@ -190,10 +194,10 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
                         });
                     }
                     await user.save();
-                }
+                }));
 
                 // Update Losers
-                for (const user of loserUsers) {
+                await Promise.all(loserUsers.map(async (user) => {
                     if (!user.sportsElo) user.sportsElo = [];
                     let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
                     if (!entry) {
@@ -216,11 +220,17 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
                         });
                     }
                     await user.save();
-                }
+                }));
             }
         }
 
-        await game.save();
+        // Use updateOne to avoid VersionError
+        await Game.updateOne({ _id: game._id }, {
+            $set: {
+                isFinished: true,
+                participants: game.participants
+            }
+        });
 
         res.json({ message: 'Game marked as finished', game });
 

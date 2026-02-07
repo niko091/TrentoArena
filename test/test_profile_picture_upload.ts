@@ -10,9 +10,6 @@ import userRoutes from '../src/backend/routes/users';
 import authRoutes from '../src/backend/routes/auth';
 import request from 'supertest';
 import '../src/backend/config/passport';
-import path from 'path';
-import fs from 'fs';
-import { frontendPath } from '../src/backend/config/paths';
 
 dotenv.config();
 
