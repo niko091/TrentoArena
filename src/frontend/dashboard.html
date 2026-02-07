@@ -57,7 +57,7 @@
     <div id="navbar"></div>
 
     <script>
-        fetch("./utility/navbar.html")
+        fetch("./utility/navbar.html?v=")
             .then(response => response.text())
             .then(data => {
                 document.getElementById("navbar").innerHTML = data;
