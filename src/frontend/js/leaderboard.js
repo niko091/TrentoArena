@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4">Caricamento...</td></tr>';
 
         // Always fetch global leaderboard
-        fetch(`/api/users/leaderboard?sportId=${sportId}`)
+        fetch(`/api/users/leaderboard?sportId=${sportId}&limit=100`)
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch leaderboard');
                 return res.json();

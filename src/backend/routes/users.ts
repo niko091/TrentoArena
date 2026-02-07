@@ -44,10 +44,14 @@ router.get('/leaderboard', async (req: Request, res: Response) => {
     }
 
     try {
+        const limitStr = req.query.limit as string;
+        const limit = limitStr ? parseInt(limitStr) : 50;
+
         const leaderboard = await User.aggregate([
             { $unwind: '$sportsElo' },
             { $match: { 'sportsElo.sport': new mongoose.Types.ObjectId(sportId as string) } },
             { $sort: { 'sportsElo.elo': -1 } },
+            { $limit: limit },
             {
                 $project: {
                     username: 1,
