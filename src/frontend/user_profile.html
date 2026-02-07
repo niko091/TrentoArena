@@ -50,7 +50,7 @@
                     <select id="eloSportSelect" class="form-select mb-3" aria-label="Select Sport for ELO">
                         <option selected disabled>Select a sport...</option>
                     </select>
-                    <div id="eloDisplay" class="text-center p-3 border rounded bg-light"
+                    <div id="eloDisplay" class="text-center p-3 border rounded"
                         style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
                         <span class="text-muted" id="eloPlaceholder">Select a sport to see rating history</span>
                         <canvas id="eloChart" style="display: none; width: 100%; height: 100%;"></canvas>
@@ -456,6 +456,7 @@
                         chartInstance.destroy();
                     }
 
+
                     chartInstance = new Chart(canvas, {
                         type: 'line',
                         data: {
@@ -475,7 +476,7 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: {
-                                legend: { display: true },
+                                legend: { display: true, labels: { color: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '#e0e0e0' : '#666' } },
                                 tooltip: {
                                     callbacks: {
                                         label: function (context) {
@@ -485,10 +486,16 @@
                                 }
                             },
                             scales: {
+                                x: {
+                                    ticks: { color: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '#e0e0e0' : '#666' },
+                                    grid: { color: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '#444' : '#ddd' }
+                                },
                                 y: {
                                     beginAtZero: false,
                                     suggestedMin: 1000,
-                                    suggestedMax: 1400
+                                    suggestedMax: 1400,
+                                    ticks: { color: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '#e0e0e0' : '#666' },
+                                    grid: { color: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '#444' : '#ddd' }
                                 }
                             }
                         }
@@ -496,7 +503,7 @@
                 });
 
                 if (user.sportsElo.length > 0) {
-                    sportSelect.selectedIndex = 1;
+                    sportSelect.selectedIndex = 0; // Fixed index
                     sportSelect.dispatchEvent(new Event('change'));
                 }
             }
@@ -551,12 +558,12 @@
                 const card = document.createElement('div');
                 card.className = 'col-md-6 col-lg-4';
 
-                let cardStyle = '';
+                let cardClass = '';
                 let badgeHtml = '';
                 let borderClass = '';
 
                 if (isFinished) {
-                    cardStyle = 'opacity: 0.9;';
+                    cardClass = 'opacity-75';
                     // Determine outcome if userId is provided
                     if (currentUserId && game.participants) {
                         const participant = game.participants.find(p => {
@@ -566,23 +573,22 @@
 
                         if (participant) {
                             if (participant.winner) {
-                                cardStyle += 'background-color: #d1e7dd;';
-                                borderClass = 'border-success';
+                                cardClass += ' card-win';
                                 badgeHtml = '<span class="badge bg-success me-1">Won 🏆</span>';
                             } else {
-                                cardStyle += 'background-color: #f8d7da;';
-                                borderClass = 'border-danger';
+                                cardClass += ' card-loss';
                                 badgeHtml = '<span class="badge bg-danger me-1">Lost</span>';
                             }
                         }
                     }
                     if (!badgeHtml) badgeHtml = '<span class="badge bg-secondary me-1">Finished</span>';
                 } else {
+                    cardClass = 'card-upcoming';
                     badgeHtml = `<span class="badge bg-secondary">${game.participants.length}/${game.maxParticipants}</span>`;
                 }
 
                 card.innerHTML = `
-                    <div class="card h-100 shadow-sm ${borderClass}" style="cursor: pointer; transition: transform 0.2s; ${cardStyle}" onclick="openGameDetails('${game._id}')">
+                    <div class="card h-100 shadow-sm ${cardClass}" style="cursor: pointer; transition: transform 0.2s;" onclick="openGameDetails('${game._id}')">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <h5 class="card-title fw-bold mb-0 text-primary">${sportName}</h5>

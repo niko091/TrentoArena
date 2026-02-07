@@ -107,10 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="align-middle">
                     <div class="d-flex align-items-center">
                         <img src="${profilePic}" alt="${user.username}" class="leaderboard-img shadow-sm">
-                        <a href="/user/${user.username}" class="text-decoration-none fw-semibold text-dark">${user.username}</a>
+                        <a href="/user/${user.username}" class="text-decoration-none fw-semibold" style="color: inherit;">${user.username}</a>
                     </div>
                 </td>
-                <td class="align-middle text-end fw-bold font-monospace fs-5" style="color: rgb(223, 103, 5);">${user.elo}</td>
+                <td class="align-middle text-end fw-bold font-monospace fs-5" style="color: var(--accent-primary);">${user.elo}</td>
             `;
 
             tableBody.appendChild(row);
