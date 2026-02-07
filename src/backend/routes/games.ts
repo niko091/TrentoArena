@@ -161,7 +161,8 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
                 const avgLoserElo = loserUsers.reduce((sum: number, u: any) => sum + getElo(u, sportId), 0) / loserUsers.length;
 
                 // Expected score for Winner Team
-                const expectedScore = 1 / (1 + Math.pow(10, (avgLoserElo - avgWinnerElo) / 400));
+                const expectedScoreWinner = 1 / (1 + Math.pow(10, (avgLoserElo - avgWinnerElo) / 400));
+                const expectedScoreLoser = 1 - expectedScoreWinner;
 
                 const K = 32;
 
@@ -176,7 +177,7 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
 
                     if (entry) {
                         const oldElo = entry.elo;
-                        const newElo = Math.round(oldElo + K * (1 - expectedScore));
+                        const newElo = Math.round(oldElo + K * (1 - expectedScoreWinner));
                         const change = newElo - oldElo;
 
                         entry.elo = newElo;
@@ -202,7 +203,7 @@ router.patch('/:id/finish', async (req: Request, res: Response) => {
 
                     if (entry) {
                         const oldElo = entry.elo;
-                        const newElo = Math.round(oldElo + K * (0 - expectedScore));
+                        const newElo = Math.round(oldElo + K * (0 - expectedScoreLoser));
                         const change = newElo - oldElo;
 
                         entry.elo = newElo;
