@@ -12,13 +12,7 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use(passport.initialize()); // Initializes passport, though not strictly used if bypassing authn in this specific test file or if assuming open routes.
-// However, looking at the original test, it just mounted routes directly.
-// The real app verifies authentication. If these routes require auth, we need to mock it or user login.
-// The original test didn't seem to login, implying these routes MIGHT be open or the test was bypassing auth.
-// Checking routes/places.ts: It does NOT seem to look for `req.user` in the snippets I saw before.
-// But wait, server.ts protects routes? No, only some pages.
-// Let's check `src/backend/routes/places.ts`. It seems open in the snippet I saw.
+app.use(passport.initialize());
 
 app.use('/api/places', placeRoutes);
 app.use('/api/sports', sportRoutes);
@@ -30,7 +24,7 @@ describe('Places API', () => {
             lat: 46.0697,
             lng: 11.1211
         },
-        sport: 'Football'
+        sport: 'Test Sport'
     };
 
     before(async () => {

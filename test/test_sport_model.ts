@@ -14,10 +14,6 @@ describe('Sport Model Tests', () => {
     });
 
     after(async () => {
-        // Cleanup if needed, but test logic usually cleans up or we leave it for seed
-        // The original script deleted everything?
-        // await Sport.deleteMany({}); 
-        // Better to verify create/read and clean up specific item.
         await Sport.deleteMany({ name: 'Test Sport Logic' });
     });
 

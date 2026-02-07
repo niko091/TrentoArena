@@ -13,7 +13,6 @@ describe('DB Connection & Basic CRUD', () => {
     });
 
     after(async () => {
-        // Only close if we are done (but usually keeps open for watch mode, here we exit)
         // await mongoose.disconnect();
     });
 

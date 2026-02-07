@@ -1,6 +1,5 @@
 
 import mongoose from 'mongoose';
-import '../src/backend/models/Sport'; // Register Sport model
 import User from '../src/backend/models/User';
 import dotenv from 'dotenv';
 import express from 'express';

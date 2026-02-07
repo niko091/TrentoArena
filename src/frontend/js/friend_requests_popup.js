@@ -50,7 +50,7 @@ class FriendRequestsPopup extends BasePopup {
                 li.style.justifyContent = 'space-between';
                 li.style.alignItems = 'center';
                 li.style.padding = '10px 0';
-                li.style.borderBottom = '1px solid #f0f0f0';
+                // Border handled by CSS class now
 
                 const username = requester.username || 'Unknown';
                 const id = requester._id;
@@ -59,7 +59,7 @@ class FriendRequestsPopup extends BasePopup {
                 li.innerHTML = `
                     <div class="request-info" style="display: flex; align-items: center;">
                         <img src="${profilePic}" alt="${username}" class="request-profile-pic" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 12px; object-fit: cover;">
-                        <a href="/user/${username}" class="request-username" style="text-decoration: none; color: #333; font-weight: 600;">${username}</a>
+                        <a href="/user/${username}" class="request-username" style="text-decoration: none; color: inherit; font-weight: 600;">${username}</a>
                     </div>
                     <div class="request-actions" style="display: flex; gap: 8px;">
                         <button class="btn btn-sm btn-success accept-btn" data-id="${id}">Accetta</button>

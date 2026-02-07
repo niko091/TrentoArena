@@ -59,10 +59,6 @@ describe('API Integration Tests', function () {
     });
 
     it('Step 2: Should LOGIN with the new user', async () => {
-        // Since register auto-logs in, we might already be logged in.
-        // Let's logout first to test login flow explicitly, OR just test login API.
-        // Let's test the endpoint explicitly.
-
         // First, create a NEW agent to simulate a fresh browser without cookies
         const loginAgent = request.agent(app);
 
@@ -89,8 +85,6 @@ describe('API Integration Tests', function () {
 
     it('Step 4: Should ALLOW authenticated access to /map', async () => {
         // 'agent' reused from Step 1 (registration logs us in)
-        // OR use the loginAgent from Step 2 if we saved it.
-        // Let's use 'agent' which successfully registered (and thus logged in).
 
         await agent
             .get('/map')

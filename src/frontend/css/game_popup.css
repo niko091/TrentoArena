@@ -5,7 +5,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay-bg);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,7 +22,8 @@
 }
 
 .game-popup-content {
-    background: white;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
@@ -45,24 +46,24 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #666;
+    color: var(--text-secondary);
     transition: color 0.2s;
 }
 
 .game-popup-close:hover {
-    color: #333;
+    color: var(--text-primary);
 }
 
 .game-popup-header {
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color-light);
     padding-bottom: 1rem;
 }
 
 .game-popup-title {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary);
     margin: 0;
 }
 
@@ -80,12 +81,12 @@
 
 .game-popup-label {
     font-weight: 600;
-    color: #555;
+    color: var(--text-secondary);
     min-width: 80px;
 }
 
 .game-popup-value {
-    color: #333;
+    color: var(--text-primary);
     text-align: right;
     font-weight: 500;
 }
@@ -93,8 +94,8 @@
 .game-popup-note {
     margin-top: 1rem;
     padding: 1rem;
-    background: #f9f9f9;
+    background: var(--bg-tertiary);
     border-radius: 8px;
     font-style: italic;
-    color: #666;
+    color: var(--text-secondary);
 }

@@ -4,7 +4,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--overlay-bg);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,7 +21,8 @@
 }
 
 .friend-requests-popup-content {
-    background: #fff;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     padding: 30px;
     border-radius: 12px;
     width: 90%;
@@ -40,19 +41,19 @@
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #666;
+    color: var(--text-secondary);
     transition: color 0.2s;
 }
 
 .friend-requests-popup-close:hover {
-    color: #333;
+    color: var(--text-primary);
 }
 
 .friend-requests-popup-title {
     margin-top: 0;
     margin-bottom: 20px;
     text-align: center;
-    color: #333;
+    color: var(--text-primary);
 }
 
 .friend-requests-list {
@@ -66,7 +67,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color-light);
 }
 
 .friend-request-item:last-child {
@@ -84,7 +85,7 @@
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #fff;
+    border: 2px solid var(--bg-secondary);
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 

@@ -24,7 +24,9 @@ const PORT = process.env.PORT || 3000;
 import { frontendPath, uploadDir } from './config/paths';
 
 // Connect to MongoDB
-connectDB();
+if (process.env.NODE_ENV !== 'test') {
+    connectDB();
+}
 
 // Ensure uploads directory exists
 import fs from 'fs';

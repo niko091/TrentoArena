@@ -1,23 +1,97 @@
 /* Custom styles for TrentoArena */
 
 :root {
+    /* Base Colors */
     --bg-primary: #f8f9fa;
-    --text-primary: #333;
-    --text-secondary: #666;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f1f1;
+
+    /* Text Colors */
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --text-muted: #888888;
+    --text-inverse: #ffffff;
+
+    /* Brand Colors */
     --accent-primary: #fd7e14;
     /* Orange */
     --accent-secondary: #e36209;
     /* Darker Orange */
+
+    /* Status Colors */
     --danger: #dc3545;
+    --danger-hover: #bd2130;
     --success: #28a745;
+    --success-hover: #218838;
+    --info: #0d6efd;
+
+    /* UI Elements */
     --card-bg: #ffffff;
     --border-color: #dee2e6;
+    --border-color-light: #eeeeee;
+    --input-bg: #fcfcfc;
+    --input-border: #ced4da;
+    --input-focus-border: #86b7fe;
+    --input-focus-shadow: rgba(253, 126, 20, 0.25);
+
+    /* Overlays */
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+
+    /* Shadows */
     --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+    /* Constants */
     --font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --space-md: 2rem;
     --space-lg: 4rem;
     --radius: 0.5rem;
+    --radius-lg: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Base Colors */
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-tertiary: #2d2d2d;
+
+        /* Text Colors */
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --text-muted: #6c757d;
+        --text-inverse: #121212;
+
+        /* Brand Colors */
+        --accent-primary: #fd7e14;
+        /* Keep orange, maybe adjust if too bright */
+        --accent-secondary: #e36209;
+
+        /* Status Colors */
+        --danger: #e35d6a;
+        --danger-hover: #c82333;
+        --success: #34ce57;
+        --success-hover: #28a745;
+        --info: #3d8bfd;
+
+        /* UI Elements */
+        --card-bg: #1e1e1e;
+        --border-color: #495057;
+        --border-color-light: #343a40;
+        --input-bg: #2d2d2d;
+        --input-border: #495057;
+        --input-focus-border: #fd7e14;
+        --input-focus-shadow: rgba(253, 126, 20, 0.25);
+
+        /* Overlays */
+        --overlay-bg: rgba(0, 0, 0, 0.7);
+
+        /* Shadows */
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+    }
 }
 
 .bi {
@@ -57,6 +131,8 @@ button,
 textarea,
 select {
     font: inherit;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
 }
 
 button {
@@ -76,27 +152,31 @@ a {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--space-md);
     width: 100%;
 }
 
 /* Navbar Styles*/
+#navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
 .navbar {
     background-color: var(--accent-primary);
     box-shadow: var(--shadow-md);
     padding: 0.75rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .nav-brand h1 {
-    color: white;
+    color: var(--text-inverse);
     font-size: 1.8rem;
     margin: 0;
     font-weight: 700;
@@ -114,7 +194,7 @@ a {
 }
 
 .nav-link {
-    color: white;
+    color: var(--text-inverse);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -134,7 +214,7 @@ a {
 }
 
 .nav-link:hover {
-    color: white;
+    color: var(--text-inverse);
     transform: translateY(-2px);
 }
 
@@ -206,14 +286,15 @@ a {
     padding: 0.75rem;
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
-    background-color: #fcfcfc;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
     transition: border-color 0.2s;
 }
 
 .form-control:focus {
     outline: none;
     border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(253, 126, 20, 0.25);
+    box-shadow: 0 0 0 3px var(--input-focus-shadow);
 }
 
 /* Buttons */
@@ -228,7 +309,7 @@ a {
 
 .btn-primary {
     background-color: var(--accent-primary);
-    color: white;
+    color: var(--text-inverse);
 }
 
 .btn-primary:hover {
@@ -237,7 +318,7 @@ a {
 
 .btn-success {
     background-color: var(--success);
-    color: white;
+    color: var(--text-inverse);
 }
 
 .btn-success:hover {
@@ -246,13 +327,13 @@ a {
 
 .btn-danger {
     background-color: var(--danger);
-    color: white;
+    color: var(--text-inverse);
     padding: 0.4rem 0.8rem;
     font-size: 0.9rem;
 }
 
 .btn-danger:hover {
-    background-color: #bd2130;
+    background-color: var(--danger-hover);
 }
 
 /* Tables */
@@ -263,7 +344,7 @@ a {
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+    background: var(--card-bg);
     box-shadow: var(--shadow-sm);
     border-radius: var(--radius);
     overflow: hidden;
@@ -278,7 +359,7 @@ a {
 
 .data-table th {
     background-color: var(--accent-primary);
-    color: white;
+    color: var(--text-inverse);
     font-weight: 600;
 }
 
@@ -287,7 +368,7 @@ a {
 }
 
 .data-table tr:hover {
-    background-color: #f1f1f1;
+    background-color: var(--bg-tertiary);
 }
 
 /* Lists */
@@ -300,7 +381,7 @@ a {
 
 .list-item {
     padding: 1rem;
-    background: white;
+    background: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
@@ -312,7 +393,7 @@ a {
 }
 
 .list-item:hover {
-    background-color: #f8f9fa;
+    background-color: var(--bg-primary);
 }
 
 
@@ -324,7 +405,7 @@ a {
 /* Login/Registration Card */
 .loginregistrazione-card {
     background-color: var(--accent-primary);
-    color: white;
+    color: var(--text-inverse);
     border: none;
     box-shadow: var(--shadow-md);
     width: 100%;
@@ -332,13 +413,14 @@ a {
 }
 
 .loginregistrazione-card .form-label {
-    color: white;
+    color: var(--text-inverse);
     font-weight: 600;
 }
 
 .loginregistrazione-card .btn-light {
     color: var(--accent-primary) !important;
     font-weight: bold;
+    background-color: var(--bg-secondary);
 }
 
 .loginregistrazione-card a {
@@ -348,4 +430,115 @@ a {
 .loginregistrazione-card hr {
     border-color: rgba(255, 255, 255, 0.5);
     opacity: 1;
+}
+
+/* Dark Mode Overrides for Bootstrap & Custom Elements */
+@media (prefers-color-scheme: dark) {
+    .bg-light {
+        background-color: var(--bg-tertiary) !important;
+        color: var(--text-primary) !important;
+    }
+
+    .text-dark {
+        color: var(--text-primary) !important;
+    }
+
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+
+    .card {
+        background-color: var(--card-bg);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .table {
+        color: var(--text-primary);
+        border-color: var(--border-color);
+        background-color: transparent !important;
+        --bs-table-bg: transparent;
+        --bs-table-striped-bg: transparent;
+    }
+
+    .table th,
+    .table td {
+        background-color: transparent !important;
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    .table-light {
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    .form-select,
+    .form-control {
+        background-color: var(--input-bg);
+        border-color: var(--input-border);
+        color: var(--text-primary);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
+
+    .modal-content {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+    }
+
+    .modal-header,
+    .modal-footer {
+        border-color: var(--border-color);
+    }
+
+    .btn-close {
+        filter: invert(1);
+    }
+}
+
+/* Game Card Result Styles */
+.card-win {
+    background-color: #d1e7dd;
+    border-color: var(--success);
+}
+
+.card-loss {
+    background-color: #f8d7da;
+    border-color: var(--danger);
+}
+
+.card-upcoming {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+/* Dark Mode specific overrides for game cards if needed to avoid too bright backgrounds */
+@media (prefers-color-scheme: dark) {
+    .card-win {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-color: var(--success);
+    }
+
+    .card-loss {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: var(--danger);
+    }
+
+    /* Ensure links in dark mode are visible */
+    a {
+        color: var(--accent-primary);
+    }
+
+    a:hover {
+        color: var(--accent-secondary);
+    }
 }
