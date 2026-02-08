@@ -1,5 +1,4 @@
 window.ProfileUI = {
-    // Renderizza intestazione
     renderHeader(user, isOwnProfile, currentUser) {
         const usernameEl = document.getElementById('username');
         const picEl = document.getElementById('profilePic');
@@ -7,8 +6,7 @@ window.ProfileUI = {
         if (usernameEl) usernameEl.textContent = user.username;
         if (picEl) picEl.src = user.profilePicture || '/images/utenteDefault.png';
 
-        // Helper visibilità
-        const setDisplay = (id, val) => { const el = document.getElementById(id); if(el) el.style.display = val; };
+       const setDisplay = (id, val) => { const el = document.getElementById(id); if(el) el.style.display = val; };
 
         if (isOwnProfile) {
             setDisplay('editControls', 'block');
@@ -38,7 +36,7 @@ window.ProfileUI = {
         }
     },
 
-    // Bottoni Azione (Amicizia)
+    // Bottoni Amicizia
     setupPublicActionButtons(targetUser, currentUser) {
         const friendBtn = document.getElementById('addFriendBtn');
         if (!friendBtn || !currentUser) return;
@@ -167,7 +165,7 @@ window.ProfileUI = {
         });
     },
 
-    // Calendario Activity
+    // Calendario attività
     renderActivityCalendar(games) {
         const container = document.getElementById('dotsContainer');
         if (!container) return;

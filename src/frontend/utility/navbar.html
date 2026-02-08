@@ -30,11 +30,15 @@
     </a>
 
     <!-- Richieste -->
-    <a class="nav-link" href="#"
-      onclick="event.preventDefault(); window.loadPopupSafely('/css/friend_requests_popup.css', '/js/friend_requests_popup.js', () => window.FriendRequestsPopup);">
-      <img src="/images/bell.png" alt="Richieste">
-      <span>Richieste</span>
-    </a>
+    <a class="nav-link" href="#" onclick="event.preventDefault(); window.loadPopupSafely('/css/friend_requests_popup.css', '/js/friend_requests_popup.js', () => window.FriendRequestsPopup);">
+  
+  <div class="icon-wrapper">
+    <img src="/images/bell.png" alt="Richieste">
+    <span id="requests-badge" class="notification-badge" style="display: none;">0</span>
+  </div>
+  
+  <span>Richieste</span>
+</a>
 
     <!-- Profilo -->
     <a class="nav-link" href="/profile">

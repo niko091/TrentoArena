@@ -49,7 +49,6 @@
 
                 places.forEach(place => {
                     const row = document.createElement('tr');
-                    // Handle populated sport object or potential missing data
                     const sportName = place.sport && place.sport.name ? place.sport.name : 'Unknown';
 
                     row.innerHTML = `
@@ -82,7 +81,7 @@
 
                 if (response.ok) {
                     alert('Place deleted successfully');
-                    fetchPlaces(); // Refresh table
+                    fetchPlaces(); 
                 } else {
                     const errorData = await response.json();
                     alert(`Error deleting place: ${errorData.message}`);
@@ -421,7 +420,6 @@
 
                 // Select sport
                 if (place.sport) {
-                    // sport might be populated object or ID
                     const sportId = place.sport._id || place.sport;
                     sportSelect.value = sportId;
                 }
