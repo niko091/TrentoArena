@@ -153,16 +153,16 @@ class GameDetailsPopup extends BasePopup {
                     <span class="badge bg-success" style="font-size: 1rem;">You are a participant</span>
                 </div>
              `;
-        } else if (isFull) {
-            actionHtml = `
-                <div class="popup-actions" style="justify-content: center;">
-                    <span class="badge bg-danger" style="font-size: 1rem;">Game Full</span>
-                </div>
-             `;
         } else if (isFinished) {
             actionHtml = `
                 <div class="popup-actions" style="justify-content: center;">
                     <span class="badge bg-secondary" style="font-size: 1rem;">Game Finished</span>
+                </div>
+             `;
+        } else if (isFull) {
+            actionHtml = `
+                <div class="popup-actions" style="justify-content: center;">
+                    <span class="badge bg-danger" style="font-size: 1rem;">Game Full</span>
                 </div>
              `;
         }
