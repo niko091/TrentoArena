@@ -38,18 +38,21 @@ window.ProfileAPI = {
 
     // Invia richiesta di amicizia
     async sendFriendRequest(targetId) {
+        const currentUser = await this.getCurrentUser();
+        if (!currentUser) throw new Error("Not logged in");
+
         return await fetch(`/api/users/${targetId}/friend-requests`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
+            body: JSON.stringify({ requesterId: currentUser._id })
         });
     },
 
     // Accetta richiesta di amicizia
     async acceptFriendRequest(requesterId) {
         const currentUser = await this.getCurrentUser();
-        if(!currentUser) throw new Error("Not logged in");
-        
+        if (!currentUser) throw new Error("Not logged in");
+
         return await fetch(`/api/users/${currentUser._id}/friends/accept`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -60,7 +63,7 @@ window.ProfileAPI = {
     // Rimuove un amico
     async removeFriend(friendId) {
         const currentUser = await this.getCurrentUser();
-        if(!currentUser) throw new Error("Not logged in");
+        if (!currentUser) throw new Error("Not logged in");
 
         return await fetch(`/api/users/${currentUser._id}/friends/${friendId}`, {
             method: 'DELETE'
