@@ -2,14 +2,14 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import User from '../models/User';
 import upload from '../config/uploadConfig';
-import { v2 as cloudinary } from 'cloudinary';
+import  cloudinary from '../config/cloudinary';
 
 // Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+// cloudinary.config({
+//  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//    api_secret: process.env.CLOUDINARY_API_SECRET
+//});
 
 const router = express.Router();
 
@@ -253,10 +253,11 @@ router.post('/:id/profile-picture', upload.single('profilePicture'), async (req:
                     quality: 'auto',
                     fetch_format: 'auto'
                 },
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
+                
+            (error: any, result: any) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
             );
             stream.end(req.file!.buffer);
         });
