@@ -1,12 +1,13 @@
 
-import request from 'supertest';
+const request = require('supertest');
 import mongoose from 'mongoose';
-import app from '../src/backend/server';
-import User from '../src/backend/models/User';
-import Game from '../src/backend/models/Game';
-import Sport from '../src/backend/models/Sport';
-import Place from '../src/backend/models/Place';
+const app = require('../src/backend/server').default;
+const User = require('../src/backend/models/User').default;
+const Game = require('../src/backend/models/Game').default;
+const Sport = require('../src/backend/models/Sport').default;
+const Place = require('../src/backend/models/Place').default;
 import dotenv from 'dotenv';
+require('../src/backend/config/passport');
 
 dotenv.config();
 
@@ -135,7 +136,7 @@ describe('Game API Tests', function () {
         await User.deleteOne({ email: 'other_user@example.com' });
     });
 
-    it('Step 7: Should FINISH a game and SET WINNERS', async () => {
+    it('Step 6: Should FINISH a game and SET WINNERS', async () => {
         // 1. Create a second user to be a participant
         const winnerUser = {
             username: 'winner_user',
@@ -164,8 +165,8 @@ describe('Game API Tests', function () {
         if (!finishedGame) throw new Error('Game not found after finish');
         if (!finishedGame.isFinished) throw new Error('Game not finished');
 
-        const winnerParticipant = finishedGame.participants.find(p => p.user.toString() === winnerId);
-        const loserParticipant = finishedGame.participants.find(p => p.user.toString() !== winnerId); // Creator
+        const winnerParticipant = finishedGame.participants.find((p: any) => p.user.toString() === winnerId);
+        const loserParticipant = finishedGame.participants.find((p: any) => p.user.toString() !== winnerId); // Creator
 
         if (!winnerParticipant) throw new Error('Winner participant not found');
         if (!loserParticipant) throw new Error('Loser participant not found');
@@ -177,7 +178,7 @@ describe('Game API Tests', function () {
         await User.deleteOne({ email: 'winner_user@example.com' });
     });
 
-    it('Step 6: Should DELETE a game', async () => {
+    it('Step 7: Should DELETE a game', async () => {
         const game = await Game.findOne({ note: 'API_TEST_GAME' });
         if (!game) throw new Error('Game not found');
 

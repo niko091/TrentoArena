@@ -541,4 +541,15 @@ a {
     a:hover {
         color: var(--accent-secondary);
     }
+
+    /* Navbar Icons in Dark Mode */
+    .nav-link img {
+        filter: brightness(0);
+        opacity: 0.8;
+    }
+
+    .nav-link:hover img {
+        filter: brightness(0);
+        opacity: 1;
+    }
 }
