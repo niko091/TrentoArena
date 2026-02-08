@@ -5,29 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrentoArena - Profile</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/game_popup.css">
     <link rel="stylesheet" href="/css/game_popup_participants.css">
     <link rel="stylesheet" href="/css/popup_shared.css">
-    <script src="/js/popup_manager.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/popup_manager.js"></script>
 </head>
 
 <body>
     <div id="navbar"></div>
-
     <script>
-        fetch("/utility/navbar.html")
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById("navbar").innerHTML = data;
-            });
+        // Navbar inline loader
+        fetch("/utility/navbar.html").then(r => r.text()).then(d => document.getElementById("navbar").innerHTML = d);
     </script>
 
     <div class="container mt-5">
         <div class="d-flex flex-column flex-lg-row align-items-start justify-content-center p-4 gap-5">
+            
             <div class="flex-shrink-0 text-center">
                 <div style="position: relative; display: inline-block;">
                     <img id="profilePic" src="/images/utenteDefault.png" alt="Profile Picture" class="rounded-circle"
@@ -123,418 +122,20 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="/js/game_popup.js"></script>
+    <script src="/js/profile/profile_api.js"></script>
+    <script src="/js/profile/profile_ui.js"></script>
+    <script src="/js/profile/profile.js" defer></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-
-            let currentUserSession = null;
-            try {
-                const response = await fetch('/auth/current_user');
-                if (response.ok) currentUserSession = await response.json();
-            } catch (e) { console.error(e); }
-
-
-            if (!currentUserSession) {
-                window.location.href = '/login';
-                return;
-            }
-
-            const pathParts = window.location.pathname.split('/');
-            const urlUsername = pathParts.includes('user') ? pathParts[pathParts.length - 1] : null;
-
-            let targetUser = null;
-            let isOwnProfile = false;
-
-            // Rendiamo tutto minuscolo per il confronto
-            const currentNameLower = currentUserSession.username.toLowerCase();
-            const urlNameLower = urlUsername ? urlUsername.toLowerCase() : null;
-
-
-            if (urlNameLower && urlNameLower !== currentNameLower) {
-
-                try {
-                    const uRes = await fetch(`/api/users/username/${urlUsername}`);
-                    if (!uRes.ok) throw new Error('User not found');
-                    const publicInfo = await uRes.json();
-
-                    const fullRes = await fetch(`/api/users/${publicInfo._id}`);
-                    targetUser = await fullRes.json();
-
-                    isOwnProfile = false;
-                } catch (err) {
-                    console.error(err);
-                    alert("Utente non trovato");
-                    window.location.href = '/dashboard';
-                    return;
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const title = document.getElementById('username');
+                if (title && title.textContent === 'Loading...') {
+                    console.error("TIMEOUT: Controlla la console per errori 404.");
                 }
-            } else {
-                try {
-                    const fullRes = await fetch(`/api/users/${currentUserSession._id}`);
-                    targetUser = await fullRes.json();
-                    isOwnProfile = true;
-                } catch (e) {
-                    console.error("Err load my profile", e);
-                    return;
-                }
-            }
-
-            renderProfile(targetUser, currentUserSession, isOwnProfile);
+            }, 3000);
         });
-
-        function renderProfile(user, currentUser, isOwnProfile) {
-
-            document.getElementById('username').textContent = user.username;
-            if (user.profilePicture) document.getElementById('profilePic').src = user.profilePicture;
-
-            // Mostrati solo se è il nostro profilo
-            if (isOwnProfile) {
-
-                document.getElementById('editControls').style.display = 'block';
-                document.getElementById('privateActions').style.display = 'block';
-                document.getElementById('publicActions').style.display = 'none';
-
-                document.getElementById('email').style.display = 'block';
-                document.getElementById('email').textContent = user.email;
-
-
-                const removeBtn = document.getElementById('removePicBtn');
-                if (user.profilePicture) removeBtn.style.display = 'block';
-
-
-                setupImageUploadListeners(user);
-
-            } else {
-
-                document.getElementById('editControls').style.display = 'none';
-                document.getElementById('privateActions').style.display = 'none';
-                document.getElementById('publicActions').style.display = 'flex';
-                document.getElementById('email').style.display = 'none';
-
-
-                if (user.isBanned) {
-                    const h1 = document.getElementById('username');
-                    h1.innerHTML += ' <span class="badge bg-danger fs-6 align-middle">BANNED</span>';
-                }
-
-
-                setupPublicActions(user, currentUser);
-            }
-
-
-            renderFriendsList(user.friends);
-            renderEloStats(user);
-            loadGames(user._id);
-        }
-
-        // Gestione amicizia e report per profili pubblici
-        function setupPublicActions(targetUser, currentUser) {
-            // Gestione Amicizia
-            const friendBtn = document.getElementById('addFriendBtn');
-            const isFriend = targetUser.friends.some(f => (f._id || f) === currentUser._id);
-            const requestSent = targetUser.friendRequests && targetUser.friendRequests.some(r => (r._id || r) === currentUser._id);
-            const requestReceived = currentUser.friendRequests && currentUser.friendRequests.some(r => (r._id || r) === targetUser._id);
-
-            if (isFriend) {
-                friendBtn.textContent = "Remove Friend";
-                friendBtn.className = "btn btn-danger";
-                friendBtn.onclick = () => removeFriend(currentUser._id, targetUser._id);
-            } else if (requestSent) {
-                friendBtn.textContent = "Request Sent";
-                friendBtn.className = "btn btn-secondary";
-                friendBtn.disabled = true;
-            } else if (requestReceived) {
-                friendBtn.textContent = "Accept Request";
-                friendBtn.className = "btn btn-success";
-                friendBtn.onclick = () => acceptFriend(currentUser._id, targetUser._id);
-            } else {
-                friendBtn.textContent = "Add Friend";
-                friendBtn.className = "btn btn-primary";
-                friendBtn.onclick = () => sendFriendRequest(currentUser._id, targetUser._id);
-            }
-
-            // Gestione Report
-            document.getElementById('reportUserBtn').onclick = () => {
-                const modalEl = document.getElementById('reportModal');
-                const modal = new bootstrap.Modal(modalEl);
-
-                document.getElementById('submitReportBtn').onclick = async () => {
-                    const motivation = document.getElementById('reportMotivation').value;
-                    if (!motivation) return alert("Inserisci motivazione");
-
-                    await fetch('/api/reports', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ reporterId: currentUser._id, reportedId: targetUser._id, motivation })
-                    });
-                    alert("Report inviato!");
-                    modal.hide();
-                    document.getElementById('reportMotivation').value = '';
-                };
-                modal.show();
-            };
-        }
-
-        async function sendFriendRequest(myId, targetId) {
-            await fetch(`/api/users/${targetId}/friend-requests`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ requesterId: myId })
-            });
-            window.location.reload();
-        }
-
-        async function acceptFriend(myId, targetId) {
-            await fetch(`/api/users/${myId}/friends/accept`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ requesterId: targetId })
-            });
-            window.location.reload();
-        }
-
-        async function removeFriend(myId, targetId) {
-            if (!confirm("Sicuro di voler rimuovere l'amico?")) return;
-            await fetch(`/api/users/${myId}/friends/${friendId}`, { method: 'DELETE' });
-            window.location.reload();
-        }
-
-        // --- RENDERERS ---
-
-        function renderFriendsList(friends) {
-            const container = document.getElementById('friendsList');
-            container.innerHTML = '';
-            if (friends && friends.length > 0) {
-                friends.forEach(friend => {
-                    const img = document.createElement('img');
-                    img.src = friend.profilePicture || '/images/utenteDefault.png';
-                    img.className = 'rounded-circle shadow-sm border';
-                    img.style.width = '50px'; img.style.height = '50px'; img.style.cursor = 'pointer';
-                    img.onclick = () => window.location.href = `/user/${friend.username}`;
-                    container.appendChild(img);
-                });
-            } else {
-                container.innerHTML = '<span class="text-muted">No friends yet.</span>';
-            }
-        }
-
-        async function loadGames(userId) {
-            fetchAndRenderGames(userId, false, 'myGamesList', 'No upcoming games.');
-            fetchAndRenderGames(userId, true, 'myPastGamesList', 'No past games.');
-        }
-
-        let cachedGames = {};
-
-        async function fetchAndRenderGames(userId, isFinished, containerId, emptyMessage) {
-            try {
-                const response = await fetch(`/api/games?participantId=${userId}&isFinished=${isFinished}`);
-                const games = await response.json();
-                games.forEach(g => cachedGames[g._id] = g);
-
-                // Sort
-                games.sort((a, b) => isFinished ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
-
-                const container = document.getElementById(containerId);
-                container.innerHTML = '';
-
-                if (games.length === 0) {
-                    container.innerHTML = `<div class="col-12 text-muted">${emptyMessage}</div>`;
-                } else {
-                    games.forEach(game => {
-                        const dateStr = new Date(game.date).toLocaleDateString('it-IT');
-                        const timeStr = new Date(game.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                        let cardClass = isFinished ? 'opacity-75' : 'card-upcoming';
-
-                        // Determine win/loss if finished
-                        if (isFinished) {
-                            const participant = game.participants.find(p => {
-                                const pId = p.user._id;
-                                return pId.toString() === userId.toString();
-                            });
-
-                            if (participant) {
-                                if (participant.winner) {
-                                    cardClass = 'card-win';
-                                } else {
-                                    cardClass = 'card-loss';
-                                }
-                            }
-                        }
-
-                        // Badge Logic
-                        let badgeHtml = '';
-                        if (isFinished) {
-                            badgeHtml = '<span class="badge bg-secondary"><i class="bi bi-flag-fill me-1"></i>Finished</span>';
-                        } else {
-                            const current = game.participants.length;
-                            const max = game.maxParticipants;
-                            const percentage = current / max;
-
-                            let badgeClass = 'bg-success';
-                            if (percentage >= 1) badgeClass = 'bg-danger';
-                            else if (percentage >= 0.75) badgeClass = 'bg-warning text-dark';
-
-                            badgeHtml = `<span class="badge ${badgeClass}"><i class="bi bi-people-fill me-1"></i>${current}/${max}</span>`;
-                        }
-
-                        const col = document.createElement('div');
-                        col.className = 'col-md-6 col-lg-4';
-                        col.innerHTML = `
-                            <div class="card h-100 shadow-sm ${cardClass}" style="cursor: pointer;" onclick="openGameDetails('${game._id}')">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <h5 class="card-title fw-bold text-primary">${game.sport?.name || 'Sport'}</h5>
-                                        ${badgeHtml}
-                                    </div>
-                                    <h6 class="text-muted">${game.place?.name || 'Place'}</h6>
-                                    <p class="card-text">📅 ${dateStr} at ${timeStr}</p>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(col);
-                    });
-                }
-
-                if (isFinished) {
-                    renderActivityCalendar(games);
-                }
-
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        function renderActivityCalendar(games) {
-            const container = document.getElementById('dotsContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-
-            const matchCounts = {};
-            games.forEach(g => {
-                const dateStr = new Date(g.date).toISOString().split('T')[0];
-                matchCounts[dateStr] = (matchCounts[dateStr] || 0) + 1;
-            });
-
-
-            const today = new Date();
-            const currentDayOfWeek = today.getDay();
-            const distanceToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
-
-            const endDate = new Date(today);
-            endDate.setDate(today.getDate() + distanceToSunday);
-            const startDate = new Date(endDate);
-            startDate.setDate(startDate.getDate() - 27);
-
-            for (let i = 0; i < 28; i++) {
-                const d = new Date(startDate);
-                d.setDate(d.getDate() + i);
-                const dateStr = d.toISOString().split('T')[0];
-
-                const count = matchCounts[dateStr] || 0;
-                const dot = document.createElement('div');
-
-                dot.style.borderRadius = '50%';
-                dot.style.transition = 'all 0.2s ease';
-
-                if (count === 0) {
-                    dot.style.width = '6px';
-                    dot.style.height = '6px';
-                    dot.style.backgroundColor = '#e9ecef';
-                    dot.title = d.toLocaleDateString('it-IT');
-                } else {
-                    const size = Math.min(12 + (count - 1) * 5, 28);
-                    dot.style.width = `${size}px`;
-                    dot.style.height = `${size}px`;
-                    dot.style.backgroundColor = '#fd7e14';
-                    dot.style.boxShadow = '0 2px 4px rgba(253, 126, 20, 0.3)';
-                    dot.title = `${count} partit${count > 1 ? 'e' : 'a'} il ${d.toLocaleDateString('it-IT')}`;
-                }
-                container.appendChild(dot);
-            }
-        }
-        // Upload foto
-        function setupImageUploadListeners(user) {
-            const fileInput = document.getElementById('fileInput');
-            fileInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const formData = new FormData();
-                formData.append('profilePicture', file);
-
-                try {
-                    const res = await fetch(`/api/users/${user._id}/profile-picture`, { method: 'POST', body: formData });
-                    if (res.ok) window.location.reload();
-                    else alert("Errore upload");
-                } catch (e) { console.error(e); }
-            };
-
-            document.getElementById('removePicBtn').onclick = async () => {
-                if (!confirm("Rimuovere foto?")) return;
-                await fetch(`/api/users/${user._id}/profile-picture`, { method: 'DELETE' });
-                window.location.reload();
-            };
-        }
-
-        // Grafico Elo
-        function renderEloStats(user) {
-            if (!user.sportsElo || user.sportsElo.length === 0) return;
-
-            const eloContainer = document.getElementById('eloStatsContainer');
-            const sportSelect = document.getElementById('eloSportSelect');
-            const canvas = document.getElementById('eloChart');
-            let chartInstance = null;
-
-            eloContainer.style.display = 'block';
-            sportSelect.innerHTML = '<option selected disabled value="">Select a sport...</option>';
-
-            user.sportsElo.forEach((stat, index) => {
-                const opt = document.createElement('option');
-                opt.value = index;
-                opt.textContent = stat.sport?.name || 'Unknown';
-                sportSelect.appendChild(opt);
-            });
-
-            sportSelect.onchange = () => {
-                const stat = user.sportsElo[sportSelect.value];
-                const labels = [], data = [];
-
-                if (stat.history) {
-                    stat.history.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(h => {
-                        labels.push(new Date(h.date).toLocaleDateString());
-                        data.push(h.elo);
-                    });
-                }
-                if (data.length === 0) { labels.push('Start'); data.push(stat.elo); }
-
-                document.getElementById('eloPlaceholder').style.display = 'none';
-                canvas.style.display = 'block';
-
-                if (chartInstance) chartInstance.destroy();
-                chartInstance = new Chart(canvas, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'ELO',
-                            data: data,
-                            borderColor: 'orange',
-                            tension: 0.3
-                        }]
-                    }
-                });
-            };
-
-            sportSelect.selectedIndex = 1;
-            sportSelect.dispatchEvent(new Event('change'));
-        }
-
-        window.openGameDetails = function (gameId) {
-            const game = cachedGames[gameId];
-            if (game && window.GameDetailsPopup) window.GameDetailsPopup.show(game);
-        };
     </script>
-</body>
-
 </html>
