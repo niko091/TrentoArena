@@ -14,6 +14,7 @@ import gameRoutes from './routes/games';
 import userRoutes from './routes/users';
 import reportRoutes from './routes/reports'; // Import report routes
 import adminRoutes from './routes/admin';
+import statsRoutes from './routes/stats';
 import { checkBan } from './middleware/checkBan';
 import basicAuth from 'express-basic-auth';
 
@@ -106,6 +107,7 @@ app.use('/api/sports', sportRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes); // Register report routes
+app.use('/api/stats', statsRoutes);
 
 // Admin API Routes
 app.use('/api/admin', basicAuth({

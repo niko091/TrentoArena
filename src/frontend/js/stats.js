@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let sportChartInstance = null;
     let placeChartInstance = null;
-    let allGames = [];
 
     // Helper: Fetch JSON
     async function fetchData(url) {
@@ -42,8 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             placeSelect.appendChild(option);
         });
 
-        allGames = await fetchData('/api/games?isFinished=true');
-
         // Listeners for Charts
         sportSelect.addEventListener('change', updateSportChart);
         placeSelect.addEventListener('change', updatePlaceChart);
@@ -61,57 +58,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateTopPlaces();
     }
 
-    // Filter games by relative time period
-    function filterGamesByPeriod(games, period) {
-        const now = new Date();
-        return games.filter(game => {
-            const gameDate = new Date(game.date);
-            if (period === 'year') {
-                const oneYearAgo = new Date();
-                oneYearAgo.setFullYear(now.getFullYear() - 1);
-                return gameDate >= oneYearAgo;
-            } else if (period === 'month') {
-                const oneMonthAgo = new Date();
-                oneMonthAgo.setMonth(now.getMonth() - 1);
-                return gameDate >= oneMonthAgo;
-            }
-            return true; // 'all'
-        });
-    }
-
-    // Process Data for Charts
-    function getGamesCountByDate(games, filterType, filterValue) {
-        // Filter games
-        const filtered = games.filter(g => {
-            if (filterType === 'sport') {
-                const sId = g.sport._id;
-                return sId === filterValue;
-            } else if (filterType === 'place') {
-                const pId = g.place._id;
-                return pId === filterValue;
-            }
-            return false;
-        });
-
-        // Sort by date ascending
-        filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-        const counts = {};
-        filtered.forEach(g => {
-            const dateObj = new Date(g.date);
-            const dateStr = dateObj.toLocaleDateString('it-IT'); // DD/MM/YYYY
-            counts[dateStr] = (counts[dateStr] || 0) + 1;
-        });
-
-        return counts;
-    }
-
     // Update Sport Chart
-    function updateSportChart() {
+    async function updateSportChart() {
         const sportId = sportSelect.value;
         if (!sportId) return;
 
-        const dataMap = getGamesCountByDate(allGames, 'sport', sportId);
+        const dataMap = await fetchData(`/api/stats/chart-data?type=sport&id=${sportId}`);
         const labels = Object.keys(dataMap);
         const dataPoints = Object.values(dataMap);
 
@@ -148,11 +100,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Update Place Chart
-    function updatePlaceChart() {
+    async function updatePlaceChart() {
         const placeId = placeSelect.value;
         if (!placeId) return;
 
-        const dataMap = getGamesCountByDate(allGames, 'place', placeId);
+        const dataMap = await fetchData(`/api/stats/chart-data?type=place&id=${placeId}`);
         const labels = Object.keys(dataMap);
         const dataPoints = Object.values(dataMap);
 
@@ -189,56 +141,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Update Top Sports Leaderboard
-    function updateTopSports() {
+    async function updateTopSports() {
         const period = topSportsPeriod.value;
-        const filteredGames = filterGamesByPeriod(allGames, period);
-
-        const counts = {};
-        filteredGames.forEach(game => {
-            const sportName = game.sport.name;
-            counts[sportName] = (counts[sportName] || 0) + 1;
-        });
-
-        // Convert to array and sort
-        const sortedSports = Object.entries(counts)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 10);
+        const topSports = await fetchData(`/api/stats/top-entities?type=sport&period=${period}`);
 
         topSportsList.innerHTML = '';
-        sortedSports.forEach(([name, count], index) => {
+        topSports.forEach((item, index) => {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             li.innerHTML = `
-                <span><strong>#${index + 1}</strong> ${name}</span>
-                <span class="badge bg-primary rounded-pill">${count}</span>
+                <span><strong>#${index + 1}</strong> ${item.name}</span>
+                <span class="badge bg-primary rounded-pill">${item.count}</span>
             `;
             topSportsList.appendChild(li);
         });
     }
 
     // Update Top Places Leaderboard
-    function updateTopPlaces() {
+    async function updateTopPlaces() {
         const period = topPlacesPeriod.value;
-        const filteredGames = filterGamesByPeriod(allGames, period);
-
-        const counts = {};
-        filteredGames.forEach(game => {
-            const placeName = game.place.name;
-            counts[placeName] = (counts[placeName] || 0) + 1;
-        });
-
-        // Convert to array and sort
-        const sortedPlaces = Object.entries(counts)
-            .sort(([, a], [, b]) => b - a)
-            .slice(0, 10);
+        const topPlaces = await fetchData(`/api/stats/top-entities?type=place&period=${period}`);
 
         topPlacesList.innerHTML = '';
-        sortedPlaces.forEach(([name, count], index) => {
+        topPlaces.forEach((item, index) => {
             const li = document.createElement('li');
             li.className = 'list-group-item d-flex justify-content-between align-items-center';
             li.innerHTML = `
-                <span><strong>#${index + 1}</strong> ${name}</span>
-                <span class="badge bg-primary rounded-pill">${count}</span>
+                <span><strong>#${index + 1}</strong> ${item.name}</span>
+                <span class="badge bg-primary rounded-pill">${item.count}</span>
             `;
             topPlacesList.appendChild(li);
         });
