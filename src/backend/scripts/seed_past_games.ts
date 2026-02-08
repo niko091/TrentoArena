@@ -116,7 +116,7 @@ const seedGames = async () => {
             const expectedScoreWinner = 1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
             const expectedScoreLoser = 1 / (1 + Math.pow(10, (winnerElo - loserElo) / 400));
 
-            const newWinnerElo = Math.round(winnerElo + K * (1 - expectedScoreWinner));
+            const newWinnerElo = Math.round(winnerElo + K * (1 - expectedScoreWinner) + 30);
             const newLoserElo = Math.round(loserElo + K * (0 - expectedScoreLoser));
 
             // Update Users
