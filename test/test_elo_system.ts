@@ -41,6 +41,7 @@ describe('ELO System Tests', function () {
         await User.deleteMany({ username: new RegExp(ELO_TEST_PREFIX) });
         await Game.deleteMany({ note: ELO_TEST_PREFIX });
         await Sport.deleteOne({ _id: sportId });
+        await Place.deleteOne({ _id: placeId });
     });
 
     it('Step 1: Should update ELOs correctly after a game', async () => {
