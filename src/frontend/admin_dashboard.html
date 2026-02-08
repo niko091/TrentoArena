@@ -235,8 +235,8 @@
                     const placeName = game.place ? game.place.name : 'Unknown';
                     const creatorName = game.creator ? game.creator.username : 'Unknown';
                     const dateObj = new Date(game.date);
-                    const formattedDate = dateObj.toLocaleDateString();
-                    const formattedTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const formattedDate = dateObj.toLocaleDateString('it-IT');
+                    const formattedTime = dateObj.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
                     row.innerHTML = `
                         <td>${sportName}</td>
@@ -355,7 +355,7 @@
 
                 reports.forEach(report => {
                     const row = document.createElement('tr');
-                    const dateStr = new Date(report.date).toLocaleDateString() + ' ' + new Date(report.date).toLocaleTimeString();
+                    const dateStr = new Date(report.date).toLocaleDateString('it-IT') + ' ' + new Date(report.date).toLocaleTimeString();
                     const reporterName = report.reporter ? report.reporter.username : 'Unknown';
                     const reportedName = report.reported ? report.reported.username : 'Unknown';
                     const reportedId = report.reported ? report.reported._id : null;

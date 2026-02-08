@@ -438,7 +438,7 @@
                     if (stat.history && stat.history.length > 0) {
                         const history = stat.history.sort((a, b) => new Date(a.date) - new Date(b.date));
                         history.forEach(h => {
-                            const date = new Date(h.date).toLocaleDateString();
+                            const date = new Date(h.date).toLocaleDateString('it-IT');
                             labels.push(date);
                             data.push(h.elo);
                         });
@@ -548,7 +548,7 @@
 
             games.forEach(game => {
                 const date = new Date(game.date);
-                const dateStr = date.toLocaleDateString();
+                const dateStr = date.toLocaleDateString('it-IT');
                 const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                 const sportName = game.sport ? game.sport.name : 'Unknown Sport';

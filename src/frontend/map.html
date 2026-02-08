@@ -128,7 +128,7 @@
                 let html = '<ul style="padding-left: 20px; margin-bottom: 0;">';
                 games.forEach(game => {
                     const date = new Date(game.date);
-                    const dateStr = date.toLocaleDateString();
+                    const dateStr = date.toLocaleDateString('it-IT');
                     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
                     const gameDataStr = JSON.stringify({

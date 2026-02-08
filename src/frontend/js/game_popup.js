@@ -32,8 +32,8 @@ class GameDetailsPopup extends BasePopup {
         const isCreator = this.currentUser && creatorId === this.currentUser._id;
         const isFinished = gameData.isFinished;
 
-        const formattedDate = new Date(gameData.date).toLocaleDateString();
-        const formattedTime = new Date(gameData.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const formattedDate = new Date(gameData.date).toLocaleDateString('it-IT');
+        const formattedTime = new Date(gameData.date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
         const bodyContent = `
             <div class="popup-form-group" style="display: flex; justify-content: space-between;">

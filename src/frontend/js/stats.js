@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const counts = {};
         filtered.forEach(g => {
             const dateObj = new Date(g.date);
-            const dateStr = dateObj.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            const dateStr = dateObj.toLocaleDateString('it-IT'); // DD/MM/YYYY
             counts[dateStr] = (counts[dateStr] || 0) + 1;
         });
 
