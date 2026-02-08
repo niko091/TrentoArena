@@ -1,11 +1,12 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import path from 'path';
 import connectDB from './config/db';
 import passport from 'passport';
 import session from 'express-session';
 import './config/passport'; // Passport config
+import './config/cloudinary';
 import authRoutes from './routes/auth';
 import placeRoutes from './routes/places';
 import sportRoutes from './routes/sports';
@@ -151,7 +152,7 @@ app.get('/profile', (req, res) => {
 
 app.get('/user/:username', (req, res) => {
     if (req.isAuthenticated()) {
-        res.sendFile(path.join(frontendPath, '/user_profile.html'));
+        res.sendFile(path.join(frontendPath, '/profile.html'));
     } else {
         res.redirect('/login');
     }
