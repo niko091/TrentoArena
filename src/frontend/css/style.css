@@ -50,50 +50,6 @@
     --radius-lg: 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        /* Base Colors */
-        --bg-primary: #121212;
-        --bg-secondary: #1e1e1e;
-        --bg-tertiary: #2d2d2d;
-
-        /* Text Colors */
-        --text-primary: #e0e0e0;
-        --text-secondary: #b0b0b0;
-        --text-muted: #6c757d;
-        --text-inverse: #121212;
-
-        /* Brand Colors */
-        --accent-primary: #fd7e14;
-        /* Keep orange, maybe adjust if too bright */
-        --accent-secondary: #e36209;
-
-        /* Status Colors */
-        --danger: #e35d6a;
-        --danger-hover: #c82333;
-        --success: #34ce57;
-        --success-hover: #28a745;
-        --info: #3d8bfd;
-
-        /* UI Elements */
-        --card-bg: #1e1e1e;
-        --border-color: #495057;
-        --border-color-light: #343a40;
-        --input-bg: #2d2d2d;
-        --input-border: #495057;
-        --input-focus-border: #fd7e14;
-        --input-focus-shadow: rgba(253, 126, 20, 0.25);
-
-        /* Overlays */
-        --overlay-bg: rgba(0, 0, 0, 0.7);
-
-        /* Shadows */
-        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
-    }
-}
-
 .bi {
     fill: currentColor;
 }
@@ -396,7 +352,6 @@ a {
     background-color: var(--bg-primary);
 }
 
-
 /* Initial Map Style (Legacy) */
 #map {
     height: 800px;
@@ -432,8 +387,70 @@ a {
     opacity: 1;
 }
 
-/* Dark Mode Overrides for Bootstrap & Custom Elements */
+.card-win {
+    background-color: #d1e7dd;
+    border-color: var(--success);
+}
+
+.card-loss {
+    background-color: #f8d7da;
+    border-color: var(--danger);
+}
+
+.card-upcoming {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+/* Navbar Logo */
+.nav-logo {
+    height: 60px;
+    margin-right: 0;
+}
+
 @media (prefers-color-scheme: dark) {
+    :root {
+        /* Base Colors */
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-tertiary: #2d2d2d;
+
+        /* Text Colors */
+        --text-primary: #e0e0e0;
+        --text-secondary: #b0b0b0;
+        --text-muted: #6c757d;
+        --text-inverse: #121212;
+
+        /* Brand Colors */
+        --accent-primary: #fd7e14;
+        /* Keep orange, maybe adjust if too bright */
+        --accent-secondary: #e36209;
+
+        /* Status Colors */
+        --danger: #e35d6a;
+        --danger-hover: #c82333;
+        --success: #34ce57;
+        --success-hover: #28a745;
+        --info: #3d8bfd;
+
+        /* UI Elements */
+        --card-bg: #1e1e1e;
+        --border-color: #495057;
+        --border-color-light: #343a40;
+        --input-bg: #2d2d2d;
+        --input-border: #495057;
+        --input-focus-border: #fd7e14;
+        --input-focus-shadow: rgba(253, 126, 20, 0.25);
+
+        /* Overlays */
+        --overlay-bg: rgba(0, 0, 0, 0.7);
+
+        /* Shadows */
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+    }
+
     .bg-light {
         background-color: var(--bg-tertiary) !important;
         color: var(--text-primary) !important;
@@ -503,26 +520,7 @@ a {
     .btn-close {
         filter: invert(1);
     }
-}
 
-/* Game Card Result Styles */
-.card-win {
-    background-color: #d1e7dd;
-    border-color: var(--success);
-}
-
-.card-loss {
-    background-color: #f8d7da;
-    border-color: var(--danger);
-}
-
-.card-upcoming {
-    background-color: var(--card-bg);
-    border-color: var(--border-color);
-}
-
-/* Dark Mode specific overrides for game cards if needed to avoid too bright backgrounds */
-@media (prefers-color-scheme: dark) {
     .card-win {
         background-color: rgba(40, 167, 69, 0.2);
         border-color: var(--success);
@@ -551,5 +549,9 @@ a {
     .nav-link:hover img {
         filter: brightness(0);
         opacity: 1;
+    }
+
+    .nav-logo {
+        filter: brightness(0);
     }
 }

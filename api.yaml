@@ -1,0 +1,772 @@
+openapi: 3.0.3
+info:
+  title: TrentoArena API
+  description: Documentazione API per l'applicazione TrentoArena.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Server di Sviluppo Locale
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+    basicAuth:
+      type: http
+      scheme: basic
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        profilePicture:
+          type: string
+        isBanned:
+          type: boolean
+        banReason:
+          type: string
+        banExpiresAt:
+          type: string
+          format: date-time
+        friends:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSummary'
+        friendRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSummary'
+        sportsElo:
+          type: array
+          items:
+            type: object
+            properties:
+              sport:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  name:
+                    type: string
+              elo:
+                type: number
+              history:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    elo:
+                      type: number
+                    date:
+                      type: string
+                      format: date-time
+                    change:
+                      type: number
+    UserSummary:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+           type: string
+        profilePicture:
+          type: string
+    Game:
+      type: object
+      properties:
+        _id:
+          type: string
+        sport:
+          $ref: '#/components/schemas/Sport'
+        place:
+          $ref: '#/components/schemas/Place'
+        creator:
+          $ref: '#/components/schemas/UserSummary'
+        date:
+          type: string
+          format: date-time
+        note:
+          type: string
+        isFinished:
+          type: boolean
+        maxParticipants:
+          type: number
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                $ref: '#/components/schemas/UserSummary'
+              winner:
+                type: boolean
+    Place:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        position:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        sport:
+          $ref: '#/components/schemas/SportSummary'
+    Sport:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+    SportSummary:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+    Report:
+      type: object
+      properties:
+        _id:
+          type: string
+        reporter:
+          $ref: '#/components/schemas/UserSummary'
+        reported:
+          $ref: '#/components/schemas/UserSummary'
+        motivation:
+          type: string
+        date:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+
+paths:
+  /auth/register:
+    post:
+      summary: Registra un nuovo utente
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        201:
+          description: Utente registrato con successo
+        400:
+          description: Input non valido o utente già esistente
+  /auth/login:
+    post:
+      summary: Login utente
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Login effettuato con successo
+        400:
+           description: Credenziali mancanti
+        401:
+          description: Credenziali non valide
+  /auth/logout:
+    get:
+      summary: Logout dell'utente corrente
+      tags: [Auth]
+      responses:
+        302:
+          description: Reindirizza alla home
+  /auth/current_user:
+    get:
+      summary: Ottieni utente attualmente loggato
+      tags: [Auth]
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Dati dell'utente corrente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /api/places:
+    get:
+      summary: Ottieni tutti i luoghi
+      tags: [Places]
+      responses:
+        200:
+          description: Lista dei luoghi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+    post:
+      summary: Crea un nuovo luogo
+      tags: [Places]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                position:
+                  type: object
+                  properties:
+                    lat:
+                      type: number
+                    lng:
+                      type: number
+                sport:
+                  type: string
+      responses:
+        201:
+          description: Luogo creato
+  /api/places/search:
+    get:
+      summary: Cerca luoghi per nome
+      tags: [Places]
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: true
+          description: Nome da cercare
+      responses:
+        200:
+          description: Lista dei luoghi corrispondenti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+  /api/places/{id}:
+    put:
+      summary: Aggiorna un luogo
+      tags: [Places]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                position:
+                  type: object
+                  properties:
+                    lat:
+                      type: number
+                    lng:
+                      type: number
+                sport:
+                  type: string
+      responses:
+        200:
+          description: Luogo aggiornato
+    delete:
+      summary: Elimina un luogo
+      tags: [Places]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Luogo eliminato
+  /api/sports:
+    get:
+      summary: Ottieni tutti gli sport
+      tags: [Sports]
+      responses:
+        200:
+          description: Lista degli sport
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sport'
+    post:
+      summary: Crea un nuovo sport
+      tags: [Sports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        201:
+          description: Sport creato
+  /api/games:
+    get:
+      summary: Ottieni partite con filtri
+      tags: [Games]
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: sportId
+          schema:
+            type: string
+        - in: query
+          name: placeId
+          schema:
+            type: string
+        - in: query
+          name: creatorId
+          schema:
+             type: string
+        - in: query
+          name: participantId
+          schema:
+            type: string
+        - in: query
+          name: isFinished
+          schema:
+            type: boolean
+        - in: query
+           name: limit
+           schema:
+             type: integer
+      responses:
+        200:
+          description: Lista delle partite
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Game'
+    post:
+      summary: Crea una nuova partita
+      tags: [Games]
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sportId, placeId, date, time, maxParticipants]
+              properties:
+                sportId:
+                  type: string
+                placeId:
+                  type: string
+                date:
+                  type: string
+                  format: date
+                time:
+                  type: string
+                  format: time
+                note:
+                  type: string
+                maxParticipants:
+                  type: number
+                  minimum: 2
+      responses:
+        201:
+          description: Partita creata
+  /api/games/{id}/join:
+    post:
+      summary: Unisciti a una partita
+      tags: [Games]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Unito alla partita
+  /api/games/{id}/finish:
+    patch:
+      summary: Termina una partita
+      tags: [Games]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                winnerIds:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        200:
+          description: Partita terminata
+  /api/games/{id}:
+    delete:
+      summary: Elimina una partita
+      tags: [Games]
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Partita eliminata
+  /api/users/search:
+    get:
+      summary: Cerca utenti per username
+      tags: [Users]
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Lista degli utenti
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSummary'
+  /api/users/leaderboard:
+    get:
+      summary: Ottieni classifica per uno sport
+      tags: [Users]
+      parameters:
+        - in: query
+          name: sportId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+             type: integer
+      responses:
+        200:
+          description: Classifica
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                    profilePicture:
+                      type: string
+                    elo:
+                      type: number
+                    sport:
+                      type: string
+  /api/users/{id}:
+    get:
+      summary: Ottieni utente per ID
+      tags: [Users]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Dettagli utente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /api/users/username/{username}:
+    get:
+      summary: Ottieni utente per username
+      tags: [Users]
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Dettagli utente (pubblici)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSummary'
+  /api/users/{id}/friend-requests:
+     post:
+        summary: Invia richiesta di amicizia
+        tags: [Users]
+        parameters:
+           - in: path
+             name: id
+             required: true
+             schema:
+                type: string
+        requestBody:
+           content:
+              application/json:
+                 schema:
+                    type: object
+                    properties:
+                       requesterId:
+                          type: string
+        responses:
+           200:
+              description: Richiesta di amicizia inviata
+  /api/users/{id}/friends/accept:
+     post:
+        summary: Accetta richiesta di amicizia
+        tags: [Users]
+        parameters:
+           - in: path
+             name: id
+             required: true
+             schema:
+                type: string
+        requestBody:
+           content:
+              application/json:
+                 schema:
+                    type: object
+                    properties:
+                       requesterId:
+                          type: string
+        responses:
+           200:
+              description: Richiesta di amicizia accettata
+  /api/users/{id}/friends/decline:
+     post:
+        summary: Rifiuta richiesta di amicizia
+        tags: [Users]
+        parameters:
+           - in: path
+             name: id
+             required: true
+             schema:
+                type: string
+        requestBody:
+           content:
+              application/json:
+                 schema:
+                    type: object
+                    properties:
+                       requesterId:
+                          type: string
+        responses:
+           200:
+              description: Richiesta di amicizia rifiutata
+  /api/users/{id}/friends/{friendId}:
+     delete:
+        summary: Rimuovi amico
+        tags: [Users]
+        parameters:
+           - in: path
+             name: id
+             required: true
+             schema:
+                type: string
+           - in: path
+             name: friendId
+             required: true
+             schema:
+                type: string
+        responses:
+           200:
+              description: Amico rimosso
+  /api/users/{id}/profile-picture:
+     post:
+        summary: Carica immagine del profilo
+        tags: [Users]
+        consumes:
+           - multipart/form-data
+        parameters:
+           - in: path
+             name: id
+             required: true
+             schema:
+                type: string
+        requestBody:
+           content:
+              multipart/form-data:
+                 schema:
+                    type: object
+                    properties:
+                       profilePicture:
+                          type: string
+                          format: binary
+        responses:
+           200:
+              description: Immagine del profilo aggiornata
+     delete:
+        summary: Rimuovi immagine del profilo
+        tags: [Users]
+        parameters:
+           - in: path
+             name: id
+             required: true
+             schema:
+                type: string
+        responses:
+           200:
+              description: Immagine del profilo rimossa
+  /api/reports:
+    get:
+      summary: Ottieni tutte le segnalazioni
+      tags: [Reports]
+      responses:
+        200:
+          description: Lista delle segnalazioni
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Report'
+    post:
+      summary: Crea una nuova segnalazione
+      tags: [Reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reporterId:
+                  type: string
+                reportedId:
+                  type: string
+                motivation:
+                  type: string
+      responses:
+        201:
+          description: Segnalazione creata
+  /api/admin/ban:
+    post:
+      summary: Banna un utente
+      tags: [Admin]
+      security:
+        - basicAuth: [] 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                duration:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        200:
+          description: Utente bannato
+  /api/admin/unban:
+    post:
+      summary: Sbanna un utente
+      tags: [Admin]
+      security:
+        - basicAuth: [] 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+      responses:
+        200:
+          description: Utente sbannato
+  /api/admin/banned-users:
+    get:
+      summary: Ottieni utenti bannati
+      tags: [Admin]
+      security:
+        - basicAuth: [] 
+      responses:
+        200:
+          description: Lista degli utenti bannati
