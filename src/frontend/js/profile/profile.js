@@ -1,8 +1,6 @@
-// Cache globale
 window.cachedGames = {}; 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Controllo sicurezza caricamento moduli
     if (!window.ProfileAPI || !window.ProfileUI) {
         console.error("ERRORE CRITICO: I file profile-api.js o profile-ui.js non sono stati caricati correttamente.");
         alert("Errore caricamento pagina. Controlla la console.");
@@ -12,19 +10,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ProfileAPI = window.ProfileAPI;
     const ProfileUI = window.ProfileUI;
 
-    // 1. Utente Corrente
     const currentUser = await ProfileAPI.getCurrentUser();
     if (!currentUser) {
         window.location.href = '/login'; 
         return;
     }
 
-    // 2. Logica URL (Routing)
-    // Supporta sia /user/mario che profile.html?id=123
     const pathParts = window.location.pathname.split('/');
     const urlUsername = pathParts.includes('user') ? pathParts[pathParts.length - 1] : null;
     
-    // Supporto query params (fallback)
     const urlParams = new URLSearchParams(window.location.search);
     const queryId = urlParams.get('id');
 
@@ -33,37 +27,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         if (urlUsername && urlUsername.toLowerCase() !== currentUser.username.toLowerCase()) {
-            // Caso A: Username nell'URL (es. /user/mario)
             const publicInfo = await ProfileAPI.getUserByUsername(urlUsername);
             targetUser = await ProfileAPI.getUserById(publicInfo._id);
             isOwnProfile = false;
 
         } else if (queryId && queryId !== currentUser._id) {
-            // Caso B: ID nell'URL (es. profile.html?id=123)
             targetUser = await ProfileAPI.getUserById(queryId);
             isOwnProfile = false;
 
         } else {
-            // Caso C: Mio Profilo
-            // Ricarichiamo i dati completi per sicurezza
+        
             targetUser = await ProfileAPI.getUserById(currentUser._id);
             isOwnProfile = true;
         }
     } catch (err) {
         console.error("Errore recupero utente target:", err);
-        // Fallback al mio profilo se l'altro non si trova
         targetUser = currentUser;
         isOwnProfile = true;
     }
 
-    // 3. Rendering
     ProfileUI.renderHeader(targetUser, isOwnProfile, currentUser);
     ProfileUI.renderFriendsList(targetUser.friends);
     ProfileUI.renderEloStats(targetUser);
 
     if (isOwnProfile) setupImageUpload(targetUser._id);
 
-    // 4. Caricamento Partite
     loadUserGames(targetUser._id);
 });
 
@@ -106,7 +94,6 @@ function setupImageUpload(userId) {
     }
 }
 
-// Global Exports per HTML onclick
 window.openGameDetails = function(gameId) {
     const game = window.cachedGames[gameId];
     if (game && window.GameDetailsPopup) {

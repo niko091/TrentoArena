@@ -95,8 +95,11 @@ class FriendRequestsPopup extends BasePopup {
             });
 
             if (response.ok) {
-                // Refresh list
                 await this.loadRequests();
+                
+                if (window.checkNotifications) {
+                    window.checkNotifications();
+                }
             } else {
                 alert('Errore durante l\'operazione');
             }
