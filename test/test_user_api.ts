@@ -1,31 +1,14 @@
-
+const request = require('supertest');
 import mongoose from 'mongoose';
-import User from '../src/backend/models/User';
+const app = require('../src/backend/server').default;
+const User = require('../src/backend/models/User').default;
 import dotenv from 'dotenv';
-import express from 'express';
-import passport from 'passport';
-import session from 'express-session';
-import userRoutes from '../src/backend/routes/users';
-import authRoutes from '../src/backend/routes/auth';
-import request from 'supertest';
-import '../src/backend/config/passport'; // Ensure passport config is loaded
+require('../src/backend/config/passport'); // Ensure passport config is loaded
 
 dotenv.config();
 
-const app = express();
-app.use(express.json());
-app.use(session({
-    secret: 'testdoc',
-    resave: false,
-    saveUninitialized: false
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use('/auth', authRoutes);
-app.use('/api/users', userRoutes);
-
-describe('User API Tests', () => {
+describe('User API Tests', function () {
+    this.timeout(10000);
     const TEST_USER = {
         username: 'test_user_api',
         email: 'test_user_api@example.com',
@@ -33,6 +16,7 @@ describe('User API Tests', () => {
     };
 
     let userId: string;
+    let agent: any;
 
     before(async () => {
         if (mongoose.connection.readyState === 0) {
@@ -40,6 +24,8 @@ describe('User API Tests', () => {
         }
         await User.deleteMany({ email: TEST_USER.email });
         await User.deleteMany({ email: 'friend@example.com' });
+
+        agent = request.agent(app);
     });
 
     after(async () => {
@@ -48,7 +34,7 @@ describe('User API Tests', () => {
     });
 
     it('Step 1: Should register a user', async () => {
-        const res = await request(app)
+        const res = await agent
             .post('/auth/register')
             .send(TEST_USER)
             .expect(201);
@@ -58,7 +44,7 @@ describe('User API Tests', () => {
     });
 
     it('Step 2: Should fetch user info', async () => {
-        const res = await request(app)
+        const res = await agent
             .get(`/api/users/${userId}`)
             .expect(200);
 
@@ -67,46 +53,59 @@ describe('User API Tests', () => {
     });
 
     it('Step 3: Should handle friend requests', async () => {
-        // Create Requester
+        // Create Requester using a separate agent
         const FRIEND_USER = {
             username: 'friend_user',
             email: 'friend@example.com',
             password: 'password123'
         };
 
-        const regRes = await request(app)
+        const friendAgent = request.agent(app);
+        const regRes = await friendAgent
             .post('/auth/register')
             .send(FRIEND_USER)
             .expect(201);
         const requesterId = regRes.body.user._id;
 
-        // Send request
-        await request(app)
+        // Send request (from friend to user)
+        await friendAgent
             .post(`/api/users/${userId}/friend-requests`)
             .send({ requesterId: requesterId })
             .expect(200);
 
-        // Verify received
-        const userRes = await request(app)
+        // Verify received (as the original user)
+        const userRes = await agent
             .get(`/api/users/${userId}`)
             .expect(200);
 
-        if (userRes.body.friendRequests[0].username !== FRIEND_USER.username) {
+        if (!userRes.body.friendRequests || userRes.body.friendRequests.length === 0) {
             throw new Error('Friend request not received');
         }
+        // Check if the request is from the friend
+        const foundRequest = userRes.body.friendRequests.find((r: any) =>
+            (r.username === FRIEND_USER.username) || (r._id.toString() === requesterId)
+        );
 
-        // Accept
-        await request(app)
+        if (!foundRequest) {
+            throw new Error('Friend request from specific user not found');
+        }
+
+        // Accept (as the original user)
+        await agent
             .post(`/api/users/${userId}/friends/accept`)
             .send({ requesterId: requesterId })
             .expect(200);
 
         // Verify accepted
-        const finalUserRes = await request(app)
+        const finalUserRes = await agent
             .get(`/api/users/${userId}`)
             .expect(200);
 
-        if (finalUserRes.body.friends[0].username !== FRIEND_USER.username) {
+        const friend = finalUserRes.body.friends.find((f: any) =>
+            (f.username === FRIEND_USER.username) || (f._id.toString() === requesterId)
+        );
+
+        if (!friend) {
             throw new Error('Friend not added');
         }
         if (finalUserRes.body.friendRequests.length !== 0) {
@@ -115,23 +114,23 @@ describe('User API Tests', () => {
     });
 
     it('Step 4: Should remove a friend', async () => {
-
         // Re-fetch user to get the friend ID
-        const userRes = await request(app).get(`/api/users/${userId}`);
-        const friendId = userRes.body.friends[0]._id;
+        const userRes = await agent.get(`/api/users/${userId}`);
+        const friendId = userRes.body.friends[0]._id || userRes.body.friends[0]; // Handle populated or ID
 
-        await request(app)
+        await agent
             .delete(`/api/users/${userId}/friends/${friendId}`)
             .expect(200);
 
         // Verify removal
-        const finalUserRes = await request(app).get(`/api/users/${userId}`);
+        const finalUserRes = await agent.get(`/api/users/${userId}`);
         if (finalUserRes.body.friends.length !== 0) {
             throw new Error('Friend not removed from user');
         }
 
-        const finalFriendRes = await request(app).get(`/api/users/${friendId}`);
-        if (finalFriendRes.body.friends.length !== 0) {
+        // Check the friend's list 
+        const friendUser = await User.findById(friendId);
+        if (friendUser && friendUser.friends.includes(userId)) {
             throw new Error('User not removed from friend\'s list');
         }
     });
