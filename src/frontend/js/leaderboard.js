@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const friendsBtn = document.getElementById('lbFriends');
                 friendsBtn.disabled = true;
                 friendsBtn.nextElementSibling.classList.add('disabled'); // Bootstrap style
-                friendsBtn.parentElement.title = "Log in to see friends leaderboard";
+                friendsBtn.nextElementSibling.classList.add('disabled'); // Bootstrap style
+                friendsBtn.parentElement.title = window.i18n.t('leaderboard.login_tooltip');
             }
         })
         .catch(err => console.error('Auth check failed:', err));
@@ -32,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/sports')
         .then(res => res.json())
         .then(sports => {
-            sportFilter.innerHTML = '<option value="" disabled selected>Scegli uno sport...</option>';
+            sportFilter.innerHTML = `<option value="" disabled selected>${window.i18n.t('profile.select_sport')}</option>`;
             sports.forEach(sport => {
                 const option = document.createElement('option');
                 option.value = sport._id;
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => {
             console.error('Error loading sports:', err);
-            sportFilter.innerHTML = '<option value="" disabled>Errore caricamento sport</option>';
+            sportFilter.innerHTML = `<option value="" disabled>${window.i18n.t('leaderboard.sport_load_error')}</option>`;
         });
 
     // Handle Change
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function loadLeaderboard(sportId) {
-        tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4">Caricamento...</td></tr>';
+        tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4">${window.i18n.t('common.loading')}</td></tr>`;
 
         // Always fetch global leaderboard
         fetch(`/api/users/leaderboard?sportId=${sportId}&limit=100`)
@@ -71,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => {
                 console.error('Error loading leaderboard:', err);
-                tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-danger">Errore caricamento classifica.</td></tr>';
+                tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-danger">${window.i18n.t('leaderboard.list_load_error')}</td></tr>`;
             });
     }
 
@@ -86,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (displayedUsers.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">Nessun giocatore trovato.</td></tr>';
+            tableBody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-muted">${window.i18n.t('leaderboard.none_found')}</td></tr>`;
             return;
         }
 

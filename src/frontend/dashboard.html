@@ -5,19 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrentoArena - Dashboard</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    
+
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/dashboard.css">
-    
+
     <link rel="stylesheet" href="css/game_creation_popup.css">
     <link rel="stylesheet" href="css/game_popup.css">
     <link rel="stylesheet" href="css/game_popup_participants.css">
     <link rel="stylesheet" href="css/popup_shared.css">
-    
+
     <script src="js/popup_manager.js"></script>
+    <script src="js/i18n.js"></script>
 </head>
 
 <body>
@@ -28,32 +29,36 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById("navbar").innerHTML = data;
+                if (window.i18n) window.i18n.translatePage();
             })
             .catch(err => console.error("Errore caricamento navbar:", err));
     </script>
 
     <div class="container py-5">
         <div class="row g-5">
-            
+
             <div class="col-lg-4">
                 <div class="sticky-widget">
                     <div class="card user-card-pro shadow-sm border-0 mx-auto">
                         <div class="card-body text-center pt-0">
                             <div class="avatar-container">
-                                <img id="dashboardProfilePic" src="./images/utenteDefault.png" alt="Avatar" class="img-fluid rounded-circle avatar-pro">
+                                <img id="dashboardProfilePic" src="./images/utenteDefault.png" alt="Avatar"
+                                    class="img-fluid rounded-circle avatar-pro">
                             </div>
-                            
-                            <h3 id="user-name" class="fw-bold mt-4 mb-1">Caricamento...</h3>
-                            <p class="text-muted small mb-4">Giocatore</p>
+
+                            <h3 id="user-name" class="fw-bold mt-4 mb-1" data-i18n="common.loading">Caricamento...</h3>
+                            <p class="text-muted small mb-4" data-i18n="dashboard.player_role">Giocatore</p>
 
                             <div class="row mt-4 px-3">
                                 <div class="col-6 border-end">
                                     <h5 class="fw-bold mb-0" id="gamesCount">-</h5>
-                                    <small class="text-uppercase text-muted fw-semibold" style="font-size: 0.8rem;">Partite</small>
+                                    <small class="text-uppercase text-muted fw-semibold" style="font-size: 0.8rem;"
+                                        data-i18n="dashboard.games">Partite</small>
                                 </div>
                                 <div class="col-6">
                                     <h5 class="fw-bold mb-0" id="friendsCount">-</h5>
-                                    <small class="text-uppercase text-muted fw-semibold" style="font-size: 0.8rem;">Amici</small>
+                                    <small class="text-uppercase text-muted fw-semibold"
+                                        style="font-size: 0.8rem;">Amici</small>
                                 </div>
                             </div>
                         </div>
@@ -63,17 +68,22 @@
 
             <div class="col-lg-8">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold mb-0">Attività Recenti</h3>
-                    
+                    <h3 class="fw-bold mb-0" data-i18n="dashboard.recent_activity">Attività Recenti</h3>
+
                     <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm bg-white rounded-pill px-3 shadow-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button
+                            class="btn btn-outline-secondary btn-sm bg-white rounded-pill px-3 shadow-sm dropdown-toggle d-flex align-items-center gap-2"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-funnel"></i>
                             <span id="filterLabel">Tutte</span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
-                            <li><a class="dropdown-item active" href="#" onclick="event.preventDefault(); switchFilter('all', this)">Tutte</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); switchFilter('active', this)">In Programma</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); switchFilter('finished', this)">Concluse</a></li>
+                            <li><a class="dropdown-item active" href="#"
+                                    onclick="event.preventDefault(); switchFilter('all', this)">Tutte</a></li>
+                            <li><a class="dropdown-item" href="#"
+                                    onclick="event.preventDefault(); switchFilter('active', this)">In Programma</a></li>
+                            <li><a class="dropdown-item" href="#"
+                                    onclick="event.preventDefault(); switchFilter('finished', this)">Concluse</a></li>
                         </ul>
                     </div>
                 </div>
@@ -87,10 +97,11 @@
     </div>
 
 
-<script src="js/dashboard.js" defer></script>
+    <script src="js/dashboard.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script src="js/game_popup.js"></script>
     <script src="/js/notification.js"></script>
 </body>
+
 </html>

@@ -7,6 +7,7 @@
     <title>TrentoArena - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/i18n.js"></script>
 </head>
 
 <body class="bg-light d-flex align-items-center justify-content-center vh-100">
@@ -14,24 +15,26 @@
     <div class="d-flex justify-content-center align-items-center min-vh-100">
         <div class="card loginregistrazione-card">
             <div class="card-body">
-                <h2 class="card-title" style="text-align: center;">Login</h2>
+                <h2 class="card-title" style="text-align: center;" data-i18n="login.title">Login</h2>
                 <div class="mb-3">
-                    <p class="form-label">Email o nome</p>
+                    <p class="form-label" data-i18n="login.username_placeholder">Email o nome</p>
                     <input type="email" class="form-control" id="InputUser">
                 </div>
                 <div class="mb-3">
-                    <p class="form-label">Password</p>
+                    <p class="form-label" data-i18n="login.password_placeholder">Password</p>
                     <input type="password" class="form-control" id="InputPassword">
                 </div>
                 <div class="text-center">
-                    <button type="button" class="btn btn-light" style="color: #ff6347;">Login</button>
-                    <p><small>Non hai un account? <a style="color: white;" href="/registration">registrati</a></small>
+                    <button type="button" class="btn btn-light" style="color: #ff6347;"
+                        data-i18n="login.login_button">Login</button>
+                    <p><small><span data-i18n="login.not_registered">Non hai un account?</span> <a style="color: white;"
+                                href="/registration" data-i18n="login.register_link">registrati</a></small>
                     </p>
                 </div>
                 <hr>
                 <div class="text-center">
                     <form action="/auth/google">
-                        <button class="btn btn-light" style="color: #ff6347;">
+                        <button class="btn btn-light" style="color: #ff6347;" data-i18n="login.google_login">
                             <img src="images/google-logo.png" width="24" height="24">
                             Continua con Google
                         </button>

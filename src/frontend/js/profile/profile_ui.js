@@ -2,11 +2,11 @@ window.ProfileUI = {
     renderHeader(user, isOwnProfile, currentUser) {
         const usernameEl = document.getElementById('username');
         const picEl = document.getElementById('profilePic');
-        
+
         if (usernameEl) usernameEl.textContent = user.username;
         if (picEl) picEl.src = user.profilePicture || '/images/utenteDefault.png';
 
-       const setDisplay = (id, val) => { const el = document.getElementById(id); if(el) el.style.display = val; };
+        const setDisplay = (id, val) => { const el = document.getElementById(id); if (el) el.style.display = val; };
 
         if (isOwnProfile) {
             setDisplay('editControls', 'block');
@@ -14,8 +14,8 @@ window.ProfileUI = {
             setDisplay('publicActions', 'none');
             setDisplay('email', 'block');
             const emailEl = document.getElementById('email');
-            if(emailEl) emailEl.textContent = user.email;
-            
+            if (emailEl) emailEl.textContent = user.email;
+
             if (user.profilePicture) setDisplay('removePicBtn', 'block');
             else setDisplay('removePicBtn', 'none');
 
@@ -31,7 +31,7 @@ window.ProfileUI = {
                 badge.textContent = 'BANNED';
                 usernameEl.appendChild(badge);
             }
-            
+
             this.setupPublicActionButtons(user, currentUser);
         }
     },
@@ -54,25 +54,25 @@ window.ProfileUI = {
         const requestReceivedByMe = myReqs.some(r => (r._id || r) === targetUser._id);
 
         if (isFriend) {
-            btn.textContent = "Remove Friend";
+            btn.textContent = window.i18n.t('profile.remove_friend');
             btn.className = "btn btn-danger";
             btn.onclick = () => window.handleRemoveFriend(targetUser._id);
         } else if (requestSentByMe) {
-            btn.textContent = "Request Sent";
+            btn.textContent = window.i18n.t('profile.request_sent');
             btn.className = "btn btn-secondary";
             btn.disabled = true;
         } else if (requestReceivedByMe) {
-            btn.textContent = "Accept Request";
+            btn.textContent = window.i18n.t('profile.accept_request');
             btn.className = "btn btn-success";
             btn.onclick = () => window.handleAcceptFriend(targetUser._id);
         } else {
-            btn.textContent = "Add Friend";
+            btn.textContent = window.i18n.t('profile.add_friend');
             btn.className = "btn btn-primary";
             btn.onclick = () => window.handleSendRequest(targetUser._id);
         }
 
         const reportBtn = document.getElementById('reportUserBtn');
-        if(reportBtn) {
+        if (reportBtn) {
             reportBtn.onclick = () => window.openReportModal(targetUser._id);
         }
     },
@@ -80,11 +80,11 @@ window.ProfileUI = {
     // Lista Amici
     renderFriendsList(friends) {
         const container = document.getElementById('friendsList');
-        if(!container) return;
+        if (!container) return;
         container.innerHTML = '';
 
         if (!friends || friends.length === 0) {
-            container.innerHTML = '<span class="text-muted">No friends yet.</span>';
+            container.innerHTML = `<span class="text-muted">${window.i18n.t('profile.no_friends')}</span>`;
             return;
         }
 
@@ -94,11 +94,11 @@ window.ProfileUI = {
             img.className = 'rounded-circle shadow-sm border me-2 mb-2';
             img.style.width = '50px'; img.style.height = '50px'; img.style.cursor = 'pointer';
             img.style.objectFit = 'cover';
-            
+
             const username = friend.username || 'unknown';
             img.onclick = () => window.location.href = `/user/${username}`;
             img.title = username;
-            
+
             container.appendChild(img);
         });
     },
@@ -106,11 +106,11 @@ window.ProfileUI = {
     // Lista Partite
     renderGamesList(games, containerId, isFinished, userId) {
         const container = document.getElementById(containerId);
-        if(!container) return;
-        
+        if (!container) return;
+
         container.innerHTML = '';
         if (!games || games.length === 0) {
-            const msg = isFinished ? 'No past games.' : 'No upcoming games.';
+            const msg = isFinished ? window.i18n.t('profile.no_past_games') : window.i18n.t('profile.no_upcoming_games');
             container.innerHTML = `<div class="col-12 text-muted">${msg}</div>`;
             return;
         }
@@ -124,15 +124,15 @@ window.ProfileUI = {
             let badgeHtml = '';
 
             if (isFinished) {
-                badgeHtml = '<span class="badge bg-secondary">Finished</span>';
+                badgeHtml = `<span class="badge bg-secondary">${window.i18n.t('profile.finished')}</span>`;
                 const participant = game.participants.find(p => {
-                    const pId = p.user._id || p.user; 
+                    const pId = p.user._id || p.user;
                     return pId.toString() === userId.toString();
                 });
                 if (participant) {
                     if (participant.winner) {
-                        cardClass += ' border-success border-2'; 
-                        badgeHtml = '<span class="badge bg-success">Won</span>';
+                        cardClass += ' border-success border-2';
+                        badgeHtml = `<span class="badge bg-success">${window.i18n.t('profile.won')}</span>`;
                     } else {
                         cardClass += ' border-secondary';
                     }
@@ -143,7 +143,7 @@ window.ProfileUI = {
                 let badgeClass = 'bg-success';
                 if (current >= max) badgeClass = 'bg-danger';
                 else if (current / max >= 0.75) badgeClass = 'bg-warning text-dark';
-                
+
                 badgeHtml = `<span class="badge ${badgeClass}"><i class="bi bi-people-fill me-1"></i>${current}/${max}</span>`;
             }
 
@@ -183,7 +183,7 @@ window.ProfileUI = {
         const endDate = new Date(today);
         endDate.setDate(today.getDate() + distanceToSunday);
         const startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 27); 
+        startDate.setDate(startDate.getDate() - 27);
 
         for (let i = 0; i < 28; i++) {
             const d = new Date(startDate);
@@ -212,7 +212,7 @@ window.ProfileUI = {
     // Grafico ELO
     renderEloStats(user) {
         const eloContainer = document.getElementById('eloStatsContainer');
-        if(!eloContainer) return;
+        if (!eloContainer) return;
 
         if (!user.sportsElo || user.sportsElo.length === 0) {
             eloContainer.style.display = 'none';
@@ -222,23 +222,23 @@ window.ProfileUI = {
         const select = document.getElementById('eloSportSelect');
         const canvas = document.getElementById('eloChart');
         const placeholder = document.getElementById('eloPlaceholder');
-        
-        select.innerHTML = '<option selected disabled value="">Select a sport...</option>';
-        
+
+        select.innerHTML = `<option selected disabled value="">${window.i18n.t('profile.select_sport')}</option>`;
+
         user.sportsElo.forEach((stat, idx) => {
             const opt = document.createElement('option');
             opt.value = idx;
-            opt.textContent = stat.sport?.name || 'Unknown Sport';
+            opt.textContent = stat.sport?.name || window.i18n.t('admin.js.unknown');
             select.appendChild(opt);
         });
 
         select.onchange = () => {
             const stat = user.sportsElo[select.value];
-            if(!stat) return;
+            if (!stat) return;
             const labels = [], data = [];
-            
+
             if (stat.history && stat.history.length > 0) {
-                const history = [...stat.history].sort((a,b) => new Date(a.date) - new Date(b.date));
+                const history = [...stat.history].sort((a, b) => new Date(a.date) - new Date(b.date));
                 history.forEach(h => {
                     labels.push(new Date(h.date).toLocaleDateString());
                     data.push(h.elo);
@@ -247,8 +247,8 @@ window.ProfileUI = {
                 labels.push('Start'); data.push(stat.elo);
             }
 
-            if(placeholder) placeholder.style.display = 'none';
-            if(canvas) canvas.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+            if (canvas) canvas.style.display = 'block';
 
             if (window.myEloChart) window.myEloChart.destroy();
             window.myEloChart = new Chart(canvas, {
@@ -256,7 +256,7 @@ window.ProfileUI = {
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'ELO Rating',
+                        label: window.i18n.t('profile.elo_rating'),
                         data: data,
                         borderColor: '#fd7e14',
                         backgroundColor: 'rgba(253, 126, 20, 0.1)',
@@ -271,7 +271,7 @@ window.ProfileUI = {
             });
         };
 
-        if(user.sportsElo.length > 0) {
+        if (user.sportsElo.length > 0) {
             select.selectedIndex = 1;
             select.dispatchEvent(new Event('change'));
         }

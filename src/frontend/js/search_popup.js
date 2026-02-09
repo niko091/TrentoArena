@@ -8,16 +8,16 @@ class SearchPopup extends BasePopup {
 
     init() {
         super.init();
-        this.setTitle('Cerca');
+        this.setTitle(window.i18n.t('search_popup.title'));
 
         this.setBody(`
             <div class="search-input-container">
                 <img src="/images/search.png" class="search-icon" alt="Search">
-                <input type="text" id="popupSearchInput" class="popup-input search-input" placeholder="Cerca persone o luoghi..." autofocus>
+                <input type="text" id="popupSearchInput" class="popup-input search-input" placeholder="${window.i18n.t('search_popup.placeholder')}" autofocus>
             </div>
 
             <div class="search-results-section" id="popupSearchResults">
-                <div class="no-results">Inizia a digitare per cercare...</div>
+                <div class="no-results">${window.i18n.t('search_popup.start_typing')}</div>
             </div>
         `);
 
@@ -44,7 +44,7 @@ class SearchPopup extends BasePopup {
         }
 
         if (this.resultsContainer) {
-            this.resultsContainer.innerHTML = '<div class="no-results">Inizia a digitare per cercare...</div>';
+            this.resultsContainer.innerHTML = `<div class="no-results">${window.i18n.t('search_popup.start_typing')}</div>`;
         }
     }
 
@@ -59,7 +59,7 @@ class SearchPopup extends BasePopup {
         }
 
         if (query.trim().length < 2) {
-            this.resultsContainer.innerHTML = '<div class="no-results">Digita almeno 2 caratteri...</div>';
+            this.resultsContainer.innerHTML = `<div class="no-results">${window.i18n.t('search_popup.type_more')}</div>`;
             return;
         }
 
@@ -83,7 +83,7 @@ class SearchPopup extends BasePopup {
             this.renderResults(users, places);
         } catch (err) {
             console.error(err);
-            this.resultsContainer.innerHTML = '<div class="text-danger text-center">Errore durante la ricerca</div>';
+            this.resultsContainer.innerHTML = `<div class="text-danger text-center">${window.i18n.t('search_popup.error')}</div>`;
         }
     }
 
@@ -91,14 +91,14 @@ class SearchPopup extends BasePopup {
         if (!this.resultsContainer) return;
 
         if ((!users || users.length === 0) && (!places || places.length === 0)) {
-            this.resultsContainer.innerHTML = '<div class="no-results">Nessun risultato trovato</div>';
+            this.resultsContainer.innerHTML = `<div class="no-results">${window.i18n.t('search_popup.no_results')}</div>`;
             return;
         }
 
         let html = '';
 
         if (users && users.length > 0) {
-            html += '<div class="section-title">Utenti</div>';
+            html += `<div class="section-title">${window.i18n.t('search_popup.users')}</div>`;
             users.forEach(user => {
                 const pic = user.profilePicture ? user.profilePicture : '/images/utenteDefault.png';
                 html += `
@@ -113,7 +113,7 @@ class SearchPopup extends BasePopup {
         }
 
         if (places && places.length > 0) {
-            html += '<div class="section-title">Luoghi</div>';
+            html += `<div class="section-title">${window.i18n.t('search_popup.places')}</div>`;
             places.forEach(place => {
                 const sportName = place.sport ? place.sport.name : '';
                 html += `

@@ -8,43 +8,42 @@
     <a class="nav-link" href="#"
       onclick="event.preventDefault(); window.loadPopupSafely('/css/search_popup.css', '/js/search_popup.js', () => window.SearchPopupInstance);">
       <img src="/images/search.png" alt="Cerca">
-      <span>Cerca</span>
+      <span data-i18n="navbar.search">Cerca</span>
     </a>
 
     <!-- Crea Partita -->
     <a class="nav-link" href="#"
       onclick="event.preventDefault(); window.loadPopupSafely('/css/game_creation_popup.css', '/js/game_creation_popup.js', () => window.GameCreationPopup);">
       <img src="/images/add.png" alt="Crea Partita">
-      <span>Crea</span>
+      <span data-i18n="navbar.create">Crea</span>
     </a>
 
     <!-- Mappa -->
     <a class="nav-link" href="/map">
       <img src="/images/map.png" alt="Mappa">
-      <span>Mappa</span>
+      <span data-i18n="navbar.map">Mappa</span>
     </a>
 
     <!-- Classifica -->
     <a class="nav-link" href="/leaderboard">
       <img src="/images/trophy.png" alt="Classifica">
-      <span>Classifica</span>
+      <span data-i18n="navbar.leaderboard">Classifica</span>
     </a>
 
     <!-- Richieste -->
-    <a class="nav-link" href="#" onclick="event.preventDefault(); window.loadPopupSafely('/css/friend_requests_popup.css', '/js/friend_requests_popup.js', () => window.FriendRequestsPopup);">
-  
-  <div class="icon-wrapper">
-    <img src="/images/bell.png" alt="Richieste">
-    <span id="requests-badge" class="notification-badge" style="display: none;">0</span>
-  </div>
-  
-  <span>Richieste</span>
-</a>
+    <a class="nav-link" href="#"
+      onclick="event.preventDefault(); window.loadPopupSafely('/css/friend_requests_popup.css', '/js/friend_requests_popup.js', () => window.FriendRequestsPopup);">
+      <div class="icon-wrapper">
+        <img src="/images/bell.png" alt="Richieste">
+        <span id="requests-badge" class="notification-badge" style="display: none;">0</span>
+      </div>
+      <span data-i18n="navbar.requests">Richieste</span>
+    </a>
 
     <!-- Profilo -->
     <a class="nav-link" href="/profile">
       <img src="/images/account.png" alt="Profilo">
-      <span>Profilo</span>
+      <span data-i18n="navbar.profile">Profilo</span>
     </a>
   </div>
 </nav>

@@ -1,9 +1,9 @@
-window.cachedGames = {}; 
+window.cachedGames = {};
 
 document.addEventListener('DOMContentLoaded', async () => {
     if (!window.ProfileAPI || !window.ProfileUI) {
         console.error("ERRORE CRITICO: I file profile-api.js o profile-ui.js non sono stati caricati correttamente.");
-        alert("Errore caricamento pagina. Controlla la console.");
+        alert(window.i18n ? window.i18n.t('common.error_generic') : "Error loading page.");
         return;
     }
 
@@ -12,13 +12,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const currentUser = await ProfileAPI.getCurrentUser();
     if (!currentUser) {
-        window.location.href = '/login'; 
+        window.location.href = '/login';
         return;
     }
 
     const pathParts = window.location.pathname.split('/');
     const urlUsername = pathParts.includes('user') ? pathParts[pathParts.length - 1] : null;
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const queryId = urlParams.get('id');
 
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             isOwnProfile = false;
 
         } else {
-        
+
             targetUser = await ProfileAPI.getUserById(currentUser._id);
             isOwnProfile = true;
         }
@@ -79,53 +79,53 @@ function setupImageUpload(userId) {
             try {
                 const res = await window.ProfileAPI.uploadProfilePicture(userId, formData);
                 if (res.ok) window.location.reload();
-            } catch(e) { console.error(e); }
+            } catch (e) { console.error(e); }
         };
     }
 
     if (removeBtn) {
         removeBtn.onclick = async () => {
-            if(!confirm("Rimuovere foto profilo?")) return;
+            if (!confirm(window.i18n.t('common.confirm_remove_photo'))) return;
             try {
                 const res = await window.ProfileAPI.deleteProfilePicture(userId);
-                if(res.ok) window.location.reload();
-            } catch(e) { console.error(e); }
+                if (res.ok) window.location.reload();
+            } catch (e) { console.error(e); }
         };
     }
 }
 
-window.openGameDetails = function(gameId) {
+window.openGameDetails = function (gameId) {
     const game = window.cachedGames[gameId];
     if (game && window.GameDetailsPopup) {
         window.GameDetailsPopup.show(game);
     }
 };
 
-window.handleSendRequest = async function(targetId) {
-    try { await window.ProfileAPI.sendFriendRequest(targetId); window.location.reload(); } catch(e) { alert("Errore"); }
+window.handleSendRequest = async function (targetId) {
+    try { await window.ProfileAPI.sendFriendRequest(targetId); window.location.reload(); } catch (e) { alert(window.i18n.t('common.error_generic')); }
 };
-window.handleAcceptFriend = async function(reqId) {
-    try { await window.ProfileAPI.acceptFriendRequest(reqId); window.location.reload(); } catch(e) { alert("Errore"); }
+window.handleAcceptFriend = async function (reqId) {
+    try { await window.ProfileAPI.acceptFriendRequest(reqId); window.location.reload(); } catch (e) { alert(window.i18n.t('common.error_generic')); }
 };
-window.handleRemoveFriend = async function(fid) {
-    if(confirm("Rimuovere amico?")) {
-        try { await window.ProfileAPI.removeFriend(fid); window.location.reload(); } catch(e) { alert("Errore"); }
+window.handleRemoveFriend = async function (fid) {
+    if (confirm(window.i18n.t('common.confirm_remove_friend'))) {
+        try { await window.ProfileAPI.removeFriend(fid); window.location.reload(); } catch (e) { alert(window.i18n.t('common.error_generic')); }
     }
 };
-window.openReportModal = function(targetId) {
+window.openReportModal = function (targetId) {
     const modalEl = document.getElementById('reportModal');
     const modal = new bootstrap.Modal(modalEl);
     const btn = document.getElementById('submitReportBtn');
     const newBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(newBtn, btn);
-    
+
     newBtn.onclick = async () => {
         const mot = document.getElementById('reportMotivation').value;
-        if(!mot) return alert("Inserisci motivazione");
+        if (!mot) return alert(window.i18n.t('common.insert_reason'));
         const me = await window.ProfileAPI.getCurrentUser();
-        if(me) {
+        if (me) {
             await window.ProfileAPI.sendReport(me._id, targetId, mot);
-            alert("Inviato"); modal.hide();
+            alert(window.i18n.t('common.sent')); modal.hide();
         }
     };
     modal.show();
