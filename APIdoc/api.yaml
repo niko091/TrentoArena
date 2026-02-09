@@ -770,3 +770,70 @@ paths:
       responses:
         200:
           description: Lista degli utenti bannati
+  /api/stats/chart-data:
+    get:
+      summary: Ottieni dati per il grafico
+      tags: [Stats]
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [sport, place]
+          description: Tipo di entità (sport o luogo)
+        - in: query
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID dell'entità
+      responses:
+        200:
+          description: Dati del grafico (data -> conteggio)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+        400:
+          description: Parametri mancanti o non validi
+        500:
+          description: Errore del server
+  /api/stats/top-entities:
+    get:
+      summary: Ottieni le entità più popolari
+      tags: [Stats]
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [sport, place]
+          description: Tipo di entità (sport o luogo)
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [year, month, all]
+          description: Periodo di tempo (anno, mese, tutto)
+      responses:
+        200:
+          description: Lista delle entità più popolari
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    count:
+                      type: integer
+        400:
+          description: Parametri mancanti o non validi
+        500:
+          description: Errore del server
