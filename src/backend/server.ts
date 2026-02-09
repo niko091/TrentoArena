@@ -1,6 +1,5 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import mongoose from 'mongoose';
 import path from 'path';
 import connectDB from './config/db';
 import passport from 'passport';
@@ -18,22 +17,15 @@ import statsRoutes from './routes/stats';
 import { checkBan } from './middleware/checkBan';
 import basicAuth from 'express-basic-auth';
 
-
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-import { frontendPath, uploadDir } from './config/paths';
+import { frontendPath } from './config/paths';
 
 // Connect to MongoDB
 if (process.env.NODE_ENV !== 'test') {
     connectDB();
-}
-
-// Ensure uploads directory exists
-import fs from 'fs';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 import MongoStore from 'connect-mongo';

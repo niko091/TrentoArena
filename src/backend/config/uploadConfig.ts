@@ -1,10 +1,4 @@
 import multer from 'multer';
-import fs from 'fs';
-import { uploadDir } from './paths';
-
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
 
 const storage = multer.memoryStorage();
 
