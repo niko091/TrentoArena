@@ -52,6 +52,7 @@
         "games": "Partite",
         "friends": "Amici",
         "add_friend": "Aggiungi Amico",
+        "remove_friend": "Rimuovi amico",
         "report_user": "Segnala Utente",
         "logout": "Esci",
         "elo_stats": "Statistiche ELO",

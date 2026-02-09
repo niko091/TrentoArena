@@ -52,6 +52,7 @@
         "games": "Games",
         "friends": "Friends",
         "add_friend": "Add Friend",
+        "remove_friend": "Remove friend",
         "report_user": "Report User",
         "logout": "Logout",
         "elo_stats": "ELO Statistics",
