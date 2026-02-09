@@ -28,7 +28,6 @@ filterControl.onAdd = function (map) {
     L.DomEvent.disableClickPropagation(div);
     return div;
 };
-filterControl.addTo(map);
 
 // Render markers
 function renderMarkers(places) {
@@ -141,9 +140,13 @@ function updateSportFilter(places) {
 }
 
 // Fetch places and add markers
-fetch('/api/places')
-    .then(response => response.json())
-    .then(places => {
+async function initMapContent() {
+    filterControl.addTo(map);
+
+    try {
+        const response = await fetch('/api/places');
+        const places = await response.json();
+
         allPlaces = places;
         renderMarkers(allPlaces);
         updateSportFilter(allPlaces);
@@ -163,5 +166,13 @@ fetch('/api/places')
                 });
             }
         }
-    })
-    .catch(error => console.error('Error fetching places:', error));
+    } catch (error) {
+        console.error('Error fetching places:', error);
+    }
+}
+
+if (window.i18n && window.i18n.isReady) {
+    initMapContent();
+} else {
+    window.addEventListener('i18nReady', initMapContent);
+}

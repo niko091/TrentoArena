@@ -8,12 +8,15 @@ class I18n {
         this.locale = supportedLocales.includes(browserLocale) ? browserLocale : 'it';
 
         this.translations = {};
+        this.isReady = false;
     }
 
     async init() {
         await this.loadTranslations(this.locale);
         this.translatePage();
         this.updateDir();
+        this.isReady = true;
+        window.dispatchEvent(new CustomEvent('i18nReady'));
     }
 
     async loadTranslations(locale) {
