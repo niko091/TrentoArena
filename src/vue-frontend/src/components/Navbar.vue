@@ -6,47 +6,32 @@ import GameCreationPopup from './GameCreationPopup.vue'
 import SearchPopup from './SearchPopup.vue'
 import FriendRequestsPopup from './FriendRequestsPopup.vue'
 
-// --- Logic remains the same ---
 const showCreateGame = ref(false)
 const showSearch = ref(false)
 const showRequests = ref(false)
 const requestsCount = ref(0)
 const { t } = useI18n()
-
-// Mobile State
 const isMenuOpen = ref(false)
-
-const toggleMenu = () => {
-    isMenuOpen.value = !isMenuOpen.value
-}
-
-const closeMenu = () => {
-    isMenuOpen.value = false
-}
-
+const toggleMenu = () => { isMenuOpen.value = !isMenuOpen.value}
+const closeMenu = () => {isMenuOpen.value = false}
 const openCreateGame = () => {
     showCreateGame.value = true
     closeMenu()
 }
-
 const closeCreateGame = () => {
     showCreateGame.value = false
 }
-
 const openSearch = () => {
     showSearch.value = true
     closeMenu()
 }
-
 const closeSearch = () => {
     showSearch.value = false
 }
-
 const openRequests = () => {
     showRequests.value = true
     closeMenu()
 }
-
 const closeRequests = () => {
     showRequests.value = false
 }
@@ -144,11 +129,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* NOTA: Molti stili (colori, font, ombre) sono ereditati da style.css globalmente.
-   Qui gestiamo solo il layout specifico responsive e l'hamburger.
-*/
-
-/* --- HAMBURGER (Mobile Trigger) --- */
 .hamburger {
     display: none;
     flex-direction: column;
@@ -157,59 +137,49 @@ onMounted(() => {
     width: 28px;
     padding: 0;
     z-index: 1003;
-    /* Spinge a destra su mobile */
     margin-left: auto; 
 }
 
 .hamburger .bar {
     width: 100%;
     height: 3px;
-    /* USA LA VARIABILE GLOBALE: Così cambia colore in Dark Mode se necessario */
     background-color: var(--text-inverse); 
     border-radius: 4px;
     transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* --- MOBILE RESPONSIVE (< 768px) --- */
 @media screen and (max-width: 768px) {
     .hamburger {
         display: flex;
     }
 
-    /* 1. CENTRATURA LOGO MOBILE */
-    /* Usiamo !important solo se necessario per sovrascrivere flex del desktop */
     .nav-brand {
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
         width: max-content;
-        margin-right: 0; /* Reset del margin desktop */
+        margin-right: 0; 
     }
     
     .nav-logo {
-        height: 45px; /* Un po' più piccolo per stare nella barra mobile */
+        height: 45px; 
     }
 
-    /* 2. MENU A TENDINA */
     .nav-items {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: auto;
-        
-        /* USA LE VARIABILI GLOBALI */
         background-color: var(--accent-primary);
-        
-        flex-direction: column; /* Sovrascrive il row del css globale */
+        flex-direction: column; 
         align-items: flex-start;
         padding: 90px 25px 30px 25px;
-        gap: 0; /* Reset del gap globale */
+        gap: 0; 
         
         box-shadow: var(--shadow-lg);
         
-        /* Animazione */
         transform: translateY(-100%);
         opacity: 0;
         transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
@@ -223,20 +193,17 @@ onMounted(() => {
         pointer-events: all;
     }
 
-    /* Animazione Hamburger X */
     .hamburger.is-active .bar:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
     .hamburger.is-active .bar:nth-child(2) { opacity: 0; }
     .hamburger.is-active .bar:nth-child(3) { transform: translateY(-8.5px) rotate(-45deg); }
 
-    /* 3. STILE LINK MOBILE */
-    /* Dobbiamo forzare il layout orizzontale perché il global css li mette in colonna */
     .nav-link {
         width: 100%;
-        flex-direction: row; /* Icona a sinistra, testo a destra */
+        flex-direction: row; 
         align-items: center;
         padding: 15px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.15); /* Separatore leggero */
-        transform: none !important; /* Disabilita l'animazione hover desktop */
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        transform: none !important; 
     }
     
     .nav-link:last-child {
@@ -244,9 +211,9 @@ onMounted(() => {
     }
 
     .nav-link img {
-        margin-bottom: 0; /* Reset del margin globale */
-        margin-right: 15px; /* Spazio a destra dell'icona */
-        /* I filtri colore sono gestiti interamente da style.css ora */
+        margin-bottom: 0; 
+        margin-right: 15px; 
+       
     }
     
     .nav-link span {

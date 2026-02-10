@@ -20,6 +20,12 @@ const router = createRouter({
             component: Login,
             meta: { guest: true }
         },
+                {
+            path: '/register',
+            name: 'register',
+            component: Register,
+            meta: { guest: true }
+        },
         {
             path: '/dashboard',
             name: 'dashboard',
@@ -44,13 +50,6 @@ const router = createRouter({
             component: Map,
             meta: { requiresAuth: true }
         },
-        {
-            path: '/register',
-            name: 'register',
-            component: Register,
-            meta: { guest: true }
-        },
-
         {
             path: '/leaderboard',
             name: 'leaderboard',

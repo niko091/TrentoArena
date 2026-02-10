@@ -6,7 +6,7 @@ import { computed } from 'vue'
 
 const route = useRoute();
 const showNavbar = computed(() => {
-  return route.name !== 'login' && !route.meta.hideNavbar;
+  return route.name !== 'login' && route.name !== 'register' && !route.meta.hideNavbar;
 });
 </script>
 
