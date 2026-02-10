@@ -34,12 +34,6 @@ import MongoStore from 'connect-mongo';
 // Middleware
 app.use(express.json());
 
-// Request logging
-app.use((req, res, next) => {
-    console.log(`[Backend] ${req.method} ${req.url}`);
-    next();
-});
-
 // Content Security Policy
 app.use((req, res, next) => {
     res.setHeader(
@@ -81,7 +75,6 @@ app.use('/api/reports', reportRoutes); // Register report routes
 app.use('/api/stats', statsAuth, statsRoutes);
 
 // Admin API Routes
-// Admin API Routes
 app.use('/api/admin', adminAuth, adminRoutes);
 
 // Routes (Placeholder)
@@ -105,10 +98,6 @@ app.get(/.*/, (req, res) => {
     });
 });
 
-// Routes (Placeholder)
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
-});
 
 if (require.main === module) {
     app.listen(Number(PORT), '0.0.0.0', () => {
