@@ -6,7 +6,6 @@ import GameCard from '../components/GameCard.vue';
 import GamePopup from '../components/GamePopup.vue';
 import { useRouter } from 'vue-router';
 
-// Define filtered games logic...
 const router = useRouter();
 const games = ref<any[]>([]);
 const userGamesCount = ref(0);
@@ -45,7 +44,7 @@ const loadDashboardData = async () => {
              return;
         }
 
-        // Fetch user's games count
+      
         try {
             const userGamesRes = await fetch(`/api/games?participantId=${currentUser.value._id}`);
             if (userGamesRes.ok) {
@@ -86,7 +85,6 @@ onMounted(() => {
 });
 
 const filteredGames = computed(() => {
-    // ... same logic ...
   const isFull = (g: any) => (g.participants?.length || 0) >= (g.maxParticipants || 100);
   
   if (filter.value === 'active') {
@@ -108,7 +106,6 @@ function openGame(game: any) {
 
 <template>
   <div class="container py-5">
-        <!-- Game Popup -->
         <GamePopup 
             v-if="selectedGame" 
             :game="selectedGame" 
@@ -120,32 +117,36 @@ function openGame(game: any) {
         <div class="row g-5">
 
             <div class="col-lg-4">
-                <div class="sticky-widget">
-                    <div class="card user-card-pro shadow-sm border-0 mx-auto">
-                        <div class="card-body text-center pt-0">
-                            <div class="avatar-container">
-                                <img :src="currentUser?.profilePicture || '/images/utenteDefault.png'" alt="Avatar"
-                                    class="img-fluid rounded-circle avatar-pro">
-                            </div>
-
-                            <h3 class="fw-bold mt-4 mb-1">{{ currentUser ? currentUser.username : t('common.loading') }}</h3>
-                            <p class="text-muted small mb-4">{{ t('dashboard.player_role') }}</p>
-
-                            <div class="row mt-4 px-3" v-if="currentUser">
-                                <div class="col-6 border-end">
-                                    <h5 class="fw-bold mb-0">{{ userGamesCount }}</h5> <!-- Correct user games count -->
-                                    <small class="text-uppercase text-muted fw-semibold" style="font-size: 0.8rem;">{{ t('dashboard.games') }}</small>
-                                </div>
-                                <div class="col-6">
-                                    <h5 class="fw-bold mb-0">{{ currentUser.friends?.length || 0 }}</h5>
-                                    <small class="text-uppercase text-muted fw-semibold"
-                                        style="font-size: 0.8rem;">{{ t('common.friends') }}</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="sticky-widget">
+        
+        <div class="user-profile-box">
+            
+            <div class="avatar-wrapper">
+                <img :src="currentUser?.profilePicture || '/images/utenteDefault.png'" 
+                     alt="Avatar"
+                     class="wireframe-avatar">
             </div>
+
+            <h3 class="user-name">{{ currentUser ? currentUser.username : t('common.loading') }}</h3>
+           
+
+            <div class="stats-container" v-if="currentUser">
+                
+                <div class="stat-box">
+                    <span class="stat-number">{{ userGamesCount }}</span>
+                    <span class="stat-label">{{ t('dashboard.games') }}</span>
+                </div>
+
+                <div class="stat-box">
+                    <span class="stat-number">{{ currentUser.friends?.length || 0 }}</span>
+                    <span class="stat-label">{{ t('common.friends') }}</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 
             <div class="col-lg-8">
                 <div class="d-flex justify-content-between align-items-center mb-4">
