@@ -63,38 +63,31 @@ router.get('/', async (req: Request, res: Response) => {
         }
 
         // Sport Filter
-        if (sportId) {
-            query.sport = sportId;
-        }
+        if (sportId) query.sport = sportId;
 
         // Place Filter
-        if (placeId) {
-            query.place = placeId;
-        }
+        if (placeId) query.place = placeId;
 
         // Creator Filter
-        if (creatorId) {
-            query.creator = creatorId;
-        }
+        if (creatorId) query.creator = creatorId;
 
         // Participant Filter
-        if (participantId) {
-            query['participants.user'] = participantId;
-        }
+        if (participantId) query['participants.user'] = participantId;
 
         // isFinished Filter
         if (isFinished !== undefined) {
             query.isFinished = isFinished === 'true';
         }
 
+  
         const limit = parseInt(req.query.limit as string) || 0;
-
         const games = await Game.find(query)
+            .sort({ date: 1 }) // 
             .limit(limit)
             .populate('sport')
             .populate('place')
-            .populate('creator', '-password') // Exclude password from creator
-            .populate('participants.user', 'username profilePicture email') // Populate participants info
+            .populate('creator', '-password')
+            .populate('participants.user', 'username profilePicture email')
             .lean();
 
         res.json(games);
