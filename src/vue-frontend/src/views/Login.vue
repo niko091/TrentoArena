@@ -32,9 +32,9 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="bg-light d-flex align-items-center justify-content-center vh-100">
+  <div class="bg d-flex align-items-center justify-content-center vh-100">
       <div class="d-flex justify-content-center align-items-center min-vh-100 w-100">
-          <div class="card loginregistrazione-card">
+          <div class="card">
               <div class="card-body">
                   <h2 class="card-title text-center">{{ t('login.title') }}</h2>
                   
@@ -43,25 +43,25 @@ const handleLogin = async () => {
                   <form @submit.prevent="handleLogin">
                       <div class="mb-3">
                           <p class="form-label">{{ t('register.email') }}</p>
-                          <input type="text" class="form-control" v-model="username" required>
+                          <input type="text" class="login-input" v-model="username" required>
                       </div>
                       <div class="mb-3">
                           <p class="form-label">{{ t('login.password_placeholder') }}</p>
-                          <input type="password" class="form-control" v-model="password" required>
+                          <input type="password" class="login-input" v-model="password" required>
                       </div>
                       <div class="text-center">
-                          <button type="submit" class="btn btn-light" style="color: #ff6347;">{{ t('login.login_button') }}</button>
+                          <button type="submit" class="btn" style="color: #ff6347;">{{ t('login.login_button') }}</button>
                           <p class="mt-2">
                               <small>
                                   <span>{{ t('login.not_registered') }}</span> 
-                                  <a style="color: white;" href="/register">{{ t('login.register_link') }}</a>
+                                  <a style="color: #ff6347;" href="/register">{{ t('login.register_link') }}</a>
                               </small>
                           </p>
                       </div>
                   </form>
                   <hr>
                   <div class="text-center">
-                      <a href="/auth/google" class="btn btn-light" style="color: #ff6347; text-decoration: none;">
+                      <a href="/auth/google" class="btn" style="color: #ff6347; text-decoration: none;">
                           <img src="/images/google-logo.png" width="24" height="24" class="me-2">
                           {{ t('login.google_login') }}
                       </a>
@@ -73,5 +73,20 @@ const handleLogin = async () => {
 </template>
 
 <style scoped>
-/* Specific overrides if necessary */
+  .login-input {
+      width: 100%;
+      padding: 12px 16px 12px 12px;
+      border: 2px solid var(--border-color-light, #eee);
+      border-radius: 12px;
+      font-size: 16px;
+      border-color: #000;
+      background-color: var(--input-bg, #f9f9f9);
+      color: var(--text-primary, #000);
+      transition: border-color 0.2s;
+      outline: none;
+  }
+
+  .login-input:focus {
+      border-color: var(--accent-primary, #fd7e14);
+  }
 </style>
