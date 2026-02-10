@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -40,11 +39,9 @@ const loadDashboardData = async () => {
         if (contentType && contentType.includes('application/json')) {
             currentUser.value = await authRes.json();
         } else {
-             console.error('Expected JSON for auth, got:', contentType);
              return;
         }
 
-      
         try {
             const userGamesRes = await fetch(`/api/games?participantId=${currentUser.value._id}`);
             if (userGamesRes.ok) {
@@ -52,29 +49,19 @@ const loadDashboardData = async () => {
                 if (contentType && contentType.includes('application/json')) {
                     const userGames = await userGamesRes.json();
                     userGamesCount.value = userGames.length;
-                } else {
-                    console.error('Expected JSON for user games, got:', contentType);
                 }
             }
-        } catch (e) {
-            console.error("Error loading user games:", e);
-        }
+        } catch (e) { console.error(e); }
 
         const gamesRes = await fetch('/api/games');
         if (gamesRes.ok) {
             const contentType = gamesRes.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 games.value = await gamesRes.json();
-            } else {
-                console.error('Expected JSON for games, got:', contentType);
-                const text = await gamesRes.text();
-                if (text.includes('<!DOCTYPE html>')) {
-                    console.error('Received HTML (likely SPA fallback). Is the backend running?');
-                }
             }
         }
     } catch (error) {
-        console.error("Error loading dashboard data:", error);
+        console.error(error);
     } finally {
         loading.value = false;
     }
@@ -117,44 +104,43 @@ function openGame(game: any) {
         <div class="row g-5">
 
             <div class="col-lg-4">
-    <div class="sticky-widget">
-        
-        <div class="user-profile-box">
-            
-            <div class="avatar-wrapper">
-                <img :src="currentUser?.profilePicture || '/images/utenteDefault.png'" 
-                     alt="Avatar"
-                     class="wireframe-avatar">
-            </div>
+                <div class="sticky-widget">
+                    
+                    <div class="user-profile-box">
+                        
+                        <div class="avatar-wrapper">
+                            <img :src="currentUser?.profilePicture || '/images/utenteDefault.png'" 
+                                 alt="Avatar"
+                                 class="wireframe-avatar">
+                        </div>
 
-            <h3 class="user-name">{{ currentUser ? currentUser.username : t('common.loading') }}</h3>
-           
+                        <h3 class="user-name">{{ currentUser ? currentUser.username : t('common.loading') }}</h3>
+                        <p class="user-role">{{ t('dashboard.player_role') }}</p>
 
-            <div class="stats-container" v-if="currentUser">
-                
-                <div class="stat-box">
-                    <span class="stat-number">{{ userGamesCount }}</span>
-                    <span class="stat-label">{{ t('dashboard.games') }}</span>
+                        <div class="stats-container" v-if="currentUser">
+                            <div class="stat-box">
+                                <span class="stat-number">{{ userGamesCount }}</span>
+                                <span class="stat-label">{{ t('dashboard.games') }}</span>
+                            </div>
+
+                            <div class="stat-box">
+                                <span class="stat-number">{{ currentUser.friends?.length || 0 }}</span>
+                                <span class="stat-label">{{ t('common.friends') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-
-                <div class="stat-box">
-                    <span class="stat-number">{{ currentUser.friends?.length || 0 }}</span>
-                    <span class="stat-label">{{ t('common.friends') }}</span>
-                </div>
-
             </div>
-        </div>
-
-    </div>
-</div>
 
             <div class="col-lg-8">
+                
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="fw-bold mb-0">{{ t('dashboard.recent_activity') }}</h3>
 
                     <div class="dropdown">
                         <button
-                            class="btn btn-outline-secondary btn-sm bg-white rounded-pill px-3 shadow-sm dropdown-toggle d-flex align-items-center gap-2"
+                            class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm dropdown-toggle d-flex align-items-center gap-2"
                             type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-funnel"></i>
                             <span>{{ filterLabel }}</span>
@@ -170,12 +156,9 @@ function openGame(game: any) {
                 <div class="d-flex flex-column gap-3">
                     <div v-if="loading" class="text-center py-5 text-muted">{{ t('dashboard.feed_loading') }}</div>
                     
-                    <GameCard 
-                        v-for="game in filteredGames" 
-                        :key="game._id" 
-                        :game="game" 
-                        @click="openGame" 
-                    />
+                    <div v-for="game in filteredGames" :key="game._id" class="wireframe-card activity-card" @click="openGame(game)">
+                         <GameCard :game="game" class="border-0 bg-transparent" />
+                    </div>
                     
                     <div v-if="!loading && filteredGames.length === 0" class="text-center py-5 text-muted">
                         {{ emptyMessage }}
@@ -187,4 +170,4 @@ function openGame(game: any) {
     </div>
 </template>
 
-<style scoped src="@/assets/css/dashboard.css"></style>
+<style src="@/assets/css/dashboard.css"></style>
