@@ -292,6 +292,7 @@ function updateChart() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: { legend: { display: false } }
         }
     });
@@ -310,7 +311,7 @@ function updateChart() {
                     <img :src="profileUser.profilePicture || '/images/utenteDefault.png'" 
                          alt="Profile Picture" 
                          class="rounded-circle"
-                         style="width: 250px; height: 250px; object-fit: cover; border: 5px solid #fff; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
+                         style="width: 250px; height: 250px; object-fit: cover;  box-shadow: 0 0 15px rgba(0,0,0,0.1);">
 
                     <div v-if="isOwnProfile" id="editControls">
                         <label for="fileInput" class="btn btn-primary rounded-circle shadow"
@@ -352,10 +353,9 @@ function updateChart() {
                             {{ stat.sport?.name || 'Unknown' }}
                         </option>
                     </select>
-                    <div id="eloDisplay" class="text-center p-3 border rounded"
-                        style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
-                        <canvas id="eloChart"></canvas>
-                    </div>
+                   <div id="eloDisplay" style="position: relative; height: 400px; width: 100%; border: none !important; margin: 0; padding: 0;">
+    <canvas id="eloChart"></canvas>
+</div>
                 </div>
             </div>
 
