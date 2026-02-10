@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import Place from '../models/Place';
+import { adminAuth } from '../middleware/adminAuth';
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // POST /api/places - Insert a new place
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', adminAuth, async (req: Request, res: Response) => {
     const { name, position, sport } = req.body;
 
     if (!name || !position || !position.lat || !position.lng || !sport) {
@@ -58,7 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/places/:id - Delete a place
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', adminAuth, async (req: Request, res: Response) => {
     try {
         const place = await Place.findByIdAndDelete(req.params.id);
 
@@ -74,7 +75,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /api/places/:id - Update a place
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', adminAuth, async (req: Request, res: Response) => {
     const { name, position, sport } = req.body;
 
     if (!name || !position || !position.lat || !position.lng || !sport) {

@@ -92,6 +92,7 @@ router.get(
 // @desc    Get current user
 // @route   GET /auth/current_user
 router.get('/current_user', (req, res) => {
+    if (!req.user) return res.status(401).json({ msg: 'Not authenticated' });
     res.json(req.user);
 });
 

@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import Sport from '../models/Sport';
+import { adminAuth } from '../middleware/adminAuth';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // POST /api/sports - Create a new sport
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', adminAuth, async (req: Request, res: Response) => {
     const { name } = req.body;
 
     if (!name) {

@@ -1,11 +1,8 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface IPlace extends Document {
-    name: string;
-    position: {
-        lat: number;
-        lng: number;
-    };
+import { IPlaceShared } from '../../shared/types/Place';
+
+export interface IPlace extends Document, Omit<IPlaceShared, '_id' | 'sport'> {
     sport: mongoose.Types.ObjectId | string;
 }
 

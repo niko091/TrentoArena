@@ -1,16 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { IUserShared } from '../../shared/types/User';
 
-export interface IUser extends Document {
-    username: string;
-    email: string;
-    googleId?: string;
-    password?: string;
+export interface IUser extends Document, Omit<IUserShared, '_id'> {
+    // Mongoose specific overrides
+    // We omit _id because Document<T> already defines it (often as generic or any).
+    // But explicitly:
     friends: string[] | IUser[];
     friendRequests: string[] | IUser[];
-    profilePicture?: string;
-    isBanned?: boolean;
-    banExpiresAt?: Date;
-    banReason?: string;
+    
     sportsElo: {
         sport: mongoose.Types.ObjectId | string,
         elo: number,

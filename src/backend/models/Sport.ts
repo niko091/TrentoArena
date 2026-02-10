@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-export interface ISport extends Document {
+import { ISportShared } from '../../shared/types/Sport';
+
+export interface ISport extends Document, Omit<ISportShared, '_id'> {
     name: string;
 }
 
