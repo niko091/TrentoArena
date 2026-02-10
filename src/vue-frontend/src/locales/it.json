@@ -13,7 +13,12 @@
         "sent": "Inviato",
         "error_generic": "Errore",
         "none_found": "Nessun risultato trovato",
-        "friends": "Amici"
+        "friends": "Amici",
+        "sport": "Sport",
+        "place": "Luogo",
+        "unknown": "Sconosciuto",
+        "avatar": "Avatar",
+        "user": "Utente"
     },
     "navbar": {
         "dashboard": "Dashboard",

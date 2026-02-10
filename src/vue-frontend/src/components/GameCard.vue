@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps<{
   game: any
@@ -24,37 +25,13 @@ const displayImage = computed(() => {
     return '/images/utenteDefault.png';
 });
 
-const t = (key: string, params: Record<string, string> = {}) => {
-    if ((window as any).i18n) return (window as any).i18n.t(key, params);
-    
-    let text = key;
-    const defaults: Record<string, string> = {
-        'dashboard.game_won': '{winners} ha vinto una partita a {sport}',
-        'dashboard.game_ended': 'Partita di {sport} terminata',
-        'dashboard.game_organized': '{creator} ha organizzato una partita di {sport} a {place}',
-        'dashboard.time_future': 'Nel futuro',
-        'dashboard.time_units.y': 'anni',
-        'dashboard.time_units.m': 'mesi',
-        'dashboard.time_units.d': 'giorni',
-        'dashboard.time_units.h': 'ore',
-        'dashboard.time_units.min': 'minuti',
-        'dashboard.time_ago_suffix': 'fa',
-        'dashboard.time_just_now': 'Appena adesso'
-    };
-    
-    if (defaults[key]) text = defaults[key];
-
-    for (const [param, value] of Object.entries(params)) {
-        text = text.replace(`{${param}}`, value);
-    }
-    return text;
-};
+const { t } = useI18n();
 
 const eventData = computed(() => {
   const game = props.game;
-  const creatorName = game.creator?.username || "Sconosciuto";
-  const sportName = game.sport?.name || "Sport";
-  const placeName = game.place?.name || "un luogo";
+  const creatorName = game.creator?.username || t('admin.js.unknown');
+  const sportName = game.sport?.name || t('admin.sport');
+  const placeName = game.place?.name || t('admin.js.place_not_found'); // Or generic place
   
   const timeAgo = getTimeAgo(new Date(game.date));
 
@@ -98,7 +75,7 @@ function getTimeAgo(date: Date) {
     <div class="card-body d-flex align-items-center gap-3 py-3 px-3">
       
       <div class="flex-shrink-0">
-         <img :src="displayImage" alt="User" class="activity-list-avatar">
+         <img :src="displayImage" :alt="t('common.user')" class="activity-list-avatar">
       </div>
 
       <div class="event-text flex-grow-1">

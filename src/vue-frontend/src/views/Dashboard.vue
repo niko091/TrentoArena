@@ -110,7 +110,7 @@ function openGame(game: any) {
                         
                         <div class="avatar-wrapper">
                             <img :src="currentUser?.profilePicture || '/images/utenteDefault.png'" 
-                                 alt="Avatar"
+                                 :alt="t('common.avatar')"
                                  class="wireframe-avatar">
                         </div>
 

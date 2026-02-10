@@ -122,7 +122,7 @@ function toggleWinner(userId: string) {
                 <!-- Details -->
                 <div class="game-popup-row">
                     <span class="game-popup-label">{{ t('game_popup.sport') }}</span>
-                    <span class="game-popup-value">{{ game.sport?.name || 'Sport' }}</span>
+                    <span class="game-popup-value">{{ game.sport?.name || t('common.sport') }}</span>
                 </div>
                 <div class="game-popup-row">
                     <span class="game-popup-label">{{ t('game_popup.place') }}</span>
@@ -130,7 +130,7 @@ function toggleWinner(userId: string) {
                         <!-- Using simple link or text for now since router-link might be needed if using vue router, 
                              but popup usually just shows text or basic link. Keeping simple text with underline as per original. -->
                         <a v-if="game.place" :href="`/map?placeId=${game.place._id}`" class="text-inherit">{{ game.place.name }}</a>
-                        <span v-else>Place</span>
+                        <span v-else>{{ t('common.place') }}</span>
                     </span>
                 </div>
                 <div class="game-popup-row">
@@ -145,7 +145,7 @@ function toggleWinner(userId: string) {
                     <span class="game-popup-label">{{ t('game_popup.creator') }}</span>
                     <span class="game-popup-value">
                         <a v-if="game.creator" :href="`/user/${game.creator.username}`" class="text-inherit">{{ game.creator.username }}</a>
-                        <span v-else>Unknown</span>
+                        <span v-else>{{ t('common.unknown') }}</span>
                     </span>
                 </div>
                 <div class="game-popup-row">
