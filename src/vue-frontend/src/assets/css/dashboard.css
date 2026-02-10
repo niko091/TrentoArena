@@ -1,8 +1,3 @@
-/* =========================================
-   DASHBOARD CSS - WIREFRAME STYLE
-   ========================================= */
-
-/* --- 1. SETUP BASE (LIGHT MODE) --- */
 body {
     background-color: #f8f9fa !important;
     color: #000000 !important;
@@ -14,7 +9,6 @@ body {
     z-index: 900;
 }
 
-/* --- 2. WIDGET UTENTE (SINISTRA) --- */
 .user-profile-box {
     position: relative !important;
     margin-top: 60px !important; 
@@ -118,7 +112,6 @@ body {
     color: inherit !important;
 }
 
-/* --- 3. CARD ATTIVITÀ (DESTRA) --- */
 .wireframe-card {
     position: relative;
     background-color: #ffffff !important;
@@ -139,14 +132,11 @@ body {
     box-shadow: 4px 4px 0px #000000 !important; 
 }
 
-/* NUOVA CLASSE AGGIUNTA QUI PER L'AVATAR NELLA LISTA */
 .activity-list-avatar {
     width: 50px;
     height: 50px;
     object-fit: cover;
     border-radius: 50%;
-    
-    /* Light Mode */
     border: 2px solid #000000 !important;
     background-color: #ffffff;
 }
@@ -161,7 +151,7 @@ body {
     color: rgba(0,0,0,0.6) !important;
 }
 
-/* --- 4. ELEMENTI UI AGGIUNTIVI --- */
+
 .dropdown-menu {
     background-color: #ffffff !important;
     border: 2px solid #000000 !important;
@@ -192,11 +182,6 @@ body {
     box-shadow: none !important;
 }
 
-/* =========================================
-   5. DARK MODE (Gestione Esplicita)
-   ========================================= */
-
-/* A. MEDIA QUERY DI SISTEMA */
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #121212 !important; 
@@ -232,7 +217,6 @@ body {
         box-shadow: 4px 4px 0px #ffffff !important;
     }
 
-    /* Stile Dark Mode per Avatar Lista */
     .activity-list-avatar {
         border-color: #ffffff !important;
         background-color: #1e1e1e !important;
@@ -261,7 +245,6 @@ body {
     }
 }
 
-/* B. OVERRIDE MANUALE (.dark-mode) */
 [data-bs-theme="dark"] body, 
 body.dark-mode {
     background-color: #121212 !important;
@@ -307,7 +290,6 @@ body.dark-mode .activity-card:hover {
     box-shadow: 4px 4px 0px #ffffff !important;
 }
 
-/* Stile Dark Mode Manuale per Avatar Lista */
 [data-bs-theme="dark"] .activity-list-avatar,
 body.dark-mode .activity-list-avatar {
     border-color: #ffffff !important;
