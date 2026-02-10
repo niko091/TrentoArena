@@ -1,15 +1,13 @@
-
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import Chart from 'chart.js/auto';
 import * as bootstrap from 'bootstrap';
-import { IUserShared as User } from '@shared/types/User';
+import { IUserShared as User } from '@shared/types/User'; 
 import { ProfileAPI } from '../api/profile';
 import GamePopup from '../components/GamePopup.vue';
 
-// --- State ---
 const route = useRoute();
 const router = useRouter();
 const currentUser = ref<User | null>(null);
@@ -18,18 +16,16 @@ const loading = ref(true);
 const error = ref('');
 const { t } = useI18n();
 
-// Data
 const friends = ref<any[]>([]);
 const upcomingGames = ref<any[]>([]);
 const pastGames = ref<any[]>([]);
 const eloChartInstance = ref<Chart | null>(null);
 const selectedSportIndex = ref<number | null>(null);
 
-// Popup State
+
 const selectedGame = ref<any | null>(null);
 
-// UI State
-// UI State
+
 const isOwnProfile = computed(() => {
     if (!currentUser.value || !profileUser.value) return false;
     return currentUser.value._id === profileUser.value._id;
@@ -78,13 +74,24 @@ const calendarDots = computed(() => {
     return dots;
 });
 
-// Modals
 let reportModal: bootstrap.Modal | null = null;
 const reportMotivation = ref('');
 
-// --- Lifecycle ---
 onMounted(async () => {
     await init();
+});
+
+watch(loading, (isLoading) => {
+    if (!isLoading && profileUser.value) {
+        nextTick(() => {
+            renderEloChart();
+            
+            const modalEl = document.getElementById('reportModal');
+            if (modalEl) {
+                reportModal = new bootstrap.Modal(modalEl);
+            }
+        });
+    }
 });
 
 watch(() => route.params, async () => {
@@ -96,14 +103,12 @@ async function init() {
     error.value = '';
     
     try {
-        // 1. Get Current User
         currentUser.value = await ProfileAPI.getCurrentUser();
         if (!currentUser.value) {
             window.location.href = '/login';
             return;
         }
 
-        // 2. Determine Target User
         const routeUsername = route.params.username as string;
         const routeId = route.query.id as string;
 
@@ -118,25 +123,13 @@ async function init() {
 
         if (!profileUser.value) throw new Error("User not found");
 
-        // 3. Load Data
         friends.value = profileUser.value.friends || [];
         
-        // Load Games
         upcomingGames.value = await ProfileAPI.getGames(profileUser.value._id, false);
         pastGames.value = await ProfileAPI.getGames(profileUser.value._id, true);
 
-        // Sort Games
         upcomingGames.value.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         pastGames.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        // 4. Render UI Components
-        nextTick(() => {
-            renderEloChart();
-            
-            // Init Modal
-            const modalEl = document.getElementById('reportModal');
-            if (modalEl) reportModal = new bootstrap.Modal(modalEl);
-        });
 
     } catch (e) {
         console.error(e);
@@ -248,7 +241,6 @@ const friendStatus = computed(() => {
 function renderEloChart() {
     if (!profileUser.value?.sportsElo || profileUser.value.sportsElo.length === 0) return;
     
-    // Default select first sport if not selected
     if (selectedSportIndex.value === null) selectedSportIndex.value = 0;
     
     updateChart();
@@ -297,15 +289,12 @@ function updateChart() {
         }
     });
 }
-
-
 </script>
 
 <template>
     <div class="container mt-5" v-if="!loading && profileUser">
         <div class="d-flex flex-column flex-lg-row align-items-start justify-content-center p-4 gap-5">
 
-            <!-- Left Column: User Info -->
             <div class="flex-shrink-0 text-center">
                 <div style="position: relative; display: inline-block;">
                     <img :src="profileUser.profilePicture || '/images/utenteDefault.png'" 
@@ -328,7 +317,6 @@ function updateChart() {
                 </h1>
                 <p v-if="isOwnProfile" class="text-muted mb-4">{{ profileUser.email }}</p>
 
-                <!-- Public Actions (Not Own Profile) -->
                 <div v-if="!isOwnProfile" id="publicActions" class="d-flex justify-content-center gap-2 mt-3">
                     <button v-if="friendStatus === 'none'" class="btn btn-primary" @click="handleSendRequest">{{ t('profile.add_friend') }}</button>
                     <button v-else-if="friendStatus === 'sent'" class="btn btn-secondary" disabled>{{ t('profile.request_sent') }}</button>
@@ -338,13 +326,11 @@ function updateChart() {
                     <button class="btn btn-outline-danger btn-sm" @click="openReportModal">{{ t('profile.report_user') }}</button>
                 </div>
 
-                <!-- Private Actions (Own Profile) -->
                 <div v-if="isOwnProfile" id="privateActions" class="mt-3">
                     <a href="/auth/logout" class="btn btn-outline-danger btn-lg px-5 w-100">{{ t('profile.logout') }}</a>
                 </div>
             </div>
 
-            <!-- Center Column: ELO Stats -->
             <div class="flex-grow-1">
                 <div v-if="profileUser.sportsElo && profileUser.sportsElo.length > 0" id="eloStatsContainer" class="mb-5">
                     <h5 class="fw-bold mb-3">{{ t('profile.elo_stats') }}</h5>
@@ -353,13 +339,12 @@ function updateChart() {
                             {{ stat.sport?.name || 'Unknown' }}
                         </option>
                     </select>
-                   <div id="eloDisplay" style="position: relative; height: 400px; width: 100%; border: none !important; margin: 0; padding: 0;">
-    <canvas id="eloChart"></canvas>
-</div>
+                    <div id="eloDisplay" style="position: relative; height: 400px; width: 100%; border: none !important; margin: 0; padding: 0;">
+                        <canvas id="eloChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <!-- Right Column: Friends & Calendar -->
             <div class="flex-shrink-0" style="width: 300px;">
                 <h4 class="fw-bold mb-3 border-bottom pb-2">{{ t('common.friends') }}</h4>
                 <div id="friendsList" class="d-flex flex-wrap gap-2 justify-content-start mb-5">
@@ -390,7 +375,6 @@ function updateChart() {
             </div>
         </div>
 
-        <!-- Upcoming Games -->
         <div class="mt-5">
             <h2 class="fw-bold mb-4 border-bottom pb-2">{{ t('profile.upcoming_games') }}</h2>
             <div class="row g-3">
@@ -417,7 +401,6 @@ function updateChart() {
             </div>
         </div>
 
-        <!-- Past Games -->
         <div class="mt-5 mb-5">
             <h2 class="fw-bold mb-4 border-bottom pb-2">{{ t('profile.past_games') }}</h2>
             <div class="row g-3">
@@ -447,7 +430,6 @@ function updateChart() {
         <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
     </div>
     
-    <!-- Report Modal -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -465,7 +447,6 @@ function updateChart() {
         </div>
     </div>
 
-    <!-- Game Details Popup -->
     <GamePopup v-if="selectedGame" 
                :game="selectedGame" 
                :currentUser="currentUser"
