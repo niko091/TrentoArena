@@ -59,8 +59,8 @@ const handleRegister = async () => {
 <template>
     <div class="bg-light d-flex align-items-center justify-content-center vh-100">
         <div class="d-flex justify-content-center align-items-center min-vh-100 w-100">
-            <div class="card loginregistrazione-card shadow-lg">
-                <div class="card-body p-4">
+            <div class="card">
+                <div class="card-body">
                     <h2 class="card-title text-center mb-4" style="color: rgb(223, 103, 5);">
                         {{ t('register.title') }}
                     </h2>
@@ -68,23 +68,23 @@ const handleRegister = async () => {
                     <form @submit.prevent="handleRegister">
                         <div class="mb-3">
                             <label for="InputEmail" class="form-label">{{ t('register.email') }}</label>
-                            <input type="email" class="form-control" id="InputEmail" v-model="email" required>
+                            <input type="email" class="register-input" id="InputEmail" v-model="email" required>
                         </div>
                         <div class="mb-3">
                             <label for="InputName" class="form-label">{{ t('register.username') }}</label>
-                            <input type="text" class="form-control" id="InputName" v-model="username" required>
+                            <input type="text" class="register-input" id="InputName" v-model="username" required>
                         </div>
                         <div class="mb-3">
                             <label for="InputPassword" class="form-label">{{ t('register.password') }}</label>
-                            <input type="password" class="form-control" id="InputPassword" v-model="password" required>
+                            <input type="password" class="register-input" id="InputPassword" v-model="password" required>
                         </div>
                         <div class="mb-3">
                             <label for="InputRepeatPassword" class="form-label">{{ t('register.repeat_password') }}</label>
-                            <input type="password" class="form-control" id="InputRepeatPassword" v-model="repeatPassword" required>
+                            <input type="password" class="register-input" id="InputRepeatPassword" v-model="repeatPassword" required>
                         </div>
                         
                         <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-light border" style="color: #ff6347; font-weight: bold;" :disabled="loading">
+                            <button type="submit" class="btn" style="color: #ff6347; font-weight: bold;" :disabled="loading">
                                 <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                 {{ t('register.submit') }}
                             </button>
@@ -99,20 +99,18 @@ const handleRegister = async () => {
                     
                     <div class="text-center">
                         <form action="/auth/google" method="GET">
-                            <button type="submit" class="btn btn-light border google-btn" style="color: #ff6347;">
+                            <button type="submit" class="btn google-btn" style="color: #ff6347;">
                                 <img src="/images/google-logo.png" width="24" height="24" class="me-2">
                                 {{ t('register.google') }}
                             </button>
                         </form>
+                        <p class="mt-2">
+                            <small>
+                                <span>{{ t('login.not_registered') }}</span> <!--Da creare e mettere traduzione-->
+                                <a style="color: #ff6347;" href="/login">{{ t('login.register_link') }}</a>
+                            </small>
+                        </p>
                     </div>
-
-                    <!-- Link to Login -->
-                    <div class="text-center mt-3">
-                        <router-link to="/login" class="text-decoration-none">
-                            Hai già un account? Accedi qui
-                        </router-link>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -121,13 +119,6 @@ const handleRegister = async () => {
 
 <style scoped>
 /* Scoped styles to match original layout */
-.loginregistrazione-card {
-    width: 100%;
-    max-width: 400px;
-    border-radius: 12px;
-    background-color: white;
-}
-
 .vh-100 {
     min-height: 100vh;
 }
@@ -138,4 +129,21 @@ const handleRegister = async () => {
     justify-content: center;
     width: 100%;
 }
+
+.register-input {
+      width: 100%;
+      padding: 12px 16px 12px 12px;
+      border: 2px solid var(--border-color-light, #eee);
+      border-radius: 12px;
+      font-size: 16px;
+      border-color: #000;
+      background-color: var(--input-bg, #f9f9f9);
+      color: var(--text-primary, #000);
+      transition: border-color 0.2s;
+      outline: none;
+  }
+
+  .register-input:focus {
+      border-color: var(--accent-primary, #fd7e14);
+  }
 </style>
