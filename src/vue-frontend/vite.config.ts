@@ -28,6 +28,15 @@ export default defineConfig({
     },
     build: {
         outDir: '../../dist/frontend',
-        emptyOutDir: true
+        emptyOutDir: true,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'vendor-charts': ['chart.js'],
+                    'vendor-maps': ['leaflet'],
+                    'vendor-ui': ['bootstrap']
+                }
+            }
+        }
     }
 })
