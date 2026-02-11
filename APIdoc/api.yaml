@@ -79,6 +79,28 @@ components:
            type: string
         profilePicture:
           type: string
+    UserPublicProfile:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        profilePicture:
+          type: string
+        isBanned:
+          type: boolean
+        friends:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              username:
+                type: string
+              profilePicture:
+                type: string
     Game:
       type: object
       properties:
@@ -146,7 +168,16 @@ components:
         reporter:
           $ref: '#/components/schemas/UserSummary'
         reported:
-          $ref: '#/components/schemas/UserSummary'
+          type: object
+          properties:
+            _id:
+              type: string
+            username:
+              type: string
+            email:
+              type: string
+            isBanned:
+              type: boolean
         motivation:
           type: string
         date:
@@ -182,6 +213,25 @@ paths:
           description: Utente registrato con successo
         400:
           description: Input non valido o utente già esistente
+  /auth/verify:
+    post:
+      summary: Verifica account utente
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+      responses:
+        200:
+          description: Account verificato con successo
+        400:
+          description: Token mancante o non valido
   /auth/login:
     post:
       summary: Login utente
@@ -497,6 +547,7 @@ paths:
           required: true
           schema:
             type: string
+          description: Termine di ricerca (limitato a 10 risultati)
       responses:
         200:
           description: Lista degli utenti
@@ -571,7 +622,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserSummary'
+                $ref: '#/components/schemas/UserPublicProfile'
   /api/users/{id}/friend-requests:
      post:
         summary: Invia richiesta di amicizia
@@ -837,3 +888,19 @@ paths:
           description: Parametri mancanti o non validi
         500:
           description: Errore del server
+  /api/health:
+    get:
+      summary: Health check del server
+      tags: [System]
+      responses:
+        200:
+          description: Server attivo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
