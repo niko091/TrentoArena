@@ -13,6 +13,7 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   family: 4,
+  localAddress: '0.0.0.0',
 } as SMTPTransport.Options);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
