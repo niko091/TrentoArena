@@ -180,17 +180,20 @@ onMounted(() => {
 }
 
 @media screen and (max-width: 768px) {
+  
   .mobile-menu-logo {
     display: block;
     text-align: center;
     width: 100%;
+    margin-top: 40px; 
     margin-bottom: 30px;
   }
   .mobile-logo-override {
-    height: 60px !important; 
-    width: auto !important;
+    height: auto !important;     
+    width: 80% !important;       
+    max-width: 300px !important; 
     object-fit: contain;
-    margin: 0 !important; 
+    margin: 0 auto !important;   
     display: inline-block;
   }
 
@@ -206,10 +209,12 @@ onMounted(() => {
     width: max-content;
     margin-right: 0;
     z-index: 1000;
+    margin-top: 5px;
   }
 
   .nav-logo {
-    height: 45px;
+    height: 65px;
+    width: auto; 
   }
 
   .nav-items {
@@ -221,7 +226,7 @@ onMounted(() => {
     background-color: var(--accent-primary);
     flex-direction: column;
     align-items: flex-start;
-    padding: 40px 25px 30px 25px; 
+    padding: 140px 25px 30px 25px; 
     gap: 0;
 
     box-shadow: var(--shadow-lg);

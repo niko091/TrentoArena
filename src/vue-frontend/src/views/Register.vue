@@ -3,18 +3,14 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
-// State
 const email = ref("");
 const username = ref("");
 const password = ref("");
 const repeatPassword = ref("");
 const loading = ref(false);
 const error = ref("");
-
 const router = useRouter();
 const { t } = useI18n();
-
-// Actions
 const handleRegister = async () => {
   if (password.value !== repeatPassword.value) {
     alert(t("register.error_password_mismatch"));
@@ -42,7 +38,6 @@ const handleRegister = async () => {
     if (response.ok) {
       router.push("/dashboard");
     } else {
-      // Use logic similar to login for error display consistency
       error.value = data.msg || t("register.error_generic");
     }
   } catch (err) {
@@ -102,7 +97,6 @@ const handleRegister = async () => {
                 required
               />
             </div>
-
             <div class="mb-3">
               <label for="InputRepeatPassword" class="form-label fw-bold">{{ t("register.repeat_password") }}</label>
               <input
