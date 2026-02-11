@@ -6,7 +6,7 @@
 
 ## Setup
 
-1. create `.env` from repository's secret
+1. create `.env` from repository's variables
 
 ## Build
 
