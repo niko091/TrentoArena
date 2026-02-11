@@ -162,6 +162,13 @@ body {
   border: 2px solid #000000 !important;
 }
 
+.custom-dropdown-pos {
+  position: absolute;
+  inset: 0px 0px auto auto;
+  margin: 0px;
+  transform: translate(0px, 34px);
+}
+
 .btn-outline-secondary,
 .btn-outline-dark {
   border: 2px solid #000000 !important;
@@ -219,6 +226,7 @@ body {
     border-color: #ffffff !important;
     color: #e0e0e0 !important;
   }
+
   .activity-card {
     color: #e0e0e0;
   }
@@ -239,24 +247,44 @@ body {
   .stats-container {
     border-top-color: #ffffff !important;
   }
+
   .stat-box:first-child {
     border-right-color: #ffffff !important;
   }
+
   .dropdown-menu {
     background-color: #1e1e1e !important;
     border-color: #ffffff !important;
     color: #e0e0e0 !important;
   }
+
+  .dropdown-item {
+    color: #e0e0e0 !important;
+  }
+
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+  }
+
+  .dropdown-item.active {
+    background-color: var(--accent-primary) !important;
+    color: #ffffff !important;
+  }
+
   .btn-outline-secondary,
   .btn-outline-dark {
     border-color: #ffffff !important;
     color: #ffffff !important;
   }
+
   .btn-load-more {
     background-color: #1e1e1e !important;
     border-color: #ffffff !important;
     color: #ffffff !important;
   }
+
   .btn-load-more:hover {
     box-shadow: 4px 4px 0px #ffffff !important;
   }
@@ -335,6 +363,25 @@ body.dark-mode .dropdown-menu {
   background-color: #1e1e1e !important;
   border-color: #ffffff !important;
   color: #e0e0e0 !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item,
+body.dark-mode .dropdown-item {
+  color: #e0e0e0 !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover,
+[data-bs-theme="dark"] .dropdown-item:focus,
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+  background-color: #2d2d2d !important;
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item.active,
+body.dark-mode .dropdown-item.active {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
 }
 
 [data-bs-theme="dark"] .btn-outline-secondary,
