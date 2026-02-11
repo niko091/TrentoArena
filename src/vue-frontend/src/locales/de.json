@@ -36,6 +36,7 @@
   },
   "login": {
     "title": "Anmelden",
+    "email": "E-Mail/Benutzername",
     "username_placeholder": "Benutzername",
     "password_placeholder": "Passwort",
     "login_button": "Einloggen",
@@ -45,7 +46,7 @@
   },
   "register": {
     "title": "Registrierung",
-    "email": "E-Mail/Benutzername",
+    "email": "E-Mail",
     "username": "Benutzername",
     "password": "Passwort",
     "repeat_password": "Passwort wiederholen",

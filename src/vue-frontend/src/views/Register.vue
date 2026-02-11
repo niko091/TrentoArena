@@ -12,7 +12,6 @@ const loading = ref(false);
 const error = ref("");
 
 const router = useRouter();
-
 const { t } = useI18n();
 
 // Actions
@@ -43,12 +42,11 @@ const handleRegister = async () => {
     if (response.ok) {
       router.push("/dashboard");
     } else {
-      alert(data.msg || t("register.error_generic"));
+      // Use logic similar to login for error display consistency
       error.value = data.msg || t("register.error_generic");
     }
   } catch (err) {
     console.error("Error:", err);
-    alert(t("register.error_connection"));
     error.value = t("register.error_connection");
   } finally {
     loading.value = false;
@@ -57,24 +55,23 @@ const handleRegister = async () => {
 </script>
 
 <template>
-  <div class="bg-light d-flex align-items-center justify-content-center vh-100">
-    <div
-      class="d-flex justify-content-center align-items-center min-vh-100 w-100"
-    >
-      <div class="card">
-        <div class="card-body">
-          <h2
-            class="card-title text-center mb-4"
-            style="color: rgb(223, 103, 5)"
-          >
+  <div class="bg d-flex align-items-center justify-content-center vh-100">
+    <div class="d-flex justify-content-center align-items-center min-vh-100 w-100">
+      
+      <div class="card shadow-sm" style="max-width: 400px; width: 100%;">
+        <div class="card-body p-4">
+          
+          <h2 class="card-title text-center mb-4" style="color: #fd7e14;">
             {{ t("register.title") }}
           </h2>
 
+          <div v-if="error" class="alert alert-danger text-center" role="alert">
+            {{ error }}
+          </div>
+
           <form @submit.prevent="handleRegister">
             <div class="mb-3">
-              <label for="InputEmail" class="form-label">{{
-                t("register.email")
-              }}</label>
+              <label for="InputEmail" class="form-label fw-bold">{{ t("register.email") }}</label>
               <input
                 type="email"
                 class="register-input"
@@ -83,10 +80,9 @@ const handleRegister = async () => {
                 required
               />
             </div>
+
             <div class="mb-3">
-              <label for="InputName" class="form-label">{{
-                t("register.username")
-              }}</label>
+              <label for="InputName" class="form-label fw-bold">{{ t("register.username") }}</label>
               <input
                 type="text"
                 class="register-input"
@@ -95,10 +91,9 @@ const handleRegister = async () => {
                 required
               />
             </div>
+
             <div class="mb-3">
-              <label for="InputPassword" class="form-label">{{
-                t("register.password")
-              }}</label>
+              <label for="InputPassword" class="form-label fw-bold">{{ t("register.password") }}</label>
               <input
                 type="password"
                 class="register-input"
@@ -107,10 +102,9 @@ const handleRegister = async () => {
                 required
               />
             </div>
+
             <div class="mb-3">
-              <label for="InputRepeatPassword" class="form-label">{{
-                t("register.repeat_password")
-              }}</label>
+              <label for="InputRepeatPassword" class="form-label fw-bold">{{ t("register.repeat_password") }}</label>
               <input
                 type="password"
                 class="register-input"
@@ -120,59 +114,26 @@ const handleRegister = async () => {
               />
             </div>
 
-            <div class="text-center mt-4">
-              <button
-                type="submit"
-                class="btn"
-                style="color: #ff6347; font-weight: bold"
+            <div class="d-grid gap-2 mt-4">
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                style="background-color: #fd7e14; border: none;" 
                 :disabled="loading"
               >
-                <span
-                  v-if="loading"
-                  class="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                {{ t("register.submit") }}
+                <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ t('register.submit') }}
               </button>
             </div>
           </form>
 
-          <div
-            v-if="error"
-            class="alert alert-danger mt-3 text-center"
-            role="alert"
-          >
-            {{ error }}
-          </div>
-
           <hr class="my-4" />
 
           <div class="text-center">
-            <form action="/auth/google" method="GET">
-              <button
-                type="submit"
-                class="btn google-btn"
-                style="color: #ff6347"
-              >
-                <img
-                  src="/images/google-logo.png"
-                  width="24"
-                  height="24"
-                  class="me-2"
-                />
-                {{ t("register.google") }}
-              </button>
-            </form>
-            <p class="mt-2">
-              <small>
-                <span>{{ t("login.not_registered") }}</span>
-                <!--Da creare e mettere traduzione-->
-                <a style="color: #ff6347" href="/login">{{
-                  t("login.register_link")
-                }}</a>
-              </small>
-            </p>
+            <a href="/auth/google" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center">
+              <img src="/images/google-logo.png" width="20" height="20" class="me-2">
+              {{ t('register.google') }}
+            </a>
           </div>
         </div>
       </div>
@@ -181,32 +142,29 @@ const handleRegister = async () => {
 </template>
 
 <style scoped>
-/* Scoped styles to match original layout */
-.vh-100 {
-  min-height: 100vh;
-}
-
-.google-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
 .register-input {
   width: 100%;
-  padding: 12px 16px 12px 12px;
-  border: 2px solid var(--border-color-light, #eee);
-  border-radius: 12px;
+  padding: 12px;
+  border: 2px solid #eee;
+  border-radius: 8px; 
   font-size: 16px;
-  border-color: #000;
-  background-color: var(--input-bg, #f9f9f9);
-  color: var(--text-primary, #000);
-  transition: border-color 0.2s;
+  background-color: #f9f9f9;
+  color: #333;
+  transition: all 0.2s;
   outline: none;
 }
 
 .register-input:focus {
-  border-color: var(--accent-primary, #fd7e14);
+  border-color: #fd7e14;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(253, 126, 20, 0.1);
+}
+
+.btn-primary:hover {
+  background-color: #e36209 !important;
+}
+
+.vh-100 {
+  min-height: 100vh;
 }
 </style>
