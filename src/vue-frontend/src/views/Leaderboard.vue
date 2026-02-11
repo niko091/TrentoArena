@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-// Types
 import { IUserShared, ILeaderboardEntry } from "@shared/types/User";
 import { ISportShared } from "@shared/types/Sport";
 
-// Use shared types
 type User = IUserShared;
 type Sport = ISportShared;
 type LeaderboardEntry = ILeaderboardEntry;
 
-// State
 const currentUser = ref<User | null>(null);
 const sports = ref<Sport[]>([]);
 const selectedSportId = ref<string>("");
@@ -21,10 +17,8 @@ const loading = ref(false);
 const error = ref("");
 const loadingSports = ref(true);
 
-// i18n Helper
 const { t } = useI18n();
 
-// Actions
 const fetchCurrentUser = async () => {
   try {
     const res = await fetch("/auth/current_user");
@@ -59,7 +53,7 @@ const fetchLeaderboard = async () => {
   if (!selectedSportId.value) return;
 
   loading.value = true;
-  leaderboardData.value = []; // Clear for loading state
+  leaderboardData.value = []; 
   error.value = "";
 
   try {
@@ -79,7 +73,6 @@ const fetchLeaderboard = async () => {
   }
 };
 
-// Computed
 const displayedUsers = computed(() => {
   if (filterType.value === "friends" && currentUser.value) {
     const friendIds = (currentUser.value.friends || []).map(
@@ -92,12 +85,10 @@ const displayedUsers = computed(() => {
   return leaderboardData.value;
 });
 
-// Watchers
 watch(selectedSportId, () => {
   fetchLeaderboard();
 });
 
-// Lifecycle
 onMounted(async () => {
   await fetchCurrentUser();
   await fetchSports();
@@ -105,20 +96,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
+  <div class="container mt-3 mt-md-5"> <div class="row justify-content-center">
+      <div class="col-12 col-md-8">
         <div class="card shadow-sm border-0">
-          <div class="card-body p-4">
+          <div class="card-body p-2 p-md-4">
             <h2
-              class="text-center fw-bold mb-4"
+              class="text-center fw-bold mb-3 mb-md-4 fs-3 fs-md-2"
               style="color: rgb(223, 103, 5)"
             >
               {{ t("leaderboard.title") }}
             </h2>
 
             <div class="d-flex justify-content-center mb-4">
-              <div class="btn-group" role="group" aria-label="Leaderboard Type">
+              <div class="btn-group btn-group-sm w-100 w-md-auto" role="group" aria-label="Leaderboard Type">
                 <input
                   type="radio"
                   class="btn-check"
@@ -175,35 +165,32 @@ onMounted(async () => {
               </select>
             </div>
 
-            <div class="table-responsive">
-              <table class="table table-hover align-middle">
-                <thead class="">
+            <div>
+              <table class="table table-hover align-middle fixed-table">
+                <thead>
                   <tr>
-                    <th scope="col" style="width: 10%">#</th>
-                    <th scope="col" style="width: 70%">
+                    <th scope="col" style="width: 15%" class="text-center">#</th>
+                    <th scope="col" style="width: 60%">
                       {{ t("leaderboard.col_player") }}
                     </th>
-                    <th scope="col" style="width: 20%" class="text-end">
-                      {{ t("leaderboard.col_elo") }}
+                    <th scope="col" style="width: 25%" class="text-end">
+                      ELO
                     </th>
                   </tr>
                 </thead>
                 <tbody id="leaderboardTableBody">
-                  <!-- Loading State -->
                   <tr v-if="loading">
                     <td colspan="3" class="text-center py-4">
                       {{ t("common.loading") }}
                     </td>
                   </tr>
 
-                  <!-- Error State -->
                   <tr v-else-if="error">
                     <td colspan="3" class="text-center py-4 text-danger">
                       {{ error }}
                     </td>
                   </tr>
 
-                  <!-- Empty State (No sport selected or no results) -->
                   <tr v-else-if="!selectedSportId">
                     <td colspan="3" class="text-center py-4 text-muted">
                       {{ t("leaderboard.select_sport_prompt") }}
@@ -215,53 +202,43 @@ onMounted(async () => {
                     </td>
                   </tr>
 
-                  <!-- Results -->
                   <tr
                     v-else
                     v-for="(user, index) in displayedUsers"
                     :key="user._id"
                   >
-                    <!-- Rank -->
-                    <td class="align-middle" v-if="index === 0">
-                      <span class="badge bg-warning text-dark fs-6">🥇 1</span>
+                    <td class="align-middle text-center ps-0 pe-1" v-if="index === 0">
+                      <span class="badge bg-warning text-dark">1</span>
                     </td>
-                    <td class="align-middle" v-else-if="index === 1">
-                      <span class="badge bg-secondary fs-6">🥈 2</span>
+                    <td class="align-middle text-center ps-0 pe-1" v-else-if="index === 1">
+                      <span class="badge bg-secondary">2</span>
                     </td>
-                    <td class="align-middle" v-else-if="index === 2">
-                      <span
-                        class="badge text-bg-custom-bronze fs-6"
-                        style="background-color: #cd7f32; color: white"
-                        >🥉 3</span
-                      >
+                    <td class="align-middle text-center ps-0 pe-1" v-else-if="index === 2">
+                      <span class="badge" style="background-color: #cd7f32; color: white">3</span>
                     </td>
-                    <td class="align-middle" v-else>
-                      <strong>#{{ index + 1 }}</strong>
+                    <td class="align-middle text-center ps-0 pe-1" v-else>
+                      <strong>{{ index + 1 }}</strong>
                     </td>
 
-                    <!-- Player -->
-                    <td class="align-middle">
+                    <td class="align-middle overflow-hidden">
                       <div class="d-flex align-items-center">
                         <img
-                          :src="
-                            user.profilePicture || '/images/utenteDefault.png'
-                          "
+                          :src="user.profilePicture || '/images/utenteDefault.png'"
                           :alt="user.username"
-                          class="leaderboard-img shadow-sm"
+                          class="leaderboard-img shadow-sm flex-shrink-0"
                         />
                         <router-link
                           :to="`/user/${user.username}`"
-                          class="text-decoration-none fw-semibold"
-                          style="color: inherit"
+                          class="text-decoration-none fw-semibold text-truncate d-block"
+                          style="color: inherit; max-width: 100%;"
                         >
                           {{ user.username }}
                         </router-link>
                       </div>
                     </td>
 
-                    <!-- ELO -->
                     <td
-                      class="align-middle text-end fw-bold font-monospace fs-5"
+                      class="align-middle text-end fw-bold font-monospace pe-1"
                       style="color: var(--accent-primary, #fd7e14)"
                     >
                       {{ user.elo }}
@@ -278,11 +255,32 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.fixed-table {
+  table-layout: fixed; 
+  width: 100%;
+}
+
 .leaderboard-img {
   width: 40px;
   height: 40px;
   object-fit: cover;
   border-radius: 50%;
   margin-right: 10px;
+}
+
+@media (max-width: 576px) {
+  .leaderboard-img {
+    width: 32px; 
+    height: 32px;
+    margin-right: 8px;
+  }
+  
+  .table {
+    font-size: 0.9rem;
+  }
+
+  .table > :not(caption) > * > * {
+    padding: 0.5rem 0.25rem;
+  }
 }
 </style>
