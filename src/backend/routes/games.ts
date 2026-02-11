@@ -58,6 +58,8 @@ router.get("/", async (req: Request, res: Response) => {
       creatorId,
       isFinished,
       participantId,
+      count,
+      sort,
     } = req.query;
 
     const query: any = {};
@@ -73,20 +75,24 @@ router.get("/", async (req: Request, res: Response) => {
     }
 
     if (sportId) query.sport = sportId;
-
     if (placeId) query.place = placeId;
-
     if (creatorId) query.creator = creatorId;
-
     if (participantId) query["participants.user"] = participantId;
 
     if (isFinished !== undefined) {
       query.isFinished = isFinished === "true";
     }
 
+    if (count === "true") {
+      const total = await Game.countDocuments(query);
+      return res.json({ count: total });
+    }
+
     const limit = parseInt(req.query.limit as string) || 0;
+    const sortOrder = sort === "-1" ? -1 : 1;
+
     const games = await Game.find(query)
-      .sort({ date: 1 }) //
+      .sort({ date: sortOrder })
       .limit(limit)
       .populate("sport")
       .populate("place")
@@ -168,44 +174,44 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
         const expectedScoreLoser = 1 - expectedScoreWinner;
 
         const getKFactor = (historyLength: number) => {
-           return historyLength < 10 ? 80 : 32;
+          return historyLength < 10 ? 80 : 32;
         };
 
         const updateEloForUsers = async (users: any[], actualScore: number, probability: number) => {
-            return Promise.all(
-                users.map(async (user) => {
-                    if (!user.sportsElo) user.sportsElo = [];
-                    
-                    let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
-                    
-                    if (!entry) {
-                        user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
-                        entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
-                    }
+          return Promise.all(
+            users.map(async (user) => {
+              if (!user.sportsElo) user.sportsElo = [];
 
-                    if (entry) {
-                        const oldElo = entry.elo;
-                        const gamesPlayed = entry.history ? entry.history.length : 0;
-                        const K = getKFactor(gamesPlayed);
-                        const newElo = Math.round(oldElo + K * (actualScore - probability));
-                        const change = newElo - oldElo;
+              let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
 
-                        entry.elo = newElo;
+              if (!entry) {
+                user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
+                entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+              }
 
-                        if (!entry.history) entry.history = [];
-                        entry.history.push({
-                            elo: newElo,
-                            date: new Date(),
-                            change: change,
-                        });
-                    }
-                    await user.save();
-                })
-            );
+              if (entry) {
+                const oldElo = entry.elo;
+                const gamesPlayed = entry.history ? entry.history.length : 0;
+                const K = getKFactor(gamesPlayed);
+                const newElo = Math.round(oldElo + K * (actualScore - probability));
+                const change = newElo - oldElo;
+
+                entry.elo = newElo;
+
+                if (!entry.history) entry.history = [];
+                entry.history.push({
+                  elo: newElo,
+                  date: new Date(),
+                  change: change,
+                });
+              }
+              await user.save();
+            })
+          );
         };
 
-        await updateEloForUsers(winnerUsers, 1, expectedScoreWinner); 
-        await updateEloForUsers(loserUsers, 0, expectedScoreLoser);   
+        await updateEloForUsers(winnerUsers, 1, expectedScoreWinner);
+        await updateEloForUsers(loserUsers, 0, expectedScoreLoser);
       }
     }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import GameCard from "../components/GameCard.vue";
 import GamePopup from "../components/GamePopup.vue";
@@ -12,6 +12,7 @@ const currentUser = ref<any>(null);
 const selectedGame = ref<any>(null);
 const filter = ref("all");
 const loading = ref(true);
+const isDropdownOpen = ref(false);
 
 const { t } = useI18n();
 
@@ -30,49 +31,77 @@ const emptyMessage = computed(() => {
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    const authRes = await fetch("/auth/current_user");
+    let gamesUrl = "/api/games?limit=30&sort=-1";
+    if (filter.value === "active") gamesUrl += "&isFinished=false";
+    else if (filter.value === "finished") gamesUrl += "&isFinished=true";
+
+    const fetchPromises: Promise<any>[] = [
+      fetch("/auth/current_user"),
+      fetch(gamesUrl),
+    ];
+
+    if (currentUser.value) {
+      fetchPromises.push(
+        fetch(`/api/games?participantId=${currentUser.value._id}&count=true`),
+      );
+    }
+
+    const responses = await Promise.all(fetchPromises);
+    const authRes = responses[0];
+    const gamesRes = responses[1];
+    let countRes = responses[2];
+
     if (!authRes.ok) {
       router.push("/login");
       return;
     }
-    const contentType = authRes.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
+
+    const authContentType = authRes.headers.get("content-type");
+    if (authContentType && authContentType.includes("application/json")) {
       currentUser.value = await authRes.json();
     } else {
+      loading.value = false;
       return;
     }
 
-    try {
-      const userGamesRes = await fetch(
-        `/api/games?participantId=${currentUser.value._id}`,
-      );
-      if (userGamesRes.ok) {
-        const contentType = userGamesRes.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const userGames = await userGamesRes.json();
-          userGamesCount.value = userGames.length;
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
-    const gamesRes = await fetch("/api/games");
     if (gamesRes.ok) {
-      const contentType = gamesRes.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
+      const gamesContentType = gamesRes.headers.get("content-type");
+      if (gamesContentType && gamesContentType.includes("application/json")) {
         games.value = await gamesRes.json();
       }
     }
+
+    if (currentUser.value && !countRes) {
+      countRes = await fetch(
+        `/api/games?participantId=${currentUser.value._id}&count=true`,
+      );
+    }
+
+    if (countRes && countRes.ok) {
+      const countData = await countRes.json();
+      userGamesCount.value = countData.count;
+    }
   } catch (error) {
-    console.error(error);
+    console.error("Error loading dashboard data:", error);
   } finally {
     loading.value = false;
   }
 };
 
+function handleOutsideClick(event: MouseEvent) {
+  const dropdown = document.querySelector(".dropdown");
+  if (dropdown && !dropdown.contains(event.target as Node)) {
+    isDropdownOpen.value = false;
+  }
+}
+
 onMounted(() => {
   loadDashboardData();
+  window.addEventListener("click", handleOutsideClick);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("click", handleOutsideClick);
 });
 
 const filteredGames = computed(() => {
@@ -80,15 +109,24 @@ const filteredGames = computed(() => {
     (g.participants?.length || 0) >= (g.maxParticipants || 100);
 
   if (filter.value === "active") {
-    return games.value.filter((g) => !g.isFinished && !isFull(g));
+    return games.value.filter((g) => !isFull(g));
   } else if (filter.value === "finished") {
-    return games.value.filter((g) => g.isFinished);
+    return games.value;
   }
   return games.value.filter((g) => g.isFinished || !isFull(g));
 });
 
+watch(filter, () => {
+  loadDashboardData();
+});
+
 function switchFilter(newFilter: string) {
   filter.value = newFilter;
+  isDropdownOpen.value = false;
+}
+
+function toggleDropdown() {
+  isDropdownOpen.value = !isDropdownOpen.value;
 }
 
 function openGame(game: any) {
@@ -150,13 +188,16 @@ function openGame(game: any) {
             <button
               class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm dropdown-toggle d-flex align-items-center gap-2"
               type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
+              @click.stop="toggleDropdown"
+              :aria-expanded="isDropdownOpen"
             >
               <i class="bi bi-funnel"></i>
               <span>{{ filterLabel }}</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+            <ul
+              class="dropdown-menu dropdown-menu-end border-0 shadow custom-dropdown-pos"
+              :class="{ show: isDropdownOpen }"
+            >
               <li>
                 <a
                   class="dropdown-item"
