@@ -27,7 +27,8 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/api/users", userRoutes);
 
-describe("Profile Picture Upload Tests", () => {
+describe("Profile Picture Upload Tests", function () {
+  this.timeout(10000); // Cloudinary upload can be slow
   const TEST_USER = {
     username: "test_upload_user",
     email: "test_upload@example.com",
@@ -40,7 +41,9 @@ describe("Profile Picture Upload Tests", () => {
   before(async () => {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
-        process.env.MONGO_URI || "mongodb://localhost:27017/trentoarena",
+        process.env.MONGO_TEST_URI ||
+        process.env.MONGO_URI ||
+        "mongodb://localhost:27017/trentoarena",
       );
     }
     await User.deleteMany({ email: TEST_USER.email });

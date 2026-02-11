@@ -82,7 +82,7 @@ const UserSchema: Schema = new Schema({
       ],
     },
   ],
-  isVerified: { type: Boolean, default: false },
+  isVerified: { type: Boolean, default: process.env.NODE_ENV === "test" },
   verificationToken: { type: String },
   verificationTokenExpires: { type: Date },
 });

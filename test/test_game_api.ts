@@ -26,7 +26,9 @@ describe("Game API Tests", function () {
     // Connect if not connected
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
-        process.env.MONGO_URI || "mongodb://localhost:27017/trentoArena",
+        process.env.MONGO_TEST_URI ||
+        process.env.MONGO_URI ||
+        "mongodb://localhost:27017/trentoArena",
       );
     }
 
@@ -90,12 +92,16 @@ describe("Game API Tests", function () {
       .send({
         sportId,
         placeId,
-        date: "2026-01-01",
+        date: "2020-01-01", // Backdated to allow finishing
         time: "18:00",
         note: "API_TEST_GAME",
         maxParticipants: 10,
-      })
-      .expect(201);
+      });
+
+    if (res.status !== 201) {
+      console.error("Create Game Failed:", res.status, res.body);
+      throw new Error(`Expected 201 Created, got ${res.status}`);
+    }
 
     if (!res.body._id) throw new Error("Game ID missing");
     if (res.body.note !== "API_TEST_GAME") throw new Error("Note mismatch");

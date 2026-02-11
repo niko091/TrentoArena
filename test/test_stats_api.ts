@@ -29,7 +29,9 @@ describe("Stats API Tests", function () {
     // Connect to TEST DB
     if (mongoose.connection.readyState === 0) {
       const testUri =
-        process.env.MONGO_URI_ || "mongodb://localhost:27017/trentoArena";
+        process.env.MONGO_TEST_URI ||
+        process.env.MONGO_URI ||
+        "mongodb://localhost:27017/trentoArena";
       await mongoose.connect(testUri);
     }
 
@@ -132,6 +134,7 @@ describe("Stats API Tests", function () {
   it("GET /api/stats/chart-data - Should return counts by date for SPORT", async () => {
     const res = await request(app)
       .get(`/api/stats/chart-data?type=sport&id=${sportId1}`)
+      .auth(process.env.STATS_USERNAME || "stats", process.env.STATS_PASSWORD || "stats123")
       .expect(200);
 
     // Sport 1 games: g1 (Jan 1), g2 (Jan 1), g3 (Jan 2)
@@ -151,6 +154,7 @@ describe("Stats API Tests", function () {
   it("GET /api/stats/chart-data - Should return counts by date for PLACE", async () => {
     const res = await request(app)
       .get(`/api/stats/chart-data?type=place&id=${placeId2}`)
+      .auth(process.env.STATS_USERNAME || "stats", process.env.STATS_PASSWORD || "stats123")
       .expect(200);
 
     // Place 2 games: g3 (Jan 2), g4 (Feb 1)
@@ -168,6 +172,7 @@ describe("Stats API Tests", function () {
   it("GET /api/stats/top-entities - Should return top SPORTS", async () => {
     const res = await request(app)
       .get("/api/stats/top-entities?type=sport&period=all")
+      .auth(process.env.STATS_USERNAME || "stats", process.env.STATS_PASSWORD || "stats123")
       .expect(200);
 
     // Sport 1: 3 games
@@ -184,6 +189,7 @@ describe("Stats API Tests", function () {
   it("GET /api/stats/top-entities - Should return top PLACES", async () => {
     const res = await request(app)
       .get("/api/stats/top-entities?type=place&period=all")
+      .auth(process.env.STATS_USERNAME || "stats", process.env.STATS_PASSWORD || "stats123")
       .expect(200);
 
     console.log("Top Places Response:", JSON.stringify(res.body, null, 2));

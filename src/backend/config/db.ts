@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 
 const connectDB = async () => {
   try {
+    const dbUri =
+      process.env.NODE_ENV === "test"
+        ? process.env.MONGO_TEST_URI || process.env.MONGO_URI
+        : process.env.MONGO_URI;
+
     const conn = await mongoose.connect(
-      process.env.MONGO_URI || "mongodb://localhost:27017/trentoArena",
+      dbUri || "mongodb://localhost:27017/trentoArena",
     );
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {

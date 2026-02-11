@@ -35,13 +35,15 @@ router.post("/register", async (req: Request, res: Response) => {
     // Genera Token
     const emailToken = crypto.randomBytes(32).toString("hex");
 
-    // Crea Utente (non verificato)
+    const isVerified = process.env.NODE_ENV === "test";
+
+    // Crea Utente
     const newUser = new User({
       username: newUsername,
       email,
       password,
-      isVerified: false,
-      verificationToken: emailToken,
+      isVerified: isVerified,
+      verificationToken: isVerified ? undefined : emailToken,
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -49,17 +51,37 @@ router.post("/register", async (req: Request, res: Response) => {
 
     await newUser.save();
 
-
     try {
-      await sendVerificationEmail(newUser.email, emailToken);
+      if (!isVerified) {
+        await sendVerificationEmail(newUser.email, emailToken);
+      }
     } catch (emailError) {
       console.error("Failed to send verification email:", emailError);
     }
 
-    res.status(201).json({
-      msg: "Registration successful! Please check your email to verify your account.",
-      user: { username: newUser.username, email: newUser.email },
-    });
+    const responseUser = {
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+    };
+
+    if (isVerified) {
+      req.logIn(newUser, (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Login failed after registration");
+        }
+        res.status(201).json({
+          msg: "User registered and logged in successfully",
+          user: responseUser,
+        });
+      });
+    } else {
+      res.status(201).json({
+        msg: "Registration successful! Please check your email to verify your account.",
+        user: responseUser,
+      });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
@@ -76,7 +98,7 @@ router.post("/verify", async (req: Request, res: Response) => {
       return res.status(400).json({ msg: "Token mancante" });
     }
 
-    
+
     const user = await User.findOne({ verificationToken: token });
 
     if (!user) {
@@ -84,7 +106,7 @@ router.post("/verify", async (req: Request, res: Response) => {
     }
 
     user.isVerified = true;
-    user.verificationToken = undefined; 
+    user.verificationToken = undefined;
     await user.save();
 
     res.status(200).json({

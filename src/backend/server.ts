@@ -24,10 +24,10 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
+
 // Connect to MongoDB
-if (process.env.NODE_ENV !== "test") {
-  connectDB();
-}
+connectDB();
 
 import MongoStore from "connect-mongo";
 
@@ -53,7 +53,9 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl:
-        process.env.MONGO_URI || "mongodb://localhost:27017/trentoarena",
+        (process.env.NODE_ENV === "test"
+          ? process.env.MONGO_TEST_URI || process.env.MONGO_URI
+          : process.env.MONGO_URI) || "mongodb://localhost:27017/trentoarena",
     }),
   }),
 );

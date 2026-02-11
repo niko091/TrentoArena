@@ -8,7 +8,9 @@ describe("Sport Model Tests", () => {
   before(async () => {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
-        process.env.MONGO_URI || "mongodb://localhost:27017/trentoarena",
+        process.env.MONGO_TEST_URI ||
+        process.env.MONGO_URI ||
+        "mongodb://localhost:27017/trentoarena",
       );
     }
     await Sport.deleteMany({ name: "Test Sport Logic" });
