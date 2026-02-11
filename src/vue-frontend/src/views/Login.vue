@@ -55,7 +55,7 @@ const handleLogin = async () => {
 
                   <form @submit.prevent="handleLogin">
                       <div class="mb-3">
-                          <label class="form-label fw-bold">{{ t('register.email') }}</label>
+                          <label class="form-label fw-bold">{{ t('login.email') }}</label>
                           <input type="text" class="login-input" v-model="username" required>
                       </div>
                       <div class="mb-3">
