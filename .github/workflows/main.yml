@@ -1,0 +1,16 @@
+name: Trigger Webhook on Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the URL via Curl
+        env:
+          URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -f -s -X POST "$URL"
