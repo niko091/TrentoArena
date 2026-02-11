@@ -25,7 +25,6 @@ router.post("/", async (req: Request, res: Response) => {
         .json({ message: "Max participants must be at least 2" });
     }
 
-    // Combine date and time into a single Date object
     const gameDate = new Date(`${date}T${time}`);
     const creatorId = (req.user as any)._id;
 
@@ -47,7 +46,8 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/games - Retrieve games with filtering
+
+// GET /api/games - Retrieve games with filtering 
 router.get("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -62,7 +62,6 @@ router.get("/", async (req: Request, res: Response) => {
 
     const query: any = {};
 
-    // Date Filter
     if (startDate || endDate) {
       query.date = {};
       if (startDate) {
@@ -73,19 +72,14 @@ router.get("/", async (req: Request, res: Response) => {
       }
     }
 
-    // Sport Filter
     if (sportId) query.sport = sportId;
 
-    // Place Filter
     if (placeId) query.place = placeId;
 
-    // Creator Filter
     if (creatorId) query.creator = creatorId;
 
-    // Participant Filter
     if (participantId) query["participants.user"] = participantId;
 
-    // isFinished Filter
     if (isFinished !== undefined) {
       query.isFinished = isFinished === "true";
     }
@@ -107,7 +101,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/games/:id/finish - Mark a game as finished
+// PATCH /api/games/:id/finish 
 router.patch("/:id/finish", async (req: Request, res: Response) => {
   try {
     if (!req.isAuthenticated() || !req.user) {
@@ -120,14 +114,12 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Game not found" });
     }
 
-    // Check if the current user is the creator
     if (game.creator.toString() !== (req.user as any)._id.toString()) {
       return res
         .status(403)
         .json({ message: "Only the creator can finish this game" });
     }
 
-    // Check if the game date has passed
     if (new Date() < new Date(game.date)) {
       return res
         .status(400)
@@ -152,108 +144,71 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
         }
       });
 
-      // ELO Calculation
       if (winners.length > 0 && losers.length > 0) {
         const sportId = game.sport.toString();
 
-        // Fetch Users
+
         const winnerUsers = await User.find({ _id: { $in: winners } });
         const loserUsers = await User.find({ _id: { $in: losers } });
 
-        // Helper to get or init ELO
-        const getElo = (u: any, sId: string) => {
-          const entry = u.sportsElo?.find(
-            (e: any) => e.sport.toString() === sId,
-          );
+        const getEloValue = (u: any, sId: string) => {
+          const entry = u.sportsElo?.find((e: any) => e.sport.toString() === sId);
           return entry ? entry.elo : 1200;
         };
 
-        // Calculate Average Team ELOs
         const avgWinnerElo =
-          winnerUsers.reduce(
-            (sum: number, u: any) => sum + getElo(u, sportId),
-            0,
-          ) / winnerUsers.length;
+          winnerUsers.reduce((sum, u) => sum + getEloValue(u, sportId), 0) /
+          winnerUsers.length;
         const avgLoserElo =
-          loserUsers.reduce(
-            (sum: number, u: any) => sum + getElo(u, sportId),
-            0,
-          ) / loserUsers.length;
+          loserUsers.reduce((sum, u) => sum + getEloValue(u, sportId), 0) /
+          loserUsers.length;
 
-        // Expected score for Winner Team
         const expectedScoreWinner =
           1 / (1 + Math.pow(10, (avgLoserElo - avgWinnerElo) / 400));
         const expectedScoreLoser = 1 - expectedScoreWinner;
 
-        const K = 32;
+        const getKFactor = (historyLength: number) => {
+           return historyLength < 10 ? 80 : 32;
+        };
 
-        // Update Winners
-        await Promise.all(
-          winnerUsers.map(async (user) => {
-            if (!user.sportsElo) user.sportsElo = [];
-            let entry = user.sportsElo.find(
-              (e: any) => e.sport.toString() === sportId,
+        const updateEloForUsers = async (users: any[], actualScore: number, probability: number) => {
+            return Promise.all(
+                users.map(async (user) => {
+                    if (!user.sportsElo) user.sportsElo = [];
+                    
+                    let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                    
+                    if (!entry) {
+                        user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
+                        entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                    }
+
+                    if (entry) {
+                        const oldElo = entry.elo;
+                        const gamesPlayed = entry.history ? entry.history.length : 0;
+                        const K = getKFactor(gamesPlayed);
+                        const newElo = Math.round(oldElo + K * (actualScore - probability));
+                        const change = newElo - oldElo;
+
+                        entry.elo = newElo;
+
+                        if (!entry.history) entry.history = [];
+                        entry.history.push({
+                            elo: newElo,
+                            date: new Date(),
+                            change: change,
+                        });
+                    }
+                    await user.save();
+                })
             );
-            if (!entry) {
-              user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
-              entry = user.sportsElo.find(
-                (e: any) => e.sport.toString() === sportId,
-              );
-            }
+        };
 
-            if (entry) {
-              const oldElo = entry.elo;
-              const newElo = Math.round(oldElo + K * (1 - expectedScoreWinner));
-              const change = newElo - oldElo;
-
-              entry.elo = newElo;
-
-              if (!entry.history) entry.history = [];
-              entry.history.push({
-                elo: newElo,
-                date: new Date(),
-                change: change,
-              });
-            }
-            await user.save();
-          }),
-        );
-
-        // Update Losers
-        await Promise.all(
-          loserUsers.map(async (user) => {
-            if (!user.sportsElo) user.sportsElo = [];
-            let entry = user.sportsElo.find(
-              (e: any) => e.sport.toString() === sportId,
-            );
-            if (!entry) {
-              user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
-              entry = user.sportsElo.find(
-                (e: any) => e.sport.toString() === sportId,
-              );
-            }
-
-            if (entry) {
-              const oldElo = entry.elo;
-              const newElo = Math.round(oldElo + K * (0 - expectedScoreLoser));
-              const change = newElo - oldElo;
-
-              entry.elo = newElo;
-
-              if (!entry.history) entry.history = [];
-              entry.history.push({
-                elo: newElo,
-                date: new Date(),
-                change: change,
-              });
-            }
-            await user.save();
-          }),
-        );
+        await updateEloForUsers(winnerUsers, 1, expectedScoreWinner); 
+        await updateEloForUsers(loserUsers, 0, expectedScoreLoser);   
       }
     }
 
-    // Use updateOne to avoid VersionError
     await Game.updateOne(
       { _id: game._id },
       {
@@ -261,7 +216,7 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
           isFinished: true,
           participants: game.participants,
         },
-      },
+      }
     );
 
     res.json({ message: "Game marked as finished", game });
@@ -314,7 +269,9 @@ router.post("/:id/join", async (req: Request, res: Response) => {
   }
 });
 
+// ------------------------------------------------------------------
 // DELETE /api/games/:id - Delete a game
+// ------------------------------------------------------------------
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     if (!req.isAuthenticated() || !req.user) {
@@ -342,4 +299,5 @@ router.delete("/:id", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
 export default router;
