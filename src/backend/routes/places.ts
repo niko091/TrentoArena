@@ -1,103 +1,107 @@
-import express, { Request, Response } from 'express';
-import Place from '../models/Place';
-import { adminAuth } from '../middleware/adminAuth';
+import express, { Request, Response } from "express";
+import Place from "../models/Place";
+import { adminAuth } from "../middleware/adminAuth";
 
 const router = express.Router();
 
 // GET /api/places/search - Search places by name
-router.get('/search', async (req: Request, res: Response) => {
-    const { query } = req.query;
+router.get("/search", async (req: Request, res: Response) => {
+  const { query } = req.query;
 
-    if (!query || typeof query !== 'string') {
-        return res.status(400).json({ message: 'Query parameter is required' });
-    }
+  if (!query || typeof query !== "string") {
+    return res.status(400).json({ message: "Query parameter is required" });
+  }
 
-    try {
-        const places = await Place.find({
-            name: { $regex: query, $options: 'i' }
-        }).populate('sport');
+  try {
+    const places = await Place.find({
+      name: { $regex: query, $options: "i" },
+    }).populate("sport");
 
-        res.json(places);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
-    }
+    res.json(places);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 // GET /api/places - Retrieve all places
-router.get('/', async (req: Request, res: Response) => {
-    try {
-        const places = await Place.find().populate('sport');
-        res.json(places);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
-    }
+router.get("/", async (req: Request, res: Response) => {
+  try {
+    const places = await Place.find().populate("sport");
+    res.json(places);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 // POST /api/places - Insert a new place
-router.post('/', adminAuth, async (req: Request, res: Response) => {
-    const { name, position, sport } = req.body;
+router.post("/", adminAuth, async (req: Request, res: Response) => {
+  const { name, position, sport } = req.body;
 
-    if (!name || !position || !position.lat || !position.lng || !sport) {
-        return res.status(400).json({ message: 'Please provide all required fields' });
-    }
+  if (!name || !position || !position.lat || !position.lng || !sport) {
+    return res
+      .status(400)
+      .json({ message: "Please provide all required fields" });
+  }
 
-    try {
-        const newPlace = new Place({
-            name,
-            position,
-            sport,
-        });
+  try {
+    const newPlace = new Place({
+      name,
+      position,
+      sport,
+    });
 
-        const place = await newPlace.save();
-        res.status(201).json(place);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
-    }
+    const place = await newPlace.save();
+    res.status(201).json(place);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 // DELETE /api/places/:id - Delete a place
-router.delete('/:id', adminAuth, async (req: Request, res: Response) => {
-    try {
-        const place = await Place.findByIdAndDelete(req.params.id);
+router.delete("/:id", adminAuth, async (req: Request, res: Response) => {
+  try {
+    const place = await Place.findByIdAndDelete(req.params.id);
 
-        if (!place) {
-            return res.status(404).json({ message: 'Place not found' });
-        }
-
-        res.json({ message: 'Place removed' });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
+    if (!place) {
+      return res.status(404).json({ message: "Place not found" });
     }
+
+    res.json({ message: "Place removed" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 // PUT /api/places/:id - Update a place
-router.put('/:id', adminAuth, async (req: Request, res: Response) => {
-    const { name, position, sport } = req.body;
+router.put("/:id", adminAuth, async (req: Request, res: Response) => {
+  const { name, position, sport } = req.body;
 
-    if (!name || !position || !position.lat || !position.lng || !sport) {
-        return res.status(400).json({ message: 'Please provide all required fields' });
+  if (!name || !position || !position.lat || !position.lng || !sport) {
+    return res
+      .status(400)
+      .json({ message: "Please provide all required fields" });
+  }
+
+  try {
+    const place = await Place.findByIdAndUpdate(
+      req.params.id,
+      { name, position, sport },
+      { new: true, runValidators: true },
+    ).populate("sport");
+
+    if (!place) {
+      return res.status(404).json({ message: "Place not found" });
     }
 
-    try {
-        const place = await Place.findByIdAndUpdate(
-            req.params.id,
-            { name, position, sport },
-            { new: true, runValidators: true }
-        ).populate('sport');
-
-        if (!place) {
-            return res.status(404).json({ message: 'Place not found' });
-        }
-
-        res.json(place);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server Error' });
-    }
+    res.json(place);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
 });
 
 export default router;
