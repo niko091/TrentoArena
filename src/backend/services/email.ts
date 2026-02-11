@@ -12,20 +12,26 @@ try {
 }
 
 import nodemailer from "nodemailer";
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  family: 4,
+  lookup: (hostname: string, options: any, callback: (err: Error | null, address: string, family: number) => void) => {
+    dns.resolve4(hostname, (err, addresses) => {
+      if (!addresses || !addresses.length) {
+        return callback(err || new Error('No IPv4 addresses found'), '', 4);
+      }
+      callback(null, addresses[0], 4);
+    });
+  },
   logger: true,
   debug: true,
-} as SMTPTransport.Options);
+} as any);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const link = `${process.env.BASE_URL}/verify-account?token=${token}`;
