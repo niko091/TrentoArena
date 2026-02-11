@@ -1,8 +1,18 @@
-import nodemailer from "nodemailer";
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import dotenv from "dotenv";
+import dns from 'node:dns';
 
 dotenv.config();
+
+try {
+  if ('setDefaultResultOrder' in dns) {
+    (dns as any).setDefaultResultOrder('ipv4first');
+  }
+} catch (e) {
+  console.log('Could not set default result order', e);
+}
+
+import nodemailer from "nodemailer";
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -13,7 +23,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   family: 4,
-  localAddress: '0.0.0.0',
+  logger: true,
+  debug: true,
 } as SMTPTransport.Options);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
