@@ -173,6 +173,7 @@ a {
   color: var(--text-inverse);
   transform: translateY(-2px);
 }
+
 /* --- Notification Badge Styles --- */
 .icon-wrapper {
   position: relative;
@@ -377,11 +378,6 @@ a {
 
 .list-item:hover {
   background-color: var(--bg-primary);
-}
-
-/* Initial Map Style (Legacy) */
-#map {
-  height: 800px;
 }
 
 /* Login/Registration Card */
