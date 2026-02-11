@@ -1,1 +1,1 @@
-declare module 'express-basic-auth';
+declare module "express-basic-auth";

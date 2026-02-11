@@ -9,11 +9,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/vue-frontend"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/vue-frontend"]
 }

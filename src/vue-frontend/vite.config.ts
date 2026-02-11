@@ -1,42 +1,41 @@
-
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { fileURLToPath, URL } from "node:url";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [vue()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
-            '@shared': fileURLToPath(new URL('../shared', import.meta.url))
-        }
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@shared": fileURLToPath(new URL("../shared", import.meta.url)),
     },
-    server: {
-        proxy: {
-            '/api': {
-                target: 'http://localhost:3000',
-                changeOrigin: true,
-                secure: false,
-            },
-            '/auth': {
-                target: 'http://localhost:3000',
-                changeOrigin: true,
-                secure: false,
-            }
-        }
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/auth": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
     },
-    build: {
-        outDir: '../../dist/frontend',
-        emptyOutDir: true,
-        rollupOptions: {
-            output: {
-                manualChunks: {
-                    'vendor-charts': ['chart.js'],
-                    'vendor-maps': ['leaflet'],
-                    'vendor-ui': ['bootstrap']
-                }
-            }
-        }
-    }
-})
+  },
+  build: {
+    outDir: "../../dist/frontend",
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-charts": ["chart.js"],
+          "vendor-maps": ["leaflet"],
+          "vendor-ui": ["bootstrap"],
+        },
+      },
+    },
+  },
+});
