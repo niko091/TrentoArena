@@ -40,12 +40,12 @@
     "password_placeholder": "Passwort",
     "login_button": "Einloggen",
     "google_login": "Mit Google anmelden",
-    "not_registered": "Nicht registriert?",
+    "not_registered": "Nicht registriert? ",
     "register_link": "Konto erstellen"
   },
   "register": {
     "title": "Registrierung",
-    "email": "E-Mail",
+    "email": "E-Mail/Benutzername",
     "username": "Benutzername",
     "password": "Passwort",
     "repeat_password": "Passwort wiederholen",
