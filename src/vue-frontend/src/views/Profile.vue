@@ -37,7 +37,7 @@ const calendarDots = computed(() => {
   });
 
   const today = new Date();
-  const currentDayOfWeek = today.getDay(); // 0 = Sunday
+  const currentDayOfWeek = today.getDay(); 
 
   const distanceToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
   const endDate = new Date(today);
@@ -341,19 +341,17 @@ function updateChart() {
 </script>
 
 <template>
-  <div class="container mt-5" v-if="!loading && profileUser">
+  <div class="container mt-4 mt-lg-5" v-if="!loading && profileUser">
     <div
-      class="d-flex flex-column flex-lg-row align-items-start justify-content-center p-4 gap-5"
+      class="d-flex flex-column flex-lg-row align-items-center align-items-lg-start justify-content-center p-2 p-lg-4 gap-4 gap-lg-5"
     >
-      <div class="flex-shrink-0 text-center">
+      <div class="flex-shrink-0 text-center w-100 w-lg-auto">
         <div style="position: relative; display: inline-block">
           <img
             :src="profileUser.profilePicture || '/images/utenteDefault.png'"
             alt="Profile Picture"
-            class="rounded-circle"
+            class="rounded-circle profile-pic-responsive"
             style="
-              width: 250px;
-              height: 250px;
               object-fit: cover;
               box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             "
@@ -416,7 +414,7 @@ function updateChart() {
         <div
           v-if="!isOwnProfile"
           id="publicActions"
-          class="d-flex justify-content-center gap-2 mt-3"
+          class="d-flex justify-content-center gap-2 mt-3 flex-wrap"
         >
           <button
             v-if="friendStatus === 'none'"
@@ -464,13 +462,13 @@ function updateChart() {
         </div>
       </div>
 
-      <div class="flex-grow-1">
+      <div class="flex-grow-1 w-100">
         <div
           v-if="profileUser.sportsElo && profileUser.sportsElo.length > 0"
           id="eloStatsContainer"
           class="mb-5"
         >
-          <h5 class="fw-bold mb-3">{{ t("profile.elo_stats") }}</h5>
+          <h5 class="fw-bold mb-3 text-center text-lg-start">{{ t("profile.elo_stats") }}</h5>
           <select
             v-model="selectedSportIndex"
             @change="updateChart"
@@ -500,13 +498,13 @@ function updateChart() {
         </div>
       </div>
 
-      <div class="flex-shrink-0" style="width: 300px">
-        <h4 class="fw-bold mb-3 border-bottom pb-2">
+      <div class="flex-shrink-0 sidebar-container">
+        <h4 class="fw-bold mb-3 border-bottom pb-2 text-center text-lg-start">
           {{ t("common.friends") }}
         </h4>
         <div
           id="friendsList"
-          class="d-flex flex-wrap gap-2 justify-content-start mb-5"
+          class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-5"
         >
           <span v-if="friends.length === 0" class="text-muted">{{
             t("profile.no_friends")
@@ -527,10 +525,10 @@ function updateChart() {
           />
         </div>
 
-        <h4 class="fw-bold mb-3 border-bottom pb-2 mt-5">
+        <h4 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-center text-lg-start">
           {{ t("profile.calendar") }}
         </h4>
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0 w-100">
           <div class="card-body p-3">
             <div
               class="d-flex justify-content-between mb-3 text-muted fw-bold small text-center px-1"
@@ -568,7 +566,7 @@ function updateChart() {
       </div>
     </div>
 
-    <div class="mt-5">
+    <div class="mt-4 mt-lg-5">
       <h2 class="fw-bold mb-4 border-bottom pb-2">
         {{ t("profile.upcoming_games") }}
       </h2>
@@ -736,3 +734,29 @@ function updateChart() {
     @refresh="init"
   />
 </template>
+
+<style scoped>
+.sidebar-container {
+  width: 100%; 
+}
+
+.profile-pic-responsive {
+  width: 200px;
+  height: 200px;
+}
+
+@media (min-width: 992px) {
+  .sidebar-container {
+    width: 300px; 
+  }
+  
+  .w-lg-auto {
+    width: auto !important;
+  }
+  
+  .profile-pic-responsive {
+    width: 250px;
+    height: 250px;
+  }
+}
+</style>

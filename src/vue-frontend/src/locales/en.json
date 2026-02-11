@@ -40,12 +40,12 @@
     "password_placeholder": "Password",
     "login_button": "Log In",
     "google_login": "Login with Google",
-    "not_registered": "Not registered?",
+    "not_registered": "Not registered?" ,
     "register_link": "Create an account"
   },
   "register": {
     "title": "Registration",
-    "email": "Email",
+    "email": "Email/Username",
     "username": "Username",
     "password": "Password",
     "repeat_password": "Repeat Password",

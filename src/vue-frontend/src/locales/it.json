@@ -40,12 +40,12 @@
     "password_placeholder": "Password",
     "login_button": "Accedi",
     "google_login": "Accedi con Google",
-    "not_registered": "Non sei registrato?",
+    "not_registered": "Non sei registrato? ",
     "register_link": "Crea un account"
   },
   "register": {
     "title": "Registrazione",
-    "email": "Email",
+    "email": "Email/Nome utente",
     "username": "Nome Utente",
     "password": "Password",
     "repeat_password": "Ripeti Password",

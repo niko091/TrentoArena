@@ -90,6 +90,14 @@ onMounted(() => {
       </button>
 
       <div class="nav-items" :class="{ 'mobile-open': isMenuOpen }">
+        <RouterLink to="/dashboard" class="mobile-menu-logo" @click="closeMenu">
+          <img 
+            src="/images/logo_TrentoArena.png" 
+            alt="TrentoArena" 
+            class="nav-logo mobile-logo-override"
+          />
+        </RouterLink>
+
         <a class="nav-link" href="#" @click.prevent="openSearch">
           <img src="/images/search.png" :alt="t('navbar.search')" />
           <span>{{ t("navbar.search") }}</span>
@@ -167,7 +175,25 @@ onMounted(() => {
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+.mobile-menu-logo {
+  display: none;
+}
+
 @media screen and (max-width: 768px) {
+  .mobile-menu-logo {
+    display: block;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  .mobile-logo-override {
+    height: 60px !important; 
+    width: auto !important;
+    object-fit: contain;
+    margin: 0 !important; 
+    display: inline-block;
+  }
+
   .hamburger {
     display: flex;
   }
@@ -179,6 +205,7 @@ onMounted(() => {
     transform: translate(-50%, -50%);
     width: max-content;
     margin-right: 0;
+    z-index: 1000;
   }
 
   .nav-logo {
@@ -190,11 +217,11 @@ onMounted(() => {
     top: 0;
     left: 0;
     width: 100%;
-    height: auto;
+    min-height: 100vh;
     background-color: var(--accent-primary);
     flex-direction: column;
     align-items: flex-start;
-    padding: 90px 25px 30px 25px;
+    padding: 40px 25px 30px 25px; 
     gap: 0;
 
     box-shadow: var(--shadow-lg);

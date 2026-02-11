@@ -73,6 +73,7 @@ const handleLogin = async () => {
                       <div class="text-center mt-3">
                           <small>
                               <span>{{ t('login.not_registered') }}</span> 
+                              <span>{{ " "}}</span> 
                               <a style="color: #fd7e14; font-weight: bold;" href="/register">{{ t('login.register_link') }}</a>
                           </small>
                       </div>
