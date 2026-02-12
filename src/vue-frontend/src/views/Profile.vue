@@ -2,121 +2,70 @@
 import { ref, onMounted, watch, nextTick, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import Chart from "chart.js/auto";
 import * as bootstrap from "bootstrap";
 import { IUserShared as User } from "@shared/types/User";
 import { ProfileAPI } from "../api/profile";
 import GamePopup from "../components/GamePopup.vue";
+import EloChart from "../components/profile/EloChart.vue";
+import Calendar from "../components/profile/Calendar.vue";
+import GameList from "../components/profile/GameList.vue";
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const currentUser = ref<User | null>(null);
 const profileUser = ref<User | null>(null);
 const loading = ref(true);
-const error = ref("");
-const { t } = useI18n();
-
 const friends = ref<any[]>([]);
 const upcomingGames = ref<any[]>([]);
 const pastGames = ref<any[]>([]);
-const eloChartInstance = ref<Chart | null>(null);
-const selectedSportIndex = ref<number | null>(null);
-
 const selectedGame = ref<any | null>(null);
-
-const isOwnProfile = computed(() => {
-  if (!currentUser.value || !profileUser.value) return false;
-  return currentUser.value._id === profileUser.value._id;
-});
-
-const calendarDots = computed(() => {
-  const matchCounts: Record<string, number> = {};
-  pastGames.value.forEach((g) => {
-    const d = new Date(g.date).toISOString().split("T")[0];
-    matchCounts[d] = (matchCounts[d] || 0) + 1;
-  });
-
-  const today = new Date();
-  const currentDayOfWeek = today.getDay(); 
-
-  const distanceToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
-  const endDate = new Date(today);
-  endDate.setDate(today.getDate() + distanceToSunday);
-
-  const startDate = new Date(endDate);
-  startDate.setDate(startDate.getDate() - 27);
-
-  const dots = [];
-  for (let i = 0; i < 28; i++) {
-    const d = new Date(startDate);
-    d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().split("T")[0];
-    const count = matchCounts[dateStr] || 0;
-
-    let size, color;
-    if (count === 0) {
-      size = 6;
-      color = "#e9ecef";
-    } else {
-      size = Math.min(12 + (count - 1) * 4, 24);
-      color = "#fd7e14";
-    }
-
-    dots.push({
-      date: d.toLocaleDateString("it-IT"),
-      count,
-      size,
-      color,
-    });
-  }
-  return dots;
-});
-
-let reportModal: bootstrap.Modal | null = null;
 const reportMotivation = ref("");
+
+let reportModal: any = null;
+
+
+const isOwnProfile = computed(() => currentUser.value?._id === profileUser.value?._id);
+
+const friendStatus = computed(() => {
+  if (!currentUser.value || !profileUser.value) return "none";
+  const friends = profileUser.value.friends || [];
+  if (friends.some((f: any) => (f._id || f) === currentUser.value?._id)) return "friend";
+
+  const theirReqs = profileUser.value.friendRequests || [];
+  if (theirReqs.some((r: any) => (r._id || r) === currentUser.value?._id)) return "sent";
+
+  const myReqs = currentUser.value.friendRequests || [];
+  if (myReqs.some((r: any) => (r._id || r) === profileUser.value?._id)) return "received";
+
+  return "none";
+});
 
 onMounted(async () => {
   await init();
 });
 
 watch(loading, (isLoading) => {
-  if (!isLoading && profileUser.value) {
+  if (!isLoading) {
     nextTick(() => {
-      renderEloChart();
-
       const modalEl = document.getElementById("reportModal");
-      if (modalEl) {
-        reportModal = new bootstrap.Modal(modalEl);
-      }
+      if (modalEl) reportModal = new bootstrap.Modal(modalEl);
     });
   }
 });
 
-watch(
-  () => route.params,
-  async () => {
-    await init();
-  },
-);
+watch(() => route.params, init);
 
 async function init() {
   loading.value = true;
-  error.value = "";
-
   try {
     currentUser.value = await ProfileAPI.getCurrentUser();
-    if (!currentUser.value) {
-      window.location.href = "/login";
-      return;
-    }
+    if (!currentUser.value) { window.location.href = "/login"; return; }
 
     const routeUsername = route.params.username as string;
     const routeId = route.query.id as string;
 
-    if (
-      routeUsername &&
-      routeUsername.toLowerCase() !== currentUser.value.username.toLowerCase()
-    ) {
+    if (routeUsername && routeUsername.toLowerCase() !== currentUser.value.username.toLowerCase()) {
       const publicInfo = await ProfileAPI.getUserByUsername(routeUsername);
       profileUser.value = await ProfileAPI.getUserById(publicInfo._id);
     } else if (routeId && routeId !== currentUser.value._id) {
@@ -128,574 +77,129 @@ async function init() {
     if (!profileUser.value) throw new Error("User not found");
 
     friends.value = profileUser.value.friends || [];
+    
+    const [up, past] = await Promise.all([
+      ProfileAPI.getGames(profileUser.value._id, false),
+      ProfileAPI.getGames(profileUser.value._id, true)
+    ]);
+    
+    upcomingGames.value = up.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    pastGames.value = past.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-    upcomingGames.value = await ProfileAPI.getGames(
-      profileUser.value._id,
-      false,
-    );
-    pastGames.value = await ProfileAPI.getGames(profileUser.value._id, true);
-
-    upcomingGames.value.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    );
-    pastGames.value.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
   } catch (e) {
     console.error(e);
-    error.value = "Errore nel caricamento del profilo.";
   } finally {
     loading.value = false;
   }
 }
 
-// --- Actions ---
+const reload = () => window.location.reload();
 
-function openGameDetails(game: any) {
-  selectedGame.value = game;
+async function handleAction(action: Function, ...args: any[]) {
+  try { await action(...args); reload(); } catch { alert("Error"); }
 }
 
-// Friend Actions
-async function handleSendRequest() {
-  if (!profileUser.value || !currentUser.value) return;
-  try {
-    await ProfileAPI.sendFriendRequest(
-      profileUser.value._id,
-      currentUser.value._id,
-    );
-    window.location.reload();
-  } catch (e) {
-    alert("Errore generico");
-  }
-}
+const handleSendRequest = () => handleAction(ProfileAPI.sendFriendRequest, profileUser.value!._id, currentUser.value!._id);
+const handleAcceptRequest = () => handleAction(ProfileAPI.acceptFriendRequest, profileUser.value!._id, currentUser.value!._id);
+const handleRemoveFriend = () => confirm("Remove friend?") && handleAction(ProfileAPI.removeFriend, profileUser.value!._id, currentUser.value!._id);
+const handleRemovePic = () => confirm("Remove pic?") && handleAction(ProfileAPI.deleteProfilePicture, profileUser.value!._id);
 
-async function handleAcceptRequest() {
-  if (!profileUser.value || !currentUser.value) return;
-  try {
-    await ProfileAPI.acceptFriendRequest(
-      profileUser.value._id,
-      currentUser.value._id,
-    );
-    window.location.reload();
-  } catch (e) {
-    alert("Errore generico");
-  }
-}
-
-async function handleRemoveFriend() {
-  if (!profileUser.value || !currentUser.value) return;
-  if (confirm("Sei sicuro di voler rimuovere questo amico?")) {
-    try {
-      await ProfileAPI.removeFriend(
-        profileUser.value._id,
-        currentUser.value._id,
-      );
-      window.location.reload();
-    } catch (e) {
-      alert("Errore generico");
-    }
-  }
-}
-
-// Image Actions
 async function handleFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
-  if (input.files && input.files[0] && profileUser.value) {
-    try {
-      await ProfileAPI.uploadProfilePicture(
-        profileUser.value._id,
-        input.files[0],
-      );
-      window.location.reload();
-    } catch (e) {
-      console.error(e);
-    }
-  }
+  if (input.files?.[0]) handleAction(ProfileAPI.uploadProfilePicture, profileUser.value!._id, input.files[0]);
 }
 
-async function handleRemovePic() {
-  if (!profileUser.value) return;
-  if (!confirm("Rimuovere la foto profilo?")) return;
-  try {
-    await ProfileAPI.deleteProfilePicture(profileUser.value._id);
-    window.location.reload();
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-// Report
-function openReportModal() {
-  reportMotivation.value = "";
-  reportModal?.show();
-}
-
-async function submitReport() {
-  if (!reportMotivation.value) return alert("Inserisci una motivazione");
-  if (!currentUser.value || !profileUser.value) return;
-
-  try {
-    await ProfileAPI.sendReport(
-      currentUser.value._id,
-      profileUser.value._id,
-      reportMotivation.value,
-    );
-    alert("Segnalazione inviata");
-    reportModal?.hide();
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-// Navigation
-function goToUser(username: string) {
-  router.push(`/user/${username}`);
-}
-
-// --- Helpers ---
-const friendStatus = computed(() => {
-  if (!currentUser.value || !profileUser.value) return "none";
-
-  // Check if friends
-  const friends = profileUser.value.friends || []; // these are objects or IDs
-  const isFriend = friends.some(
-    (f: any) => (f._id || f) === currentUser.value?._id,
-  );
-  if (isFriend) return "friend";
-
-  // Check requests
-  const theirReqs = profileUser.value.friendRequests || [];
-  const myReqs = currentUser.value.friendRequests || [];
-
-  const sent = theirReqs.some(
-    (r: any) => (r._id || r) === currentUser.value?._id,
-  );
-  const received = myReqs.some(
-    (r: any) => (r._id || r) === profileUser.value?._id,
-  );
-
-  if (sent) return "sent";
-  if (received) return "received";
-
-  return "none";
-});
-
-// Charts
-function renderEloChart() {
-  if (!profileUser.value?.sportsElo || profileUser.value.sportsElo.length === 0)
-    return;
-
-  if (selectedSportIndex.value === null) selectedSportIndex.value = 0;
-
-  updateChart();
-}
-
-function updateChart() {
-  const canvas = document.getElementById("eloChart") as HTMLCanvasElement;
-  if (!canvas || selectedSportIndex.value === null || !profileUser.value)
-    return;
-
-  const stat = profileUser.value.sportsElo[selectedSportIndex.value];
-  if (!stat) return;
-
-  if (eloChartInstance.value) eloChartInstance.value.destroy();
-
-  const labels: string[] = [];
-  const data: number[] = [];
-
-  if (stat.history && stat.history.length > 0) {
-    const sortedHistory = [...stat.history].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-    );
-    sortedHistory.forEach((h) => {
-      labels.push(new Date(h.date).toLocaleDateString());
-      data.push(h.elo);
-    });
-  } else {
-    labels.push("Start");
-    data.push(stat.elo);
-  }
-
-  eloChartInstance.value = new Chart(canvas, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "ELO",
-          data: data,
-          borderColor: "#fd7e14",
-          backgroundColor: "rgba(253, 126, 20, 0.1)",
-          tension: 0.3,
-          fill: true,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-    },
-  });
+function submitReport() {
+  if (!reportMotivation.value) return alert("Inserisci motivazione");
+  ProfileAPI.sendReport(currentUser.value!._id, profileUser.value!._id, reportMotivation.value)
+    .then(() => { alert("Segnalazione inviata"); reportModal?.hide(); })
+    .catch(console.error);
 }
 </script>
 
 <template>
-  <div class="container mt-4 mt-lg-5" v-if="!loading && profileUser">
-    <div
-      class="d-flex flex-column flex-lg-row align-items-center align-items-lg-start justify-content-center p-2 p-lg-4 gap-4 gap-lg-5"
-    >
-      <div class="flex-shrink-0 text-center w-100 w-lg-auto">
-        <div style="position: relative; display: inline-block">
+  <div v-if="!loading && profileUser" class="container mt-4 mt-lg-5">
+    
+    <div class="profile-header-container">
+      
+      <div class="profile-avatar-section">
+        <div class="avatar-container">
           <img
             :src="profileUser.profilePicture || '/images/utenteDefault.png'"
-            alt="Profile Picture"
             class="rounded-circle profile-pic-responsive"
-            style="
-              object-fit: cover;
-              box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            "
           />
 
-          <div v-if="isOwnProfile" id="editControls">
-            <label
-              for="fileInput"
-              class="btn btn-primary rounded-circle shadow"
-              style="
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                width: 40px;
-                height: 40px;
-                padding: 4px 0;
-                font-size: 1.2rem;
-                cursor: pointer;
-              "
-              >+</label
-            >
-            <button
-              v-if="profileUser.profilePicture"
-              @click="handleRemovePic"
-              class="btn btn-danger rounded-circle shadow"
-              style="
-                position: absolute;
-                bottom: 10px;
-                left: 10px;
-                width: 40px;
-                height: 40px;
-                padding: 4px 0;
-                font-size: 1.2rem;
-              "
-            >
+          <div v-if="isOwnProfile">
+            <label for="fileInput" class="btn rounded-circle shadow edit-btn upload">
+              <i class="bi bi-pencil-fill" style="font-size: 0.8rem;">+</i>
+            </label>
+            <button v-if="profileUser.profilePicture" @click="handleRemovePic" class="btn rounded-circle shadow edit-btn delete">
               x
             </button>
-            <input
-              type="file"
-              id="fileInput"
-              style="display: none"
-              accept="image/*"
-              @change="handleFileChange"
-            />
+            <input type="file" id="fileInput" class="d-none" accept="image/*" @change="handleFileChange" />
           </div>
         </div>
 
         <h1 class="fw-bold mt-4 mb-2 display-6">
           {{ profileUser.username }}
-          <span
-            v-if="profileUser.isBanned"
-            class="badge bg-danger fs-6 align-middle ms-2"
-            >BANNED</span
-          >
+          <span v-if="profileUser.isBanned" class="badge bg-danger fs-6 align-middle ms-2">BANNED</span>
         </h1>
-        <p v-if="isOwnProfile" class="text-muted mb-4">
-          {{ profileUser.email }}
-        </p>
+        <p v-if="isOwnProfile" class="text-muted mb-4">{{ profileUser.email }}</p>
 
-        <div
-          v-if="!isOwnProfile"
-          id="publicActions"
-          class="d-flex justify-content-center gap-2 mt-3 flex-wrap"
-        >
-          <button
-            v-if="friendStatus === 'none'"
-            class="btn btn-primary"
-            @click="handleSendRequest"
-          >
-            {{ t("profile.add_friend") }}
-          </button>
-          <button
-            v-else-if="friendStatus === 'sent'"
-            class="btn btn-secondary"
-            disabled
-          >
-            {{ t("profile.request_sent") }}
-          </button>
-          <button
-            v-else-if="friendStatus === 'received'"
-            class="btn btn-success"
-            @click="handleAcceptRequest"
-          >
-            {{ t("profile.accept_request") }}
-          </button>
-          <button
-            v-else-if="friendStatus === 'friend'"
-            class="btn btn-danger"
-            @click="handleRemoveFriend"
-          >
-            {{ t("profile.remove_friend") }}
-          </button>
-
-          <button
-            class="btn btn-outline-danger btn-sm"
-            @click="openReportModal"
-          >
-            {{ t("profile.report_user") }}
-          </button>
+        <div v-if="!isOwnProfile" class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+          <button v-if="friendStatus === 'none'" class="btn btn-primary" @click="handleSendRequest">{{ t("profile.add_friend") }}</button>
+          <button v-else-if="friendStatus === 'sent'" class="btn btn-secondary" disabled>{{ t("profile.request_sent") }}</button>
+          <button v-else-if="friendStatus === 'received'" class="btn btn-success" @click="handleAcceptRequest">{{ t("profile.accept_request") }}</button>
+          <button v-else-if="friendStatus === 'friend'" class="btn btn-danger" @click="handleRemoveFriend">{{ t("profile.remove_friend") }}</button>
+          <button class="btn btn-outline-danger btn-sm" @click="() => { reportMotivation = ''; reportModal?.show(); }">{{ t("profile.report_user") }}</button>
         </div>
 
-        <div v-if="isOwnProfile" id="privateActions" class="mt-3">
-          <a
-            href="/auth/logout"
-            class="btn btn-outline-danger btn-lg px-5 w-100"
-            >{{ t("profile.logout") }}</a
-          >
+        <div v-if="isOwnProfile" class="mt-3">
+          <a href="/auth/logout" class="btn btn-outline-danger btn-lg px-5 w-100">{{ t("profile.logout") }}</a>
         </div>
       </div>
 
-      <div class="flex-grow-1 w-100">
-        <div
-          v-if="profileUser.sportsElo && profileUser.sportsElo.length > 0"
-          id="eloStatsContainer"
-          class="mb-5"
-        >
-          <h5 class="fw-bold mb-3 text-center text-lg-start">{{ t("profile.elo_stats") }}</h5>
-          <select
-            v-model="selectedSportIndex"
-            @change="updateChart"
-            class="form-select mb-3"
-          >
-            <option
-              v-for="(stat, idx) in profileUser.sportsElo"
-              :key="idx"
-              :value="idx"
-            >
-              {{ stat.sport?.name || "Unknown" }}
-            </option>
-          </select>
-          <div
-            id="eloDisplay"
-            style="
-              position: relative;
-              height: 400px;
-              width: 100%;
-              border: none !important;
-              margin: 0;
-              padding: 0;
-            "
-          >
-            <canvas id="eloChart"></canvas>
-          </div>
-        </div>
+      <div class="profile-stats-section">
+        <EloChart :user="profileUser" />
       </div>
 
-      <div class="flex-shrink-0 sidebar-container">
-        <h4 class="fw-bold mb-3 border-bottom pb-2 text-center text-lg-start">
-          {{ t("common.friends") }}
-        </h4>
-        <div
-          id="friendsList"
-          class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-5"
-        >
-          <span v-if="friends.length === 0" class="text-muted">{{
-            t("profile.no_friends")
-          }}</span>
+      <div class="profile-sidebar-section">
+        <h4 class="fw-bold mb-3 border-bottom pb-2 text-center text-lg-start">{{ t("common.friends") }}</h4>
+        <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-lg-start mb-5">
+          <span v-if="friends.length === 0" class="text-muted">{{ t("profile.no_friends") }}</span>
           <img
             v-for="friend in friends"
             :key="friend._id || friend"
             :src="friend.profilePicture || '/images/utenteDefault.png'"
             :title="friend.username"
-            @click="goToUser(friend.username)"
-            class="rounded-circle shadow-sm border me-2 mb-2"
-            style="
-              width: 50px;
-              height: 50px;
-              cursor: pointer;
-              object-fit: cover;
-            "
+            @click="router.push(`/user/${friend.username}`)"
+            class="rounded-circle shadow-sm friend-avatar"
           />
         </div>
 
-        <h4 class="fw-bold mb-3 border-bottom pb-2 mt-5 text-center text-lg-start">
-          {{ t("profile.calendar") }}
-        </h4>
-        <div class="card shadow-sm border-0 w-100">
-          <div class="card-body p-3">
-            <div
-              class="d-flex justify-content-between mb-3 text-muted fw-bold small text-center px-1"
-            >
-              <span>M</span><span>T</span><span>W</span><span>T</span
-              ><span>F</span><span>S</span><span>S</span>
-            </div>
-            <div
-              id="dotsContainer"
-              style="
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 8px;
-                justify-items: center;
-                align-items: center;
-              "
-            >
-              <div
-                v-for="(dot, i) in calendarDots"
-                :key="i"
-                :style="{
-                  width: dot.size + 'px',
-                  height: dot.size + 'px',
-                  backgroundColor: dot.color,
-                  borderRadius: '50%',
-                  transition: 'all 0.2s ease',
-                }"
-                :title="
-                  dot.count > 0 ? `${dot.count} games on ${dot.date}` : dot.date
-                "
-              ></div>
-            </div>
-          </div>
-        </div>
+        <Calendar :games="pastGames" />
       </div>
     </div>
 
-    <div class="mt-4 mt-lg-5">
-      <h2 class="fw-bold mb-4 border-bottom pb-2">
-        {{ t("profile.upcoming_games") }}
-      </h2>
-      <div class="row g-3">
-        <div v-if="upcomingGames.length === 0" class="col-12">
-          <span class="text-muted">{{ t("profile.no_upcoming_games") }}</span>
-        </div>
-        <div
-          v-for="game in upcomingGames"
-          :key="game._id"
-          class="col-md-6 col-lg-4"
-        >
-          <div
-            class="card h-100 shadow-sm"
-            style="cursor: pointer"
-            @click="openGameDetails(game)"
-          >
-            <div class="card-body">
-              <div class="d-flex justify-content-between mb-2">
-                <h5 class="card-title fw-bold text-primary">
-                  {{ game.sport?.name || "Sport" }}
-                </h5>
-                <span
-                  class="badge"
-                  :class="{
-                    'bg-danger':
-                      game.participants.length >= (game.maxParticipants || 10),
-                    'bg-warning text-dark':
-                      game.participants.length / (game.maxParticipants || 10) >=
-                        0.75 &&
-                      game.participants.length < (game.maxParticipants || 10),
-                    'bg-success':
-                      game.participants.length / (game.maxParticipants || 10) <
-                      0.75,
-                  }"
-                >
-                  <i class="bi bi-people-fill me-1"></i
-                  >{{ game.participants.length }}/{{
-                    game.maxParticipants || 10
-                  }}
-                </span>
-              </div>
-              <h6 class="text-muted">{{ game.place?.name || "Place" }}</h6>
-              <p class="card-text mb-0">
-                <small
-                  >📅 {{ new Date(game.date).toLocaleDateString("it-IT") }} at
-                  {{
-                    new Date(game.date).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  }}</small
-                >
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <GameList 
+      :title="t('profile.upcoming_games')" 
+      :games="upcomingGames" 
+      :profile-user-id="profileUser._id" 
+      @open-game="selectedGame = $event" 
+    />
 
-    <div class="mt-5 mb-5">
-      <h2 class="fw-bold mb-4 border-bottom pb-2">
-        {{ t("profile.past_games") }}
-      </h2>
-      <div class="row g-3">
-        <div v-if="pastGames.length === 0" class="col-12">
-          <span class="text-muted">{{ t("profile.no_past_games") }}</span>
-        </div>
-        <div
-          v-for="game in pastGames"
-          :key="game._id"
-          class="col-md-6 col-lg-4"
-        >
-          <div
-            class="card h-100 shadow-sm opacity-75"
-            :class="{
-              'border-success border-2': game.participants.some(
-                (p: any) =>
-                  (p.user._id || p.user) === profileUser?._id && p.winner,
-              ),
-              'border-danger border-2': !game.participants.some(
-                (p: any) =>
-                  (p.user._id || p.user) === profileUser?._id && p.winner,
-              ),
-            }"
-            style="cursor: pointer"
-            @click="openGameDetails(game)"
-          >
-            <div class="card-body">
-              <div class="d-flex justify-content-between mb-2">
-                <h5 class="card-title fw-bold text-primary">
-                  {{ game.sport?.name || "Sport" }}
-                </h5>
-                <span
-                  v-if="
-                    game.participants.some(
-                      (p: any) =>
-                        (p.user._id || p.user) === profileUser?._id && p.winner,
-                    )
-                  "
-                  class="badge bg-success"
-                  >{{ t("profile.won") }}</span
-                >
-                <span v-else class="badge bg-secondary">{{
-                  t("profile.finished")
-                }}</span>
-              </div>
-              <h6 class="text-muted">{{ game.place?.name || "Place" }}</h6>
-              <p class="card-text mb-0">
-                <small
-                  >📅 {{ new Date(game.date).toLocaleDateString("it-IT") }} at
-                  {{
-                    new Date(game.date).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                  }}</small
-                >
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <GameList 
+      :title="t('profile.past_games')" 
+      :games="pastGames" 
+      :profile-user-id="profileUser._id" 
+      :is-past="true"
+      @open-game="selectedGame = $event" 
+    />
+
   </div>
+
   <div v-else-if="loading" class="text-center mt-5">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
+    <div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>
   </div>
 
   <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
@@ -703,60 +207,19 @@ function updateChart() {
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ t("profile.report_modal_title") }}</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <textarea
-            v-model="reportMotivation"
-            class="form-control"
-            rows="3"
-            :placeholder="t('profile.report_reason')"
-          ></textarea>
+          <textarea v-model="reportMotivation" class="form-control" rows="3" :placeholder="t('profile.report_reason')"></textarea>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" @click="submitReport">
-            {{ t("profile.report_submit") }}
-          </button>
+          <button type="button" class="btn btn-danger" @click="submitReport">{{ t("profile.report_submit") }}</button>
         </div>
       </div>
     </div>
   </div>
 
-  <GamePopup
-    v-if="selectedGame"
-    :game="selectedGame"
-    :currentUser="currentUser"
-    @close="selectedGame = null"
-    @refresh="init"
-  />
+  <GamePopup v-if="selectedGame" :game="selectedGame" :currentUser="currentUser" @close="selectedGame = null" @refresh="init" />
 </template>
 
-<style scoped>
-.sidebar-container {
-  width: 100%; 
-}
-
-.profile-pic-responsive {
-  width: 200px;
-  height: 200px;
-}
-
-@media (min-width: 992px) {
-  .sidebar-container {
-    width: 300px; 
-  }
-  
-  .w-lg-auto {
-    width: auto !important;
-  }
-  
-  .profile-pic-responsive {
-    width: 250px;
-    height: 250px;
-  }
-}
-</style>
+<style scoped src="@/assets/css/profile.css"></style>

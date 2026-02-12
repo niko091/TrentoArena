@@ -1,0 +1,159 @@
+.leaderboard-card {
+  background-color: #ffffff;
+  border: 0;
+  border-radius: 0.375rem;
+  box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.controls-container {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  padding-bottom: 0;
+}
+
+.leaderboard-title {
+  color: rgb(223, 103, 5);
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn-group .btn-outline-dark {
+  color: #0d6efd;
+  border-color: #0d6efd;
+  background-color: transparent;
+  font-weight: 400;
+  border-radius: 0.25rem;
+  margin: 0;
+}
+
+.btn-group .btn-outline-dark:hover,
+.btn-check:checked + .btn-outline-dark {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  box-shadow: none;
+  transform: none;
+}
+
+.custom-select {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  appearance: none;
+}
+
+.leaderboard-table-container {
+  padding: 1rem;
+  background-color: #ffffff;
+}
+
+.leaderboard-table {
+  width: 100%;
+  margin-bottom: 1rem;
+  vertical-align: top;
+  border-color: #dee2e6;
+  table-layout: fixed; 
+}
+
+.leaderboard-table thead th {
+  background-color: #fff;
+  color: #000;
+  font-weight: 700;
+  border-bottom: 2px solid #dee2e6;
+  padding: 0.75rem;
+}
+
+.leaderboard-row {
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.leaderboard-row:hover {
+  background-color: rgba(0,0,0,.075);
+}
+
+.leaderboard-row td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.rank-badge {
+  display: inline-block;
+  padding: 0.35em 0.65em;
+  font-size: .75em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-radius: 0.375rem;
+  border: none;
+  min-width: 25px;
+}
+
+.rank-1 { color: #fff; background-color: #ffc107; }
+.rank-2 { color: #fff; background-color: #6c757d; }
+.rank-3 { color: #fff; background-color: #cd7f32; }
+.rank-other { background-color: transparent; color: #212529; }
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
+.elo-text {
+  color: rgb(223, 103, 5);
+  font-weight: 700;
+  font-family: var(--bs-font-monospace);
+}
+
+@media (max-width: 576px) {
+  .player-avatar {
+    width: 32px; 
+    height: 32px;
+    margin-right: 8px;
+  }
+  
+  .leaderboard-table {
+    font-size: 0.9rem;
+  }
+
+  .leaderboard-table th, 
+  .leaderboard-table td {
+    padding: 0.5rem 0.25rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .leaderboard-card, .controls-container, .leaderboard-table-container { background-color: #212529; color: #fff; }
+  .leaderboard-card { border: 1px solid #373b3e; }
+  .custom-select { background-color: #2b3035; color: #fff; border-color: #495057; }
+  .leaderboard-table { color: #fff; border-color: #373b3e; }
+  .leaderboard-table thead th { background-color: #212529; color: #fff; border-bottom-color: #373b3e; }
+  .leaderboard-row:hover { background-color: #2c3034; }
+  .rank-other { color: #fff; }
+  .btn-group .btn-outline-dark { color: #fff; border-color: #fff; }
+}
+
+[data-bs-theme="dark"] .leaderboard-card {
+  background-color: #212529; color: #fff; border: 1px solid #373b3e;
+}

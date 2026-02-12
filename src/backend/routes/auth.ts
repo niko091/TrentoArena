@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express"; // <--- Importiamo i tipi
+import express, { Request, Response, NextFunction } from "express"; 
 import passport from "passport";
 import bcrypt from "bcrypt";
 import crypto from "crypto";

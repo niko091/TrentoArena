@@ -26,7 +26,6 @@ router.post("/ban", async (req: Request, res: Response) => {
       else if (duration === "1w") now.setDate(now.getDate() + 7);
       else if (duration === "1m") now.setMonth(now.getMonth() + 1);
       else {
-        // Try to parse as hours number
         const hours = parseInt(duration);
         if (!isNaN(hours)) {
           now.setHours(now.getHours() + hours);

@@ -13,8 +13,6 @@ const login = async () => {
   const credentials = btoa(`${username.value}:${password.value}`);
 
   try {
-    // Test credentials against a protected stats endpoint
-    // We use a query that should return valid data or empty list, but will fail if auth is wrong
     const response = await fetch(
       "/api/stats/top-entities?type=sport&period=all",
       {
