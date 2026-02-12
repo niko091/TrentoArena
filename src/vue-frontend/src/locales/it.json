@@ -116,7 +116,9 @@
     "filter_all": "Tutte",
     "filter_active": "Attive",
     "filter_finished": "Concluse",
-    "feed_loading": "Caricamento feed..."
+    "feed_loading": "Caricamento feed...",
+    "all_sports": "Tutti gli Sport",
+    "all_places": "Tutte le strutture"
   },
   "leaderboard": {
     "title": "Classifica",

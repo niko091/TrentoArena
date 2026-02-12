@@ -116,7 +116,9 @@
     "filter_all": "All",
     "filter_active": "Active",
     "filter_finished": "Finished",
-    "feed_loading": "Loading feed..."
+    "feed_loading": "Loading feed...",
+    "all_sports": "All Sports",
+    "all_places": "All facilities"
   },
   "leaderboard": {
     "title": "Leaderboard",
