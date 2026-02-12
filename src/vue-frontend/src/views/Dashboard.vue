@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import GameCard from "../components/GameCard.vue";
 import GamePopup from "../components/GamePopup.vue";
-import { useRouter } from "vue-router";
-import { ISportShared} from "@shared/types/Sport";
-import { IPlaceShared} from "@shared/types/Place";
+import UserWidget from "../components/UserWidget.vue"; 
+import { ISportShared } from "@shared/types/Sport";
+import { IPlaceShared } from "@shared/types/Place";
+import { IUserShared } from "@shared/types/User";
 
 const router = useRouter();
+const { t } = useI18n();
 const games = ref<any[]>([]);
 const userGamesCount = ref(0);
-const currentUser = ref<any>(null);
+const currentUser = ref<IUserShared | null>(null);
 const selectedGame = ref<any>(null);
-
 const filterStatus = ref("all");
 const selectedSport = ref("");
 const selectedPlace = ref("");
@@ -20,25 +22,20 @@ const isDropdownOpen = ref(false);
 const sports = ref<ISportShared[]>([]);
 const places = ref<IPlaceShared[]>([]);
 const loading = ref(true);
-const { t } = useI18n();
 
 
 const filteredPlaces = computed(() => {
   if (!selectedSport.value) return places.value;
-  
   return places.value.filter((p) => {
     const pSportId = typeof p.sport === 'object' && p.sport !== null 
       ? (p.sport as any)._id 
       : p.sport;
-      
     return pSportId === selectedSport.value;
   });
 });
 
-
 const filterLabel = computed(() => {
   const parts = [];
-  
   if (filterStatus.value === 'active') parts.push(t("dashboard.filter_active"));
   else if (filterStatus.value === 'finished') parts.push(t("dashboard.filter_finished"));
   
@@ -52,16 +49,12 @@ const filterLabel = computed(() => {
     if (p) parts.push(p.name);
   }
 
-  if (parts.length === 0) return t("dashboard.filter_all");
-  
-  return parts.join(" • ");
+  return parts.length === 0 ? t("dashboard.filter_all") : parts.join(" • ");
 });
 
-const emptyMessage = computed(() => {
-  if (games.value.length === 0) return t("dashboard.empty_filtered");
-  return t("dashboard.empty_all");
-});
-
+const emptyMessage = computed(() => 
+  games.value.length === 0 ? t("dashboard.empty_filtered") : t("dashboard.empty_all")
+);
 
 const fetchFilterOptions = async () => {
   try {
@@ -90,29 +83,16 @@ const loadDashboardData = async () => {
     if (selectedSport.value) params.append("sportId", selectedSport.value);
     if (selectedPlace.value) params.append("placeId", selectedPlace.value);
 
-    const gamesUrl = `/api/games?${params.toString()}`;
-
-    const fetchPromises: Promise<any>[] = [
+    const [authRes, gamesRes] = await Promise.all([
       fetch("/auth/current_user"),
-      fetch(gamesUrl),
-    ];
-
-    if (currentUser.value) {
-      fetchPromises.push(
-        fetch(`/api/games?participantId=${currentUser.value._id}&count=true`),
-      );
-    }
-
-    const responses = await Promise.all(fetchPromises);
-    const authRes = responses[0];
-    const gamesRes = responses[1];
-    let countRes = responses[2]; 
+      fetch(`/api/games?${params.toString()}`)
+    ]);
 
     if (!authRes.ok) {
       router.push("/login");
       return;
     }
-
+    
     const authContentType = authRes.headers.get("content-type");
     if (authContentType && authContentType.includes("application/json")) {
       currentUser.value = await authRes.json();
@@ -125,17 +105,16 @@ const loadDashboardData = async () => {
        games.value = await gamesRes.json();
     }
 
-    if (currentUser.value && !countRes) {
-      const countResRetry = await fetch(
-        `/api/games?participantId=${currentUser.value._id}&count=true`,
-      );
-      if (countResRetry.ok) {
-        const countData = await countResRetry.json();
-        userGamesCount.value = countData.count;
+    if (currentUser.value) {
+      try {
+        const countRes = await fetch(`/api/games?participantId=${currentUser.value._id}&count=true`);
+        if (countRes.ok) {
+          const countData = await countRes.json();
+          userGamesCount.value = countData.count;
+        }
+      } catch (e) {
+        console.error("Failed to fetch game count", e);
       }
-    } else if (countRes && countRes.ok) {
-      const countData = await countRes.json();
-      userGamesCount.value = countData.count;
     }
   } catch (error) {
     console.error("Error loading dashboard data:", error);
@@ -151,13 +130,8 @@ const resetFilters = () => {
   loadDashboardData();
 };
 
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
-
-const closeDropdown = () => {
-  isDropdownOpen.value = false;
-};
+const toggleDropdown = () => isDropdownOpen.value = !isDropdownOpen.value;
+const closeDropdown = () => isDropdownOpen.value = false;
 
 function handleOutsideClick(event: MouseEvent) {
   const dropdown = document.querySelector(".dropdown");
@@ -165,11 +139,6 @@ function handleOutsideClick(event: MouseEvent) {
     isDropdownOpen.value = false;
   }
 }
-
-function openGame(game: any) {
-  selectedGame.value = game;
-}
-
 
 watch(selectedSport, () => {
   selectedPlace.value = "";
@@ -192,7 +161,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="container py-5">
+  <div class="container-fluid dashboard-wrapper py-5">
     <GamePopup
       v-if="selectedGame"
       :game="selectedGame"
@@ -201,36 +170,19 @@ onUnmounted(() => {
       @refresh="loadDashboardData"
     />
 
-    <div class="row g-5">
-      <div class="col-lg-4">
+    <div class="row g-5 justify-content-center">
+      
+      <div class="col-xl-4 col-lg-4">
         <div class="sticky-widget">
-          <div class="user-profile-box">
-            <div class="avatar-wrapper">
-              <img
-                :src="currentUser?.profilePicture || '/images/utenteDefault.png'"
-                :alt="t('common.avatar')"
-                class="wireframe-avatar"
-              />
-            </div>
-            <h3 class="user-name">
-              {{ currentUser ? currentUser.username : t("common.loading") }}
-            </h3>
-            <p class="user-role">{{ t("dashboard.player_role") }}</p>
-            <div class="stats-container" v-if="currentUser">
-              <div class="stat-box">
-                <span class="stat-number">{{ userGamesCount }}</span>
-                <span class="stat-label">{{ t("dashboard.games") }}</span>
-              </div>
-              <div class="stat-box">
-                <span class="stat-number">{{ currentUser.friends?.length || 0 }}</span>
-                <span class="stat-label">{{ t("common.friends") }}</span>
-              </div>
-            </div>
-          </div>
+          <UserWidget 
+            :user="currentUser" 
+            :games-count="userGamesCount" 
+          />
         </div>
       </div>
 
-      <div class="col-lg-8">
+      <div class="col-xl-6 col-lg-8 offset-xl-1">
+        
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h3 class="fw-bold mb-0">{{ t("dashboard.recent_activity") }}</h3>
 
@@ -258,28 +210,16 @@ onUnmounted(() => {
                 {{ t('dashboard.status') || 'Stato' }}
               </h6>
               <div class="btn-group w-100 mb-3" role="group">
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-outline-primary"
-                  :class="{ active: filterStatus === 'all' }"
-                  @click="filterStatus = 'all'"
-                >
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                  :class="{ active: filterStatus === 'all' }" @click="filterStatus = 'all'">
                   {{ t("dashboard.filter_all") }}
                 </button>
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-outline-primary"
-                  :class="{ active: filterStatus === 'active' }"
-                  @click="filterStatus = 'active'"
-                >
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                  :class="{ active: filterStatus === 'active' }" @click="filterStatus = 'active'">
                   {{ t("dashboard.filter_active") }}
                 </button>
-                <button 
-                  type="button" 
-                  class="btn btn-sm btn-outline-primary"
-                  :class="{ active: filterStatus === 'finished' }"
-                  @click="filterStatus = 'finished'"
-                >
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                  :class="{ active: filterStatus === 'finished' }" @click="filterStatus = 'finished'">
                   {{ t("dashboard.filter_finished") }}
                 </button>
               </div>
@@ -297,11 +237,8 @@ onUnmounted(() => {
               <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
                 {{ t('dashboard.place') || 'Luogo' }}
               </h6>
-              <select 
-                class="form-select form-select-sm mb-3" 
-                v-model="selectedPlace"
-                :disabled="filteredPlaces.length === 0 && selectedSport !== ''"
-              >
+              <select class="form-select form-select-sm mb-3" v-model="selectedPlace"
+                :disabled="filteredPlaces.length === 0 && selectedSport !== ''">
                 <option value="">
                   {{ selectedSport && filteredPlaces.length === 0 ? "Nessun luogo disponibile" : (t("dashboard.all_places") || "Tutti i luoghi") }}
                 </option>
@@ -313,16 +250,10 @@ onUnmounted(() => {
               <hr class="dropdown-divider my-2">
               
               <div class="d-flex justify-content-between align-items-center">
-                 <button 
-                  class="btn btn-link btn-sm text-decoration-none text-danger p-0" 
-                  @click="resetFilters"
-                >
+                 <button class="btn btn-link btn-sm text-decoration-none text-danger p-0" @click="resetFilters">
                   Reset
                 </button>
-                <button 
-                  class="btn btn-sm btn-primary px-3" 
-                  @click="closeDropdown"
-                >
+                <button class="btn btn-sm btn-primary px-3" @click="closeDropdown">
                   Chiudi
                 </button>
               </div>
@@ -343,7 +274,7 @@ onUnmounted(() => {
             v-for="game in games"
             :key="game._id"
             class="wireframe-card activity-card"
-            @click="openGame(game)"
+            @click="selectedGame = game"
           >
             <GameCard :game="game" class="border-0 bg-transparent" />
           </div>

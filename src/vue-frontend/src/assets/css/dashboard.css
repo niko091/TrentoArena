@@ -3,116 +3,19 @@ body {
   color: #000000 !important;
 }
 
+.dashboard-wrapper {
+  width: 100%;
+  max-width: 1650px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20%;  
+  padding-right: 20%;
+}
+
 .sticky-widget {
   position: sticky;
-  top: 150px;
-  z-index: 900;
-}
-
-.user-profile-box {
-  position: relative !important;
-  margin-top: 60px !important;
-  overflow: visible !important;
-  z-index: 1;
-
-  max-width: 280px;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  padding-top: 75px;
-  padding-bottom: 40px;
-  padding-left: 15px;
-  padding-right: 15px;
-  text-align: center;
-
-  background-color: #ffffff !important;
-  border: 2px solid #000000 !important;
-  border-radius: 20px !important;
-  color: #000000 !important;
-
-  transition:
-    background-color 0.3s,
-    border-color 0.3s,
-    color 0.3s;
-}
-
-.avatar-wrapper {
-  position: absolute;
-  top: -50px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-
-  background: linear-gradient(to bottom, #f8f9fa 50%, #ffffff 50%) !important;
-  background-color: transparent;
-
-  transition: background-color 0.3s;
-}
-
-.wireframe-avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  aspect-ratio: 1 / 1;
-  border-radius: 50% !important;
-
-  border: 2px solid #000000 !important;
-  background-color: #ffffff;
-}
-
-.user-name {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  color: inherit !important;
-}
-
-.user-role {
-  font-size: 0.9rem;
-  margin-bottom: 35px;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.6) !important;
-}
-
-.stats-container {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  margin-top: 20px;
-  border-top: 1px solid #000000;
-  padding-top: 15px;
-}
-
-.stat-box {
-  flex: 1;
-  text-align: center;
-  padding: 0 10px;
-}
-
-.stat-box:first-child {
-  border-right: 1px solid #000000;
-}
-
-.stat-number {
-  display: block;
-  font-size: 1.4rem;
-  font-weight: 800;
-  line-height: 1;
-  color: inherit !important;
-}
-
-.stat-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  opacity: 0.8;
-  color: inherit !important;
+  top: 250px;
+  z-index: 90;
 }
 
 .wireframe-card {
@@ -201,26 +104,6 @@ body {
     color: #e0e0e0 !important;
   }
 
-  .user-profile-box {
-    background-color: #1e1e1e !important;
-    border-color: #ffffff !important;
-    color: #e0e0e0 !important;
-  }
-
-  .avatar-wrapper {
-    background: linear-gradient(to bottom, #121212 50%, #1e1e1e 50%) !important;
-    background-color: transparent;
-  }
-
-  .wireframe-avatar {
-    border-color: #ffffff !important;
-    background-color: #1e1e1e !important;
-  }
-
-  .user-role {
-    color: #b0b0b0 !important;
-  }
-
   .wireframe-card {
     background-color: #1e1e1e !important;
     border-color: #ffffff !important;
@@ -242,14 +125,6 @@ body {
 
   .wireframe-card .text-muted {
     color: #b0b0b0 !important;
-  }
-
-  .stats-container {
-    border-top-color: #ffffff !important;
-  }
-
-  .stat-box:first-child {
-    border-right-color: #ffffff !important;
   }
 
   .dropdown-menu {
@@ -296,30 +171,6 @@ body.dark-mode {
   color: #e0e0e0 !important;
 }
 
-[data-bs-theme="dark"] .user-profile-box,
-body.dark-mode .user-profile-box {
-  background-color: #1e1e1e !important;
-  border-color: #ffffff !important;
-  color: #e0e0e0 !important;
-}
-
-[data-bs-theme="dark"] .avatar-wrapper,
-body.dark-mode .avatar-wrapper {
-  background: linear-gradient(to bottom, #121212 50%, #1e1e1e 50%) !important;
-  background-color: transparent;
-}
-
-[data-bs-theme="dark"] .wireframe-avatar,
-body.dark-mode .wireframe-avatar {
-  border-color: #ffffff !important;
-  background-color: #1e1e1e !important;
-}
-
-[data-bs-theme="dark"] .user-role,
-body.dark-mode .user-role {
-  color: #b0b0b0 !important;
-}
-
 [data-bs-theme="dark"] .wireframe-card,
 body.dark-mode .wireframe-card {
   background-color: #1e1e1e !important;
@@ -346,16 +197,6 @@ body.dark-mode .activity-list-avatar {
 [data-bs-theme="dark"] .wireframe-card .text-muted,
 body.dark-mode .wireframe-card .text-muted {
   color: #b0b0b0 !important;
-}
-
-[data-bs-theme="dark"] .stats-container,
-body.dark-mode .stats-container {
-  border-top-color: #ffffff !important;
-}
-
-[data-bs-theme="dark"] .stat-box:first-child,
-body.dark-mode .stat-box:first-child {
-  border-right-color: #ffffff !important;
 }
 
 [data-bs-theme="dark"] .dropdown-menu,
