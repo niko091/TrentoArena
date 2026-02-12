@@ -65,7 +65,7 @@ const router = createRouter({
       path: "/admin",
       name: "admin-dashboard",
       component: AdminDashboard,
-      meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true },
+      meta: { requiresAuth: false, requiresAdmin: true, hideNavbar: true },
     },
     {
       path: "/admin/login",
@@ -77,7 +77,7 @@ const router = createRouter({
       path: "/stats",
       name: "stats",
       component: Stats,
-      meta: { requiresAuth: true, requiresStats: true, hideNavbar: true },
+      meta: { requiresAuth: false, requiresStats: true, hideNavbar: true },
     },
     {
       path: "/stats/login",

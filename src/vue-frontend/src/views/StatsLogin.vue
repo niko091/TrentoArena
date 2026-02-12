@@ -7,9 +7,11 @@ const router = useRouter();
 const username = ref("");
 const password = ref("");
 const error = ref("");
+const loading = ref(false); 
 
 const login = async () => {
   error.value = "";
+  loading.value = true;
   const credentials = btoa(`${username.value}:${password.value}`);
 
   try {
@@ -31,16 +33,22 @@ const login = async () => {
   } catch (e) {
     console.error("Login error:", e);
     error.value = "An error occurred";
+  } finally {
+    loading.value = false;
   }
 };
 </script>
 
 <template>
-  <div
-    class="container d-flex justify-content-center align-items-center vh-100"
-  >
-    <div class="card shadow p-4" style="max-width: 400px; width: 100%">
-      <h2 class="text-center mb-4">Stats Login</h2>
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      
+      <h2 class="auth-title">Stats Login</h2>
+      
+      <div v-if="error" class="alert alert-danger text-center mb-3" role="alert">
+        {{ error }}
+      </div>
+
       <form @submit.prevent="login">
         <div class="mb-3">
           <label for="username" class="form-label">Username</label>
@@ -48,23 +56,30 @@ const login = async () => {
             type="text"
             id="username"
             v-model="username"
-            class="form-control"
+            class="auth-input" 
             required
           />
         </div>
+        
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
           <input
             type="password"
             id="password"
             v-model="password"
-            class="form-control"
+            class="auth-input" 
             required
           />
         </div>
-        <div v-if="error" class="alert alert-danger">{{ error }}</div>
-        <button type="submit" class="btn btn-primary w-100">Login</button>
+        
+        <button type="submit" class="btn-auth-primary" :disabled="loading">
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          Login
+        </button>
       </form>
+      
     </div>
   </div>
 </template>
+
+<style src="@/assets/css/auth.css"></style>
