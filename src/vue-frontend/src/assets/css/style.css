@@ -427,7 +427,9 @@ a {
 
 /* Navbar Logo */
 .nav-logo {
-  height: 60px;
+  height: auto;
+  max-height: 80px;
+  width: auto;
   margin-right: 0;
 }
 
@@ -554,7 +556,6 @@ a {
     border-color: var(--danger);
   }
 
-  /* Ensure links in dark mode are visible */
   a {
     color: var(--accent-primary);
   }
@@ -569,7 +570,6 @@ a {
     border-color: var(--border-color);
   }
 
-  /* Navbar Icons in Dark Mode */
   .nav-link img {
     filter: brightness(0);
     opacity: 0.8;

@@ -4,36 +4,93 @@ import { useI18n } from "vue-i18n";
 import GameCard from "../components/GameCard.vue";
 import GamePopup from "../components/GamePopup.vue";
 import { useRouter } from "vue-router";
+import { ISportShared} from "@shared/types/Sport";
+import { IPlaceShared} from "@shared/types/Place";
 
 const router = useRouter();
 const games = ref<any[]>([]);
 const userGamesCount = ref(0);
 const currentUser = ref<any>(null);
 const selectedGame = ref<any>(null);
-const filter = ref("all");
-const loading = ref(true);
-const isDropdownOpen = ref(false);
 
+const filterStatus = ref("all");
+const selectedSport = ref("");
+const selectedPlace = ref("");
+const isDropdownOpen = ref(false);
+const sports = ref<ISportShared[]>([]);
+const places = ref<IPlaceShared[]>([]);
+const loading = ref(true);
 const { t } = useI18n();
 
+
+const filteredPlaces = computed(() => {
+  if (!selectedSport.value) return places.value;
+  
+  return places.value.filter((p) => {
+    const pSportId = typeof p.sport === 'object' && p.sport !== null 
+      ? (p.sport as any)._id 
+      : p.sport;
+      
+    return pSportId === selectedSport.value;
+  });
+});
+
+
 const filterLabel = computed(() => {
-  if (filter.value === "active") return t("dashboard.filter_active");
-  if (filter.value === "finished") return t("dashboard.filter_finished");
-  return t("dashboard.filter_all");
+  const parts = [];
+  
+  if (filterStatus.value === 'active') parts.push(t("dashboard.filter_active"));
+  else if (filterStatus.value === 'finished') parts.push(t("dashboard.filter_finished"));
+  
+  if (selectedSport.value) {
+    const s = sports.value.find(s => s._id === selectedSport.value);
+    if (s) parts.push(s.name);
+  }
+  
+  if (selectedPlace.value) {
+    const p = places.value.find(p => p._id === selectedPlace.value);
+    if (p) parts.push(p.name);
+  }
+
+  if (parts.length === 0) return t("dashboard.filter_all");
+  
+  return parts.join(" • ");
 });
 
 const emptyMessage = computed(() => {
-  if (filter.value === "active") return t("dashboard.empty_active");
-  if (filter.value === "finished") return t("dashboard.empty_finished");
+  if (games.value.length === 0) return t("dashboard.empty_filtered");
   return t("dashboard.empty_all");
 });
+
+
+const fetchFilterOptions = async () => {
+  try {
+    const [sportsRes, placesRes] = await Promise.all([
+      fetch("/api/sports"),
+      fetch("/api/places"),
+    ]);
+
+    if (sportsRes.ok) sports.value = await sportsRes.json();
+    if (placesRes.ok) places.value = await placesRes.json();
+  } catch (error) {
+    console.error("Error fetching filter options:", error);
+  }
+};
 
 const loadDashboardData = async () => {
   loading.value = true;
   try {
-    let gamesUrl = "/api/games?limit=30&sort=-1";
-    if (filter.value === "active") gamesUrl += "&isFinished=false";
-    else if (filter.value === "finished") gamesUrl += "&isFinished=true";
+    const params = new URLSearchParams();
+    params.append("limit", "30");
+    params.append("sort", "-1");
+
+    if (filterStatus.value === "active") params.append("isFinished", "false");
+    else if (filterStatus.value === "finished") params.append("isFinished", "true");
+
+    if (selectedSport.value) params.append("sportId", selectedSport.value);
+    if (selectedPlace.value) params.append("placeId", selectedPlace.value);
+
+    const gamesUrl = `/api/games?${params.toString()}`;
 
     const fetchPromises: Promise<any>[] = [
       fetch("/auth/current_user"),
@@ -49,7 +106,7 @@ const loadDashboardData = async () => {
     const responses = await Promise.all(fetchPromises);
     const authRes = responses[0];
     const gamesRes = responses[1];
-    let countRes = responses[2];
+    let countRes = responses[2]; 
 
     if (!authRes.ok) {
       router.push("/login");
@@ -65,19 +122,18 @@ const loadDashboardData = async () => {
     }
 
     if (gamesRes.ok) {
-      const gamesContentType = gamesRes.headers.get("content-type");
-      if (gamesContentType && gamesContentType.includes("application/json")) {
-        games.value = await gamesRes.json();
-      }
+       games.value = await gamesRes.json();
     }
 
     if (currentUser.value && !countRes) {
-      countRes = await fetch(
+      const countResRetry = await fetch(
         `/api/games?participantId=${currentUser.value._id}&count=true`,
       );
-    }
-
-    if (countRes && countRes.ok) {
+      if (countResRetry.ok) {
+        const countData = await countResRetry.json();
+        userGamesCount.value = countData.count;
+      }
+    } else if (countRes && countRes.ok) {
       const countData = await countRes.json();
       userGamesCount.value = countData.count;
     }
@@ -88,6 +144,21 @@ const loadDashboardData = async () => {
   }
 };
 
+const resetFilters = () => {
+  selectedSport.value = "";
+  selectedPlace.value = "";
+  filterStatus.value = "all";
+  loadDashboardData();
+};
+
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const closeDropdown = () => {
+  isDropdownOpen.value = false;
+};
+
 function handleOutsideClick(event: MouseEvent) {
   const dropdown = document.querySelector(".dropdown");
   if (dropdown && !dropdown.contains(event.target as Node)) {
@@ -95,43 +166,29 @@ function handleOutsideClick(event: MouseEvent) {
   }
 }
 
-onMounted(() => {
+function openGame(game: any) {
+  selectedGame.value = game;
+}
+
+
+watch(selectedSport, () => {
+  selectedPlace.value = "";
   loadDashboardData();
+});
+
+watch([selectedPlace, filterStatus], () => {
+  loadDashboardData();
+});
+
+onMounted(async () => {
+  await fetchFilterOptions();
+  await loadDashboardData();
   window.addEventListener("click", handleOutsideClick);
 });
 
 onUnmounted(() => {
   window.removeEventListener("click", handleOutsideClick);
 });
-
-const filteredGames = computed(() => {
-  const isFull = (g: any) =>
-    (g.participants?.length || 0) >= (g.maxParticipants || 100);
-
-  if (filter.value === "active") {
-    return games.value.filter((g) => !isFull(g));
-  } else if (filter.value === "finished") {
-    return games.value;
-  }
-  return games.value.filter((g) => g.isFinished || !isFull(g));
-});
-
-watch(filter, () => {
-  loadDashboardData();
-});
-
-function switchFilter(newFilter: string) {
-  filter.value = newFilter;
-  isDropdownOpen.value = false;
-}
-
-function toggleDropdown() {
-  isDropdownOpen.value = !isDropdownOpen.value;
-}
-
-function openGame(game: any) {
-  selectedGame.value = game;
-}
 </script>
 
 <template>
@@ -150,29 +207,22 @@ function openGame(game: any) {
           <div class="user-profile-box">
             <div class="avatar-wrapper">
               <img
-                :src="
-                  currentUser?.profilePicture || '/images/utenteDefault.png'
-                "
+                :src="currentUser?.profilePicture || '/images/utenteDefault.png'"
                 :alt="t('common.avatar')"
                 class="wireframe-avatar"
               />
             </div>
-
             <h3 class="user-name">
               {{ currentUser ? currentUser.username : t("common.loading") }}
             </h3>
             <p class="user-role">{{ t("dashboard.player_role") }}</p>
-
             <div class="stats-container" v-if="currentUser">
               <div class="stat-box">
                 <span class="stat-number">{{ userGamesCount }}</span>
                 <span class="stat-label">{{ t("dashboard.games") }}</span>
               </div>
-
               <div class="stat-box">
-                <span class="stat-number">{{
-                  currentUser.friends?.length || 0
-                }}</span>
+                <span class="stat-number">{{ currentUser.friends?.length || 0 }}</span>
                 <span class="stat-label">{{ t("common.friends") }}</span>
               </div>
             </div>
@@ -190,52 +240,107 @@ function openGame(game: any) {
               type="button"
               @click.stop="toggleDropdown"
               :aria-expanded="isDropdownOpen"
+              style="min-width: 140px; justify-content: space-between;"
             >
-              <i class="bi bi-funnel"></i>
-              <span>{{ filterLabel }}</span>
+              <div class="d-flex align-items-center gap-2 text-truncate" style="max-width: 250px;">
+                <i class="bi bi-funnel"></i>
+                <span>{{ filterLabel }}</span>
+              </div>
             </button>
-            <ul
-              class="dropdown-menu dropdown-menu-end border-0 shadow custom-dropdown-pos"
+
+            <div
+              class="dropdown-menu dropdown-menu-end border-0 shadow p-3 custom-filter-dropdown"
               :class="{ show: isDropdownOpen }"
+              @click.stop
+              style="width: 300px;"
             >
-              <li>
-                <a
-                  class="dropdown-item"
-                  :class="{ active: filter === 'all' }"
-                  href="#"
-                  @click.prevent="switchFilter('all')"
-                  >{{ t("dashboard.filter_all") }}</a
+              <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
+                {{ t('dashboard.status') || 'Stato' }}
+              </h6>
+              <div class="btn-group w-100 mb-3" role="group">
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-primary"
+                  :class="{ active: filterStatus === 'all' }"
+                  @click="filterStatus = 'all'"
                 >
-              </li>
-              <li>
-                <a
-                  class="dropdown-item"
-                  :class="{ active: filter === 'active' }"
-                  href="#"
-                  @click.prevent="switchFilter('active')"
-                  >{{ t("dashboard.filter_active") }}</a
+                  {{ t("dashboard.filter_all") }}
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-primary"
+                  :class="{ active: filterStatus === 'active' }"
+                  @click="filterStatus = 'active'"
                 >
-              </li>
-              <li>
-                <a
-                  class="dropdown-item"
-                  :class="{ active: filter === 'finished' }"
-                  href="#"
-                  @click.prevent="switchFilter('finished')"
-                  >{{ t("dashboard.filter_finished") }}</a
+                  {{ t("dashboard.filter_active") }}
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm btn-outline-primary"
+                  :class="{ active: filterStatus === 'finished' }"
+                  @click="filterStatus = 'finished'"
                 >
-              </li>
-            </ul>
+                  {{ t("dashboard.filter_finished") }}
+                </button>
+              </div>
+
+              <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
+                {{ t('dashboard.sport') || 'Sport' }}
+              </h6>
+              <select class="form-select form-select-sm mb-3" v-model="selectedSport">
+                <option value="">{{ t("dashboard.all_sports") || "Tutti gli sport" }}</option>
+                <option v-for="sport in sports" :key="sport._id" :value="sport._id">
+                  {{ sport.name }}
+                </option>
+              </select>
+
+              <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
+                {{ t('dashboard.place') || 'Luogo' }}
+              </h6>
+              <select 
+                class="form-select form-select-sm mb-3" 
+                v-model="selectedPlace"
+                :disabled="filteredPlaces.length === 0 && selectedSport !== ''"
+              >
+                <option value="">
+                  {{ selectedSport && filteredPlaces.length === 0 ? "Nessun luogo disponibile" : (t("dashboard.all_places") || "Tutti i luoghi") }}
+                </option>
+                <option v-for="place in filteredPlaces" :key="place._id" :value="place._id">
+                  {{ place.name }}
+                </option>
+              </select>
+
+              <hr class="dropdown-divider my-2">
+              
+              <div class="d-flex justify-content-between align-items-center">
+                 <button 
+                  class="btn btn-link btn-sm text-decoration-none text-danger p-0" 
+                  @click="resetFilters"
+                >
+                  Reset
+                </button>
+                <button 
+                  class="btn btn-sm btn-primary px-3" 
+                  @click="closeDropdown"
+                >
+                  Chiudi
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="d-flex flex-column gap-3">
           <div v-if="loading" class="text-center py-5 text-muted">
-            {{ t("dashboard.feed_loading") }}
+             <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">{{ t("dashboard.feed_loading") }}</div>
           </div>
 
           <div
-            v-for="game in filteredGames"
+            v-else
+            v-for="game in games"
             :key="game._id"
             class="wireframe-card activity-card"
             @click="openGame(game)"
@@ -244,9 +349,10 @@ function openGame(game: any) {
           </div>
 
           <div
-            v-if="!loading && filteredGames.length === 0"
+            v-if="!loading && games.length === 0"
             class="text-center py-5 text-muted"
           >
+            <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
             {{ emptyMessage }}
           </div>
         </div>

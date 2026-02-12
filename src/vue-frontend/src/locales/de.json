@@ -116,7 +116,9 @@
     "filter_all": "Alle",
     "filter_active": "Aktiv",
     "filter_finished": "Beendet",
-    "feed_loading": "Feed wird geladen..."
+    "feed_loading": "Feed wird geladen...",
+    "all_sports": "Alle Sportarten",
+    "all_places": "Alle Einrichtungen"
   },
   "leaderboard": {
     "title": "Bestenliste",
