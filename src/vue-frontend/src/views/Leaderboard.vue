@@ -3,11 +3,9 @@ import { ref, onMounted, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { IUserShared, ILeaderboardEntry } from "@shared/types/User";
 import { ISportShared } from "@shared/types/Sport";
-
-// Components
 import LeaderboardTable from "../components/LeaderboardTable.vue";
 
-// State
+
 const currentUser = ref<IUserShared | null>(null);
 const sports = ref<ISportShared[]>([]);
 const selectedSportId = ref<string>("");
@@ -19,16 +17,12 @@ const loadingSports = ref(true);
 
 const { t } = useI18n();
 
-// Logic
+
 const displayedUsers = computed(() => {
-  // Filtro locale per amici se necessario
   if (filterType.value === "friends" && currentUser.value) {
-    // Usiamo il tipo 'any' nel map solo per sicurezza se l'interfaccia friends è complessa (string | obj)
-    const friendIds = (currentUser.value.friends || []).map(
-      (f: any) => f._id || f,
-    );
+    const friendIds = (currentUser.value.friends || []).map((f: any) => f._id || f);
     return leaderboardData.value.filter(
-      (u) => u._id === currentUser.value?._id || friendIds.includes(u._id),
+      (u) => u._id === currentUser.value?._id || friendIds.includes(u._id)
     );
   }
   return leaderboardData.value;
@@ -38,9 +32,7 @@ const fetchCurrentUser = async () => {
   try {
     const res = await fetch("/auth/current_user");
     if (res.ok) currentUser.value = await res.json();
-  } catch (e) {
-    console.error("Auth check failed:", e);
-  }
+  } catch (e) { console.error("Auth check failed:", e); }
 };
 
 const fetchSports = async () => {
@@ -51,24 +43,19 @@ const fetchSports = async () => {
       sports.value = await res.json();
       if (sports.value.length > 0) selectedSportId.value = sports.value[0]._id;
     }
-  } catch (e) {
-    console.error("Error loading sports:", e);
-  } finally {
-    loadingSports.value = false;
-  }
+  } catch (e) { console.error("Error loading sports:", e); } 
+  finally { loadingSports.value = false; }
 };
 
 const fetchLeaderboard = async () => {
   if (!selectedSportId.value) return;
 
   loading.value = true;
-  leaderboardData.value = [];
+  leaderboardData.value = []; 
   error.value = "";
 
   try {
-    const res = await fetch(
-      `/api/users/leaderboard?sportId=${selectedSportId.value}&limit=100`,
-    );
+    const res = await fetch(`/api/users/leaderboard?sportId=${selectedSportId.value}&limit=100`);
     if (res.ok) {
       leaderboardData.value = await res.json();
     } else {
@@ -93,42 +80,21 @@ onMounted(async () => {
   <div class="container mt-4 mt-md-5">
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10 col-xl-8">
-        <div class="leaderboard-card">
+        <div class="leaderboard-card">     
           <div class="controls-container">
             <h2 class="leaderboard-title text-center mb-4">
               <i class="bi bi-trophy text-warning me-2"></i>
               {{ t("leaderboard.title") }}
             </h2>
 
-            <div class="row g-3 align-items-center">
+            <div class="row g-3 align-items-center">   
               <div class="col-md-6 text-center text-md-start">
                 <div class="btn-group" role="group">
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="lbType"
-                    id="lbGlobal"
-                    value="global"
-                    v-model="filterType"
-                  />
-                  <label class="btn btn-outline-dark" for="lbGlobal">{{
-                    t("leaderboard.global")
-                  }}</label>
+                  <input type="radio" class="btn-check" name="lbType" id="lbGlobal" value="global" v-model="filterType" />
+                  <label class="btn btn-outline-dark" for="lbGlobal">{{ t("leaderboard.global") }}</label>
 
-                  <input
-                    type="radio"
-                    class="btn-check"
-                    name="lbType"
-                    id="lbFriends"
-                    value="friends"
-                    v-model="filterType"
-                    :disabled="!currentUser"
-                  />
-                  <label
-                    class="btn btn-outline-dark"
-                    for="lbFriends"
-                    :class="{ disabled: !currentUser }"
-                  >
+                  <input type="radio" class="btn-check" name="lbType" id="lbFriends" value="friends" v-model="filterType" :disabled="!currentUser" />
+                  <label class="btn btn-outline-dark" for="lbFriends" :class="{ disabled: !currentUser }">
                     {{ t("leaderboard.friends") }}
                     <i v-if="!currentUser" class="bi bi-lock-fill ms-1"></i>
                   </label>
@@ -136,18 +102,9 @@ onMounted(async () => {
               </div>
 
               <div class="col-md-6">
-                <select
-                  class="form-select custom-select"
-                  v-model="selectedSportId"
-                >
-                  <option value="" disabled v-if="loadingSports">
-                    {{ t("leaderboard.loading_sports") }}
-                  </option>
-                  <option
-                    v-for="sport in sports"
-                    :key="sport._id"
-                    :value="sport._id"
-                  >
+                <select class="form-select custom-select" v-model="selectedSportId">
+                  <option value="" disabled v-if="loadingSports">{{ t("leaderboard.loading_sports") }}</option>
+                  <option v-for="sport in sports" :key="sport._id" :value="sport._id">
                     {{ sport.name }}
                   </option>
                 </select>
@@ -155,12 +112,12 @@ onMounted(async () => {
             </div>
           </div>
 
-          <LeaderboardTable
-            :users="displayedUsers"
-            :loading="loading"
+          <LeaderboardTable 
+            :users="displayedUsers" 
+            :loading="loading" 
             :error="error"
             :sport-selected="!!selectedSportId"
-          />
+          /> 
         </div>
       </div>
     </div>
