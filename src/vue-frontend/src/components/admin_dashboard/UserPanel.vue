@@ -11,7 +11,7 @@ const emit = defineEmits(["refresh-users", "open-ban-modal"]);
 const { t } = useI18n();
 
 const unbanUser = async (userId: string, username: string) => {
-  if (!confirm(t("admin.js.confirm_unban", { username }))) return;
+  if (!confirm(t("admin.js.confirm_unban", { username: username }))) return;
   try {
     const res = await fetch("/api/admin/unban", {
       method: "POST",
@@ -20,7 +20,7 @@ const unbanUser = async (userId: string, username: string) => {
     });
 
     if (res.ok) {
-      alert(t("admin.js.user_unbanned", { username }));
+      alert(t("admin.js.user_unbanned", { username: username }));
       emit("refresh-users");
     } else {
       const data = await res.json();
@@ -32,20 +32,27 @@ const unbanUser = async (userId: string, username: string) => {
 };
 
 const formatDateTime = (d: string) => new Date(d).toLocaleString("it-IT");
+
 const calculateRemainingTime = (expiry: string) => {
+  if (!expiry) return "";
   const diff = new Date(expiry).getTime() - new Date().getTime();
   if (diff <= 0) return t("admin.js.expired");
   const days = Math.floor(diff / 86400000);
+  if (days < 1) {
+      const hours = Math.floor(diff / 3600000);
+      return `${hours}h`;
+  }
   return `${days}d`;
 };
 </script>
 
 <template>
-  <div class="row g-4 mt-1">
+  <div class="row g-4 mt-1 align-items-start">
+    
     <div class="col-lg-6">
-      <div class="card h-100 border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-          <h2 class="h5 mb-0 text-primary-custom">
+      <div class="card h-100">
+        <div class="card-header py-3">
+          <h2 class="h6 mb-0 text-brand">
             {{ t("admin.user_reports") }}
           </h2>
         </div>
@@ -62,12 +69,17 @@ const calculateRemainingTime = (expiry: string) => {
               </thead>
               <tbody>
                 <tr v-if="loadingReports">
-                  <td colspan="4" class="text-center py-4">
+                  <td colspan="4" class="text-center py-4 text-secondary">
                     {{ t("common.loading") }}
                   </td>
                 </tr>
+                <tr v-else-if="reports.length === 0">
+                  <td colspan="4" class="text-center py-4 text-secondary">
+                    {{ t("admin.no_reports") || "No reports" }}
+                  </td>
+                </tr>
                 <tr v-for="report in reports" :key="report._id">
-                  <td class="small">{{ formatDateTime(report.date) }}</td>
+                  <td class="small text-secondary">{{ formatDateTime(report.date) }}</td>
                   <td>
                     {{ report.reporter?.username || t("admin.js.unknown") }}
                   </td>
@@ -76,10 +88,12 @@ const calculateRemainingTime = (expiry: string) => {
                       {{ report.reported?.username || t("admin.js.unknown") }}
                     </div>
                     <small
-                      class="text-muted text-truncate d-block"
+                      class="text-secondary text-truncate d-block"
                       style="max-width: 150px"
-                      >{{ report.motivation }}</small
+                      :title="report.motivation"
                     >
+                      {{ report.motivation }}
+                    </small>
                   </td>
                   <td>
                     <button
@@ -106,9 +120,9 @@ const calculateRemainingTime = (expiry: string) => {
     </div>
 
     <div class="col-lg-6">
-      <div class="card h-100 border-0 shadow-sm">
-        <div class="card-header bg-white py-3">
-          <h2 class="h5 mb-0 text-primary-custom">
+      <div class="card h-100">
+        <div class="card-header py-3">
+          <h2 class="h6 mb-0 text-brand">
             {{ t("admin.banned_users") }}
           </h2>
         </div>
@@ -119,19 +133,24 @@ const calculateRemainingTime = (expiry: string) => {
                 <tr>
                   <th>{{ t("admin.table_username") }}</th>
                   <th>{{ t("admin.table_ban_expiry") }}</th>
-                  <th>{{ t("admin.table_actions") }}</th>
+                  <th class="text-end pe-4">{{ t("admin.table_actions") }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="loadingBanned">
-                  <td colspan="3" class="text-center py-4">
+                  <td colspan="3" class="text-center py-4 text-secondary">
                     {{ t("common.loading") }}
+                  </td>
+                </tr>
+                <tr v-else-if="bannedUsers.length === 0">
+                  <td colspan="3" class="text-center py-4 text-secondary">
+                    {{ t("admin.no_banned_users") || "No banned users" }}
                   </td>
                 </tr>
                 <tr v-for="user in bannedUsers" :key="user._id">
                   <td>
                     <div class="fw-bold">{{ user.username }}</div>
-                    <small class="text-muted">{{
+                    <small class="text-secondary">{{
                       user.banReason || "No reason"
                     }}</small>
                   </td>
@@ -143,7 +162,7 @@ const calculateRemainingTime = (expiry: string) => {
                           : t("admin.js.forever")
                       }}
                     </div>
-                    <div class="text-danger">
+                    <div class="text-danger fw-bold">
                       {{
                         user.banExpiresAt
                           ? calculateRemainingTime(user.banExpiresAt)
@@ -151,7 +170,7 @@ const calculateRemainingTime = (expiry: string) => {
                       }}
                     </div>
                   </td>
-                  <td>
+                  <td class="text-end pe-3">
                     <button
                       @click="unbanUser(user._id, user.username)"
                       class="btn btn-outline-success btn-sm"
@@ -169,4 +188,20 @@ const calculateRemainingTime = (expiry: string) => {
   </div>
 </template>
 
-<style src="@/assets/css/admin_dashboard.css"></style>
+<style scoped src="@/assets/css/admin_dashboard.css"></style>
+
+<style scoped>
+
+.text-brand {
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+.card-body {
+  overflow: hidden;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+</style>

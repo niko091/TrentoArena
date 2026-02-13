@@ -14,10 +14,18 @@ const { t } = useI18n();
 const isMenuOpen = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
+  if (isMenuOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
 };
+
 const closeMenu = () => {
   isMenuOpen.value = false;
+  document.body.style.overflow = '';
 };
+
 const openCreateGame = () => {
   showCreateGame.value = true;
   closeMenu();
@@ -25,6 +33,7 @@ const openCreateGame = () => {
 const closeCreateGame = () => {
   showCreateGame.value = false;
 };
+
 const openSearch = () => {
   showSearch.value = true;
   closeMenu();
@@ -32,6 +41,7 @@ const openSearch = () => {
 const closeSearch = () => {
   showSearch.value = false;
 };
+
 const openRequests = () => {
   showRequests.value = true;
   closeMenu();
@@ -44,16 +54,15 @@ const updateRequestsCount = async () => {
   try {
     const authResp = await fetch("/auth/current_user");
     if (!authResp.ok) return;
-    const contentType = authResp.headers.get("content-type");
+        const contentType = authResp.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) return;
 
     const currentUser = await authResp.json();
     const userResp = await fetch(`/api/users/${currentUser._id}`);
+    
     if (userResp.ok) {
       const user = await userResp.json();
-      requestsCount.value = user.friendRequests
-        ? user.friendRequests.length
-        : 0;
+      requestsCount.value = user.friendRequests ? user.friendRequests.length : 0;
     }
   } catch (e) {
     console.error("Failed to update requests count", e);
@@ -90,13 +99,16 @@ onMounted(() => {
       </button>
 
       <div class="nav-items" :class="{ 'mobile-open': isMenuOpen }">
-        <RouterLink to="/dashboard" class="mobile-menu-logo" @click="closeMenu">
-          <img 
-            src="/images/logo_TrentoArena.png" 
-            alt="TrentoArena" 
-            class="nav-logo mobile-logo-override"
-          />
-        </RouterLink>
+        
+        <div class="mobile-menu-logo">
+           <RouterLink to="/dashboard" @click="closeMenu">
+            <img 
+              src="/images/logo_TrentoArena.png" 
+              alt="TrentoArena" 
+              class="nav-logo"
+            />
+           </RouterLink>
+        </div>
 
         <a class="nav-link" href="#" @click.prevent="openSearch">
           <img src="/images/search.png" :alt="t('navbar.search')" />
@@ -122,9 +134,8 @@ onMounted(() => {
           <div class="icon-wrapper">
             <img src="/images/bell.png" :alt="t('navbar.requests')" />
             <span
-              id="requests-badge"
+              v-if="requestsCount > 0"
               class="notification-badge"
-              :style="{ display: requestsCount > 0 ? 'flex' : 'none' }"
             >
               {{ requestsCount }}
             </span>
@@ -155,127 +166,5 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.hamburger {
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 20px;
-  width: 28px;
-  padding: 0;
-  z-index: 1003;
-  margin-left: auto;
-}
-
-.hamburger .bar {
-  width: 100%;
-  height: 3px;
-  background-color: var(--text-inverse);
-  border-radius: 4px;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.mobile-menu-logo {
-  display: none;
-}
-
-@media screen and (max-width: 768px) {
-  
-  .mobile-menu-logo {
-    display: block;
-    text-align: center;
-    width: 100%;
-    margin-top: 40px; 
-    margin-bottom: 30px;
-  }
-  .mobile-logo-override {
-    height: auto !important;     
-    width: 80% !important;       
-    max-width: 300px !important; 
-    object-fit: contain;
-    margin: 0 auto !important;   
-    display: inline-block;
-  }
-
-  .hamburger {
-    display: flex;
-  }
-
-  .nav-brand {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: max-content;
-    margin-right: 0;
-    z-index: 1000;
-    margin-top: 5px;
-  }
-
-  .nav-logo {
-    height: 65px;
-    width: auto; 
-  }
-
-  .nav-items {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    min-height: 100vh;
-    background-color: var(--accent-primary);
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 140px 25px 30px 25px; 
-    gap: 0;
-
-    box-shadow: var(--shadow-lg);
-
-    transform: translateY(-100%);
-    opacity: 0;
-    transition:
-      transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.3s;
-    z-index: 1001;
-    pointer-events: none;
-  }
-
-  .nav-items.mobile-open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .hamburger.is-active .bar:nth-child(1) {
-    transform: translateY(8.5px) rotate(45deg);
-  }
-  .hamburger.is-active .bar:nth-child(2) {
-    opacity: 0;
-  }
-  .hamburger.is-active .bar:nth-child(3) {
-    transform: translateY(-8.5px) rotate(-45deg);
-  }
-
-  .nav-link {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    transform: none !important;
-  }
-
-  .nav-link:last-child {
-    border-bottom: none;
-  }
-
-  .nav-link img {
-    margin-bottom: 0;
-    margin-right: 15px;
-  }
-
-  .nav-link span {
-    font-size: 1.1rem;
-  }
-}
-</style>
+<style scoped src="@/assets/css/navbar.css"></style>
+<style scoped src="@/assets/css/style.css"></style>

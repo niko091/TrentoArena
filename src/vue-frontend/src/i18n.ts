@@ -3,10 +3,8 @@ import en from "./locales/en.json";
 import it from "./locales/it.json";
 import de from "./locales/de.json";
 
-// Type-define 'en' as the master schema for the resource
 type MessageSchema = typeof en;
 
-// Helper to detect browser language
 function getBrowserType(): "en" | "it" | "de" {
   const lang = navigator.language.split("-")[0];
   if (["en", "it", "de"].includes(lang)) {

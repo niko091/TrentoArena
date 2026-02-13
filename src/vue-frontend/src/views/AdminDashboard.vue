@@ -22,29 +22,16 @@ const loading = reactive({
   bannedUsers: true,
 });
 
-const editPlaceForm = reactive({
-  id: "",
-  name: "",
-  sport: "",
-  lat: "",
-  lng: "",
-});
-const banUserForm = reactive({
-  id: "",
-  username: "",
-  duration: "1d",
-  reason: "",
-});
+const editPlaceForm = reactive({ id: "", name: "", sport: "", lat: "", lng: "" });
+const banUserForm = reactive({ id: "", username: "", duration: "1d", reason: "" });
 
 let editPlaceModal: bootstrap.Modal | null = null;
 let banUserModal: bootstrap.Modal | null = null;
 
 onMounted(() => {
   loadAllData();
-
   const editEl = document.getElementById("editPlaceModal");
   if (editEl) editPlaceModal = new bootstrap.Modal(editEl);
-
   const banEl = document.getElementById("banUserModal");
   if (banEl) banUserModal = new bootstrap.Modal(banEl);
 });
@@ -66,11 +53,7 @@ const fetchPlaces = async () => {
   try {
     const res = await fetch("/api/places");
     if (res.ok) places.value = await res.json();
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.places = false;
-  }
+  } catch (e) { console.error(e); } finally { loading.places = false; }
 };
 
 const fetchSports = async () => {
@@ -78,11 +61,7 @@ const fetchSports = async () => {
   try {
     const res = await fetch("/api/sports");
     if (res.ok) sports.value = await res.json();
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.sports = false;
-  }
+  } catch (e) { console.error(e); } finally { loading.sports = false; }
 };
 
 const fetchReports = async () => {
@@ -90,11 +69,7 @@ const fetchReports = async () => {
   try {
     const res = await fetch("/api/reports");
     if (res.ok) reports.value = await res.json();
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.reports = false;
-  }
+  } catch (e) { console.error(e); } finally { loading.reports = false; }
 };
 
 const fetchBannedUsers = async () => {
@@ -102,11 +77,7 @@ const fetchBannedUsers = async () => {
   try {
     const res = await fetch("/api/admin/banned-users");
     if (res.ok) bannedUsers.value = await res.json();
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.bannedUsers = false;
-  }
+  } catch (e) { console.error(e); } finally { loading.bannedUsers = false; }
 };
 
 const openEditModal = (place: any) => {
@@ -128,13 +99,9 @@ const updatePlace = async () => {
       body: JSON.stringify({
         name: editPlaceForm.name,
         sport: editPlaceForm.sport,
-        position: {
-          lat: parseFloat(editPlaceForm.lat),
-          lng: parseFloat(editPlaceForm.lng),
-        },
+        position: { lat: parseFloat(editPlaceForm.lat), lng: parseFloat(editPlaceForm.lng) },
       }),
     });
-
     if (res.ok) {
       alert(t("admin.js.place_updated"));
       editPlaceModal?.hide();
@@ -143,18 +110,11 @@ const updatePlace = async () => {
       const data = await res.json();
       alert(`Error: ${data.message}`);
     }
-  } catch (e) {
-    console.error(e);
-  }
+  } catch (e) { console.error(e); }
 };
 
 const openBanModal = (user: any) => {
-  Object.assign(banUserForm, {
-    id: user._id,
-    username: user.username,
-    reason: "",
-    duration: "1d",
-  });
+  Object.assign(banUserForm, { id: user._id, username: user.username, reason: "", duration: "1d" });
   banUserModal?.show();
 };
 
@@ -169,7 +129,6 @@ const banUser = async () => {
         reason: banUserForm.reason,
       }),
     });
-
     if (res.ok) {
       alert("User banned.");
       banUserModal?.hide();
@@ -179,61 +138,55 @@ const banUser = async () => {
       const data = await res.json();
       alert(`Error: ${data.message}`);
     }
-  } catch (e) {
-    console.error(e);
-  }
+  } catch (e) { console.error(e); }
 };
 </script>
 
 <template>
   <div class="admin-page">
     <div class="admin-header-strip">
-      <div
-        class="container h-100 d-flex justify-content-between align-items-center"
-      >
+      <div class="d-flex w-100 justify-content-between align-items-center">
         <div class="d-flex align-items-center">
-          <img
-            src="/images/logo_TrentoArena.png"
-            alt="TrentoArena"
-            class="me-3 admin-logo"
-          />
+          <img src="/images/logo_TrentoArena.png" alt="TrentoArena" class="me-3 admin-logo" />
           <h1 class="h3 mb-0 fw-bold title-text">{{ t("admin.title") }}</h1>
         </div>
-
         <button @click="logout" class="btn-logout">
           <span>{{ t("admin.logout") }}</span>
         </button>
       </div>
     </div>
 
-    <div class="container pb-4">
-      <AdminContentPanel
-        :sports="sports"
-        :loading="loading.sports"
-        @refresh-places="fetchPlaces"
-        @refresh-sports="fetchSports"
-      />
+    <div class="container pb-5">
+      
+      <div class="mb-3">
+        <AdminContentPanel
+          :sports="sports"
+          :loading="loading.sports"
+          @refresh-places="fetchPlaces"
+          @refresh-sports="fetchSports"
+        />
+      </div>
 
-      <AdminPlacesTable
-        :places="places"
-        :loading="loading.places"
-        @refresh="fetchPlaces"
-        @edit="openEditModal"
-      />
+      <div class="mb-3">
+        <AdminPlacesTable
+          :places="places"
+          :loading="loading.places"
+          @refresh="fetchPlaces"
+          @edit="openEditModal"
+        />
+      </div>
 
-      <AdminUserPanel
-        :reports="reports"
-        :bannedUsers="bannedUsers"
-        :loadingReports="loading.reports"
-        :loadingBanned="loading.bannedUsers"
-        @refresh-users="
-          () => {
-            fetchReports();
-            fetchBannedUsers();
-          }
-        "
-        @open-ban-modal="openBanModal"
-      />
+      <div>
+        <AdminUserPanel
+          :reports="reports"
+          :bannedUsers="bannedUsers"
+          :loadingReports="loading.reports"
+          :loadingBanned="loading.bannedUsers"
+          @refresh-users="() => { fetchReports(); fetchBannedUsers(); }"
+          @open-ban-modal="openBanModal"
+        />
+      </div>
+      
     </div>
   </div>
 
@@ -242,64 +195,31 @@ const banUser = async () => {
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ t("admin.edit_place_title") }}</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="updatePlace">
             <div class="mb-3">
               <label class="form-label">{{ t("admin.name") }}</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="editPlaceForm.name"
-                required
-              />
+              <input type="text" class="form-control" v-model="editPlaceForm.name" required />
             </div>
             <div class="mb-3">
               <label class="form-label">{{ t("admin.sport") }}</label>
-              <select
-                class="form-select"
-                v-model="editPlaceForm.sport"
-                required
-              >
-                <option
-                  v-for="sport in sports"
-                  :key="sport._id"
-                  :value="sport._id"
-                >
-                  {{ sport.name }}
-                </option>
+              <select class="form-select" v-model="editPlaceForm.sport" required>
+                <option v-for="sport in sports" :key="sport._id" :value="sport._id">{{ sport.name }}</option>
               </select>
             </div>
             <div class="row">
               <div class="col-6 mb-3">
                 <label class="form-label">{{ t("admin.lat") }}</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  step="any"
-                  v-model="editPlaceForm.lat"
-                  required
-                />
+                <input type="number" class="form-control" step="any" v-model="editPlaceForm.lat" required />
               </div>
               <div class="col-6 mb-3">
                 <label class="form-label">{{ t("admin.lng") }}</label>
-                <input
-                  type="number"
-                  class="form-control"
-                  step="any"
-                  v-model="editPlaceForm.lng"
-                  required
-                />
+                <input type="number" class="form-control" step="any" v-model="editPlaceForm.lng" required />
               </div>
             </div>
-            <button type="submit" class="btn btn-primary-custom w-100">
-              {{ t("admin.save_changes") }}
-            </button>
+            <button type="submit" class="btn btn-primary-custom w-100">{{ t("admin.save_changes") }}</button>
           </form>
         </div>
       </div>
@@ -311,24 +231,14 @@ const banUser = async () => {
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ t("admin.ban_user_title") }}</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="banUser">
-            <p>
-              Banning user: <strong>{{ banUserForm.username }}</strong>
-            </p>
+            <p>Banning user: <strong>{{ banUserForm.username }}</strong></p>
             <div class="mb-3">
               <label class="form-label">{{ t("admin.ban_duration") }}</label>
-              <select
-                class="form-select"
-                v-model="banUserForm.duration"
-                required
-              >
+              <select class="form-select" v-model="banUserForm.duration" required>
                 <option value="1d">1 Day</option>
                 <option value="1w">1 Week</option>
                 <option value="1m">1 Month</option>
@@ -337,16 +247,9 @@ const banUser = async () => {
             </div>
             <div class="mb-3">
               <label class="form-label">{{ t("admin.ban_reason") }}</label>
-              <input
-                type="text"
-                class="form-control"
-                v-model="banUserForm.reason"
-                required
-              />
+              <input type="text" class="form-control" v-model="banUserForm.reason" required />
             </div>
-            <button type="submit" class="btn btn-danger w-100">
-              {{ t("admin.ban_confirm") }}
-            </button>
+            <button type="submit" class="btn btn-danger w-100">{{ t("admin.ban_confirm") }}</button>
           </form>
         </div>
       </div>

@@ -40,14 +40,16 @@ function formatDate(dateStr: string) {
 <template>
   <div class="popup-content">
     <h5 class="popup-title">{{ place.name }}</h5>
-    <p class="popup-sport">{{ place.sport?.name || "Sport" }}</p>
+    <p class="popup-sport">{{ place.sport?.name || t("common.sport") }}</p>
 
     <div class="popup-divider"></div>
 
     <div v-if="loading" class="state-msg">{{ t("common.loading") }}...</div>
+    
     <div v-else-if="error" class="state-msg error">
       {{ t("map.error_loading") }}
     </div>
+    
     <div v-else-if="games.length === 0" class="state-msg">
       {{ t("map.no_upcoming") }}
     </div>
@@ -64,3 +66,5 @@ function formatDate(dateStr: string) {
     </ul>
   </div>
 </template>
+
+<style scoped src="@/assets/css/map.css"></style>

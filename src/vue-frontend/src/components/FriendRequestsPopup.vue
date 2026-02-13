@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import { RouterLink } from "vue-router";
 
 const emit = defineEmits(["close", "request-handled"]);
+const { t } = useI18n();
 
-// State
 const isActive = ref(false);
 const requests = ref<any[]>([]);
 const loading = ref(true);
 const error = ref("");
 const currentUserId = ref<string | null>(null);
-const { t } = useI18n();
 
-// Actions
 const closePopup = () => {
   isActive.value = false;
   setTimeout(() => {
@@ -23,22 +22,17 @@ const closePopup = () => {
 const loadRequests = async () => {
   loading.value = true;
   error.value = "";
-
   try {
-    // Get Current User ID
     const authResp = await fetch("/auth/current_user");
     if (!authResp.ok) throw new Error("Not logged in");
     const currentUser = await authResp.json();
     currentUserId.value = currentUser._id;
 
-    // Get Full User Data (including friendRequests)
     const userResp = await fetch(`/api/users/${currentUserId.value}`);
-    if (!userResp.ok) throw new Error("Failed to fetch user details");
+    if (!userResp.ok) throw new Error("Failed");
     const user = await userResp.json();
-
     requests.value = user.friendRequests || [];
   } catch (err) {
-    console.error(err);
     console.error(err);
     error.value = t("common.error_generic");
   } finally {
@@ -48,109 +42,70 @@ const loadRequests = async () => {
 
 const respond = async (requesterId: string, action: "accept" | "decline") => {
   if (!currentUserId.value) return;
-
   try {
+    const originalRequests = [...requests.value];
+    requests.value = requests.value.filter((r) => r._id !== requesterId);
+
     const response = await fetch(
       `/api/users/${currentUserId.value}/friends/${action}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requesterId }),
-      },
+      }
     );
 
     if (response.ok) {
-      // Remove request from local list immediately for better UX
-      requests.value = requests.value.filter((r) => r._id !== requesterId);
-
-      // Emit event to update parent (e.g. badge count)
       emit("request-handled");
-
-      // Trigger global notification update if available (legacy support)
-      if ((window as any).checkNotifications) {
-        (window as any).checkNotifications();
-      }
+      if ((window as any).checkNotifications) (window as any).checkNotifications();
     } else {
-      alert(t("common.error_generic"));
+      requests.value = originalRequests;
     }
-  } catch (error) {
-    console.error(error);
-    alert(t("game_popup.connection_error"));
-  }
+  } catch (e) { console.error(e); }
 };
 
-onMounted(async () => {
-  // Add active class after mount for transition
-  setTimeout(() => {
-    isActive.value = true;
-  }, 10);
-
-  await loadRequests();
+onMounted(() => {
+  setTimeout(() => isActive.value = true, 50);
+  loadRequests();
 });
 </script>
 
 <template>
-  <div
-    class="friend-requests-popup-overlay"
-    :class="{ active: isActive }"
-    @click.self="closePopup"
-  >
-    <div class="friend-requests-popup-content">
-      <button
-        class="friend-requests-popup-close"
-        aria-label="Close"
-        @click="closePopup"
-      >
-        &times;
-      </button>
+  <div class="modal-overlay" :class="{ active: isActive }" @click.self="closePopup">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h2 class="modal-title">{{ t("friends_popup.title") }}</h2>
+        <button class="modal-close-btn" @click="closePopup">&times;</button>
+      </div>
 
-      <h2 class="friend-requests-popup-title">
-        {{ t("friends_popup.title") }}
-      </h2>
-
-      <div class="popup-body">
-        <!-- Loading -->
-        <p v-if="loading" class="text-center text-muted">
-          {{ t("common.loading") }}
-        </p>
-
-        <!-- Error -->
+      <div class="modal-body">
+        <p v-if="loading" class="text-center text-muted">{{ t("common.loading") }}</p>
         <p v-else-if="error" class="text-center text-danger">{{ error }}</p>
-
-        <!-- Empty -->
         <p v-else-if="requests.length === 0" class="text-center text-muted">
           {{ t("friends_popup.no_requests") }}
         </p>
 
-        <!-- List -->
         <ul v-else class="friend-requests-list">
-          <li
-            v-for="req in requests"
-            :key="req._id"
-            class="friend-request-item"
-          >
+          <li v-for="req in requests" :key="req._id" class="friend-request-item">
             <div class="request-info">
-              <img
-                :src="req.profilePicture || '/images/utenteDefault.png'"
-                :alt="req.username"
-                class="request-profile-pic"
-              />
-              <a :href="`/user/${req.username}`" class="request-username">{{
-                req.username
-              }}</a>
+              <img :src="req.profilePicture || '/images/utenteDefault.png'" :alt="req.username" class="request-profile-pic" />
+              
+              <RouterLink 
+                :to="`/user/${req.username}`" 
+                class="request-username"
+                @click="closePopup"
+              >
+                {{ req.username }}
+              </RouterLink>
             </div>
+            
             <div class="request-actions">
-              <button
-                class="btn btn-sm btn-success accept-btn"
-                @click="respond(req._id, 'accept')"
-              >
-                {{ t("friends_popup.accept") }}
+              <button class="btn-action btn-accept" @click="respond(req._id, 'accept')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg>
               </button>
-              <button
-                class="btn btn-sm btn-danger decline-btn"
-                @click="respond(req._id, 'decline')"
-              >
-                {{ t("friends_popup.refuse") }}
+              <button class="btn-action btn-reject" @click="respond(req._id, 'decline')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
               </button>
             </div>
           </li>
@@ -159,119 +114,8 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+  
+<style scoped src="@/assets/css/popup_shared.css"></style>
+<style scoped src="@/assets/css/friend_requests_popup.css"></style>
+<style scoped src="@/assets/css/style.css"></style>
 
-<style scoped>
-/* Friend Requests Popup Styles - Ported */
-
-.friend-requests-popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: var(--overlay-bg, rgba(0, 0, 0, 0.5));
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s ease,
-    visibility 0.3s ease;
-  backdrop-filter: blur(5px);
-}
-
-.friend-requests-popup-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.friend-requests-popup-content {
-  background: var(--bg-secondary, #fff);
-  color: var(--text-primary, #000);
-  padding: 30px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  position: relative;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.friend-requests-popup-close {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--text-secondary, #666);
-  transition: color 0.2s;
-}
-
-.friend-requests-popup-close:hover {
-  color: var(--text-primary, #000);
-}
-
-.friend-requests-popup-title {
-  margin-top: 0;
-  margin-bottom: 20px;
-  text-align: center;
-  color: var(--text-primary, #000);
-}
-
-.friend-requests-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.friend-request-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid var(--border-color-light, #eee);
-}
-
-.friend-request-item:last-child {
-  border-bottom: none;
-}
-
-.request-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.request-profile-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--bg-secondary, #fff);
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
-
-.request-username {
-  font-weight: bold;
-  font-size: 1.1rem;
-  text-decoration: none;
-  color: inherit;
-}
-
-.request-actions {
-  display: flex;
-  gap: 10px;
-}
-
-/* Button styles handled by global bootstrap or similar, but adding scoped overrides if needed */
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  border-radius: 0.2rem;
-}
-</style>
