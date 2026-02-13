@@ -6,7 +6,6 @@
   padding: 0.5rem;
 }
 
-
 .profile-avatar-section {
   flex-shrink: 0;
   text-align: center;
@@ -23,9 +22,9 @@
   height: 200px;
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid #000000; 
-  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
+  border: 3px solid var(--text-primary); 
+  box-shadow: 0px 0px 15px var(--shadow-sm);
+  background-color: var(--bg-panel);
 }
 
 .edit-btn {
@@ -42,28 +41,29 @@
   font-weight: 400;
   cursor: pointer;
   z-index: 20;
+  border-radius: 50%;
+  transition: all 0.2s;
+  border: 1px solid var(--bg-panel);
 }
 
 .edit-btn.upload {
   right: 10px;
-  background-color: #0d6efd; 
+  background-color: var(--status-info); 
   color: #ffffff;
-  border-color: #000000; 
 }
-
 .edit-btn.upload:hover {
-  background-color: #0b5ed7; 
+  filter: brightness(0.9);
+  transform: scale(1.1);
 }
 
 .edit-btn.delete {
   left: 10px;
-  background-color: #dc3545; 
+  background-color: var(--status-danger); 
   color: #ffffff;
-  border-color: #000000; 
 }
-
 .edit-btn.delete:hover {
-  background-color: #bb2d3b; 
+  filter: brightness(0.9);
+  transform: scale(1.1);
 }
 
 .profile-stats-section {
@@ -87,14 +87,14 @@
   height: 50px;
   cursor: pointer;
   object-fit: cover;
-  border: 2px solid #000000;
+  border: 2px solid var(--text-primary);
+  border-radius: 50%;
   transition: transform 0.2s;
 }
 
 .friend-avatar:hover {
   transform: scale(1.1);
 }
-
 
 .calendar-grid {
   display: grid;
@@ -107,7 +107,7 @@
 .calendar-dot {
   border-radius: 50%;
   transition: all 0.2s ease;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
 }
 
 @media (min-width: 992px) {
@@ -121,15 +121,4 @@
   .profile-avatar-section { width: auto; }
   .profile-pic-responsive { width: 250px; height: 250px; }
   .profile-sidebar-section { width: 300px; }
-}
-
-@media (prefers-color-scheme: dark) {
-  .profile-pic-responsive {
-    border-color: #ffffff;
-    background-color: #1e1e1e;
-    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.1);
-  }
-  
-  .edit-btn { border-color: #ffffff; color: #ffffff; background-color: #1e1e1e; }
-  .friend-avatar { border-color: #ffffff; }
 }
