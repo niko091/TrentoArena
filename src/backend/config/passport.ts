@@ -12,7 +12,6 @@ passport.use(
     { usernameField: "email" },
     async (email, password, done) => {
       try {
-        // Match user
         const user = await User.findOne({
           $or: [{ email: email }, { username: email }],
         });
@@ -22,7 +21,6 @@ passport.use(
           });
         }
 
-        // Match password
         if (!user.password) {
           return done(null, false, { message: "Please log in with Google" });
         }
@@ -70,13 +68,12 @@ passport.use(
   ),
 );
 
-// Helper to generate unique username
 const generateUniqueUsername = async (baseName: string): Promise<string> => {
   let username = baseName;
   let userExists = await User.findOne({ username });
 
   while (userExists) {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000); // 4 digit random number
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000); 
     username = `${baseName} ${randomSuffix}`;
     userExists = await User.findOne({ username });
   }

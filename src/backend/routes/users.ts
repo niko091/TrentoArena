@@ -19,7 +19,7 @@ router.get("/search", async (req: Request, res: Response) => {
       username: { $regex: query, $options: "i" },
     })
       .select("username profilePicture")
-      .limit(10); // Limit results
+      .limit(10); 
 
     res.json(users);
   } catch (err) {
@@ -145,18 +145,14 @@ router.post("/:id/friends/accept", async (req: Request, res: Response) => {
     if (!user || !requester)
       return res.status(404).json({ message: "User not found" });
 
-    // Check if request exists
     if (!user.friendRequests.includes(requesterId)) {
       return res
         .status(400)
         .json({ message: "No friend request from this user" });
     }
-
-    // Add to both friends lists
     (user.friends as any[]).push(requesterId);
     (requester.friends as any[]).push(userId);
 
-    // Remove from requests
     user.friendRequests = (user.friendRequests as any[]).filter(
       (id) => id.toString() !== requesterId,
     );

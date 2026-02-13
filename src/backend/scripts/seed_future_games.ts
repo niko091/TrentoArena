@@ -19,7 +19,6 @@ const seedGames = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 
-    // Fetch Resources
     const users = await User.find();
     const sports = await Sport.find();
     const places = await Place.find();
@@ -35,14 +34,12 @@ const seedGames = async () => {
       `Found ${users.length} users, ${sports.length} sports, ${places.length} places.`,
     );
 
-    // Generate Games (In Memory)
     console.log(`Generating ${GAMES_TO_SIMULATE} future not-full games...`);
     const gamesToProcess: any[] = [];
 
     for (let i = 0; i < GAMES_TO_SIMULATE; i++) {
       const sport = faker.helpers.arrayElement(sports);
 
-      // Filter places for this sport
       const sportPlaces = places.filter(
         (p) => p.sport.toString() === sport._id.toString(),
       );
@@ -54,16 +51,12 @@ const seedGames = async () => {
         from: "2026-02-26",
         to: "2026-03-20",
       });
-
-      // Random max participants between 4 and 10
       const maxParticipants = faker.number.int({ min: 4, max: 10 });
-      // Random number of participants between 1 and maxParticipants - 1
       const numParticipants = faker.number.int({
         min: 1,
         max: maxParticipants,
       });
 
-      // Select numParticipants unique participants
       const participants = faker.helpers.arrayElements(users, numParticipants);
 
       gamesToProcess.push({
@@ -75,7 +68,6 @@ const seedGames = async () => {
       });
     }
 
-    // Process Games
     let processedCount = 0;
 
     for (const gameData of gamesToProcess) {
@@ -83,7 +75,6 @@ const seedGames = async () => {
 
       if (!creator) continue;
 
-      // Save Game
       await Game.create({
         sport: gameData.sport._id,
         place: gameData.place._id,

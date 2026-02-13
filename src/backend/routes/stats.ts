@@ -5,7 +5,6 @@ import mongoose from "mongoose";
 const router = express.Router();
 
 // GET /api/stats/chart-data
-// Query: type ('sport' | 'place'), id (ObjectId)
 router.get("/chart-data", async (req: Request, res: Response) => {
   try {
     const { type, id } = req.query;
@@ -49,7 +48,6 @@ router.get("/chart-data", async (req: Request, res: Response) => {
 });
 
 // GET /api/stats/top-entities
-// Query: type ('sport' | 'place'), period ('year' | 'month' | 'all')
 router.get("/top-entities", async (req: Request, res: Response) => {
   try {
     const { type, period } = req.query;
@@ -60,7 +58,6 @@ router.get("/top-entities", async (req: Request, res: Response) => {
 
     const matchStage: any = { isFinished: true };
 
-    // Time Filtering
     const now = new Date();
     if (period === "year") {
       const oneYearAgo = new Date();

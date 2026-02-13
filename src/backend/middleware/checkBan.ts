@@ -10,9 +10,7 @@ export const checkBan = async (
     const user = req.user as any;
 
     if (user.isBanned) {
-      // Check expiry
       if (user.banExpiresAt && new Date() > new Date(user.banExpiresAt)) {
-        // Ban expired, auto-unban
         try {
           await User.findByIdAndUpdate(user._id, {
             isBanned: false,
@@ -26,11 +24,8 @@ export const checkBan = async (
             .json({ message: "Server Error checking ban status" });
         }
       }
-
-      // Still banned - destroy session to force logout
       req.logout((err) => {
         if (err) console.error("Logout error:", err);
-        // Return 403
         return res.status(403).json({
           message: "You have been banned.",
           reason: user.banReason,

@@ -251,7 +251,6 @@ router.post("/:id/join", async (req: Request, res: Response) => {
 
     const userId = (req.user as any)._id;
 
-    // Check if user is already a participant
     const isParticipant = game.participants.some(
       (p) => p.user.toString() === userId.toString(),
     );
@@ -259,12 +258,10 @@ router.post("/:id/join", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "User already joined this game" });
     }
 
-    // Check max participants
     if (game.participants.length >= game.maxParticipants) {
       return res.status(400).json({ message: "Game is full" });
     }
 
-    // Add user to participants
     game.participants.push({ user: userId, winner: false });
     await game.save();
 
@@ -275,9 +272,7 @@ router.post("/:id/join", async (req: Request, res: Response) => {
   }
 });
 
-// ------------------------------------------------------------------
 // DELETE /api/games/:id - Delete a game
-// ------------------------------------------------------------------
 router.delete("/:id", async (req: Request, res: Response) => {
   try {
     if (!req.isAuthenticated() || !req.user) {
@@ -290,7 +285,6 @@ router.delete("/:id", async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Game not found" });
     }
 
-    // Check if the current user is the creator
     if (game.creator.toString() !== (req.user as any)._id.toString()) {
       return res
         .status(403)

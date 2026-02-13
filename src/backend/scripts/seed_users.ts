@@ -14,8 +14,6 @@ const seedUsers = async () => {
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
-
-    // 2. Generate Users
     console.log("Generating users...");
     const userPromises = [];
     const hashedPassword = await bcrypt.hash("1234", 10);
@@ -43,7 +41,6 @@ const seedUsers = async () => {
     let createdUsersCount = 0;
     for (const userData of userPromises) {
       try {
-        // Check if user exists to avoid unique constraint error
         const exists = await User.findOne({
           $or: [{ username: userData.username }, { email: userData.email }],
         });
@@ -60,7 +57,6 @@ const seedUsers = async () => {
 
     console.log(`Created ${createdUsersCount} new users.`);
 
-    // 3. Generate Friendships
     console.log("Generating friendships...");
     const allUsers = await User.find();
 
@@ -70,12 +66,10 @@ const seedUsers = async () => {
     }
 
     for (const user of allUsers) {
-      // 30% chance to not add new friends for this user loop
       if (Math.random() > 0.7) continue;
 
       const numFriendsToAdd = faker.number.int({ min: 1, max: 3 });
 
-      // Filter potential friends: not self, and not already friends
       const currentFriendIds = user.friends.map((id) => id.toString());
       const potentialFriends = allUsers.filter(
         (u) =>
@@ -89,7 +83,6 @@ const seedUsers = async () => {
       );
 
       for (const friend of selectedFriends) {
-        // Add mutual friendship
         await User.updateOne(
           { _id: user._id },
           { $addToSet: { friends: friend._id } },

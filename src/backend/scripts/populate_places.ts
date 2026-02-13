@@ -162,7 +162,6 @@ const seedPlaces = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 
-    // Fetch all sports to look up IDs
     const sports = await Sport.find();
     console.log(`Found ${sports.length} sports in database.`);
 
@@ -182,7 +181,6 @@ const seedPlaces = async () => {
         continue;
       }
 
-      // Check if place already exists to avoid duplicates
       const existingPlace = await Place.findOne({
         name: data.name,
         "position.lat": data.lat,
