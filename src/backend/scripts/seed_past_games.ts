@@ -9,8 +9,6 @@ import Place from "../models/Place";
 dotenv.config();
 
 const GAMES_TO_SIMULATE = 3000;
-
-// ELO CONSTANTS
 const K = 32;
 const INITIAL_ELO = 1200;
 
@@ -56,7 +54,6 @@ const seedGames = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 
-    // 1. Fetch Resources
     const users = await User.find();
     const sports = await Sport.find();
     const places = await Place.find();
@@ -70,14 +67,12 @@ const seedGames = async () => {
       `Found ${users.length} users, ${sports.length} sports, ${places.length} places.`,
     );
 
-    // 2. Generate Games (In Memory)
     console.log(`Generating ${GAMES_TO_SIMULATE} games...`);
     const gamesToProcess: any[] = [];
 
     for (let i = 0; i < GAMES_TO_SIMULATE; i++) {
       const sport = faker.helpers.arrayElement(sports);
 
-      // Filter places for this sport
       const sportPlaces = places.filter(
         (p) => p.sport.toString() === sport._id.toString(),
       );
@@ -86,8 +81,6 @@ const seedGames = async () => {
 
       const place = faker.helpers.arrayElement(sportPlaces);
       const date = faker.date.recent({ days: 60 });
-
-      // Select 2 unique participants
       const participants = faker.helpers.arrayElements(users, 2);
       const winner = faker.helpers.arrayElement(participants);
 
@@ -100,11 +93,9 @@ const seedGames = async () => {
       });
     }
 
-    // 3. Sort Chronologically
     gamesToProcess.sort((a, b) => a.date.getTime() - b.date.getTime());
     console.log("Games sorted. Starting simulation...");
 
-    // 4. Process Games
     let processedCount = 0;
 
     for (const gameData of gamesToProcess) {
@@ -121,7 +112,6 @@ const seedGames = async () => {
       const elo1 = getElo(p1, sportId);
       const elo2 = getElo(p2, sportId);
 
-      // Determine Winner/Loser
       const isP1Winner = gameData.winner._id.toString() === p1._id.toString();
       const winnerUser = isP1Winner ? p1 : p2;
       const loserUser = isP1Winner ? p2 : p1;
@@ -129,7 +119,6 @@ const seedGames = async () => {
       const winnerElo = isP1Winner ? elo1 : elo2;
       const loserElo = isP1Winner ? elo2 : elo1;
 
-      // ELO Calculation
       const expectedScoreWinner =
         1 / (1 + Math.pow(10, (loserElo - winnerElo) / 400));
       const expectedScoreLoser =
@@ -140,7 +129,6 @@ const seedGames = async () => {
       );
       const newLoserElo = Math.round(loserElo + K * (0 - expectedScoreLoser));
 
-      // Update Users
       updateElo(
         winnerUser,
         sportId,
@@ -156,7 +144,6 @@ const seedGames = async () => {
         newLoserElo - loserElo,
       );
 
-      // Save Game
       await Game.create({
         sport: gameData.sport._id,
         place: gameData.place._id,

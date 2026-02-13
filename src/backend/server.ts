@@ -26,15 +26,12 @@ const PORT = process.env.PORT || 3000;
 
 
 
-// Connect to MongoDB
 connectDB();
 
 import MongoStore from "connect-mongo";
 
-// Middleware
 app.use(express.json());
 
-// Content Security Policy
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -43,7 +40,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Favicon handler
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 app.use(
@@ -63,31 +59,25 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(checkBan);
 
-// Serve Vue App static files
 const frontendDir = path.join(__dirname, "../../dist/frontend");
 console.log("Serving static files from:", frontendDir);
 app.use(express.static(frontendDir));
 
-// Routes
 app.use("/auth", authRoutes);
 app.use("/api/places", placeRoutes);
 app.use("/api/sports", sportRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/reports", reportRoutes); // Register report routes
+app.use("/api/reports", reportRoutes); 
 app.use("/api/stats", statsAuth, statsRoutes);
 
-// Admin API Routes
 app.use("/api/admin", adminAuth, adminRoutes);
 
-// Routes (Placeholder)
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "Server is running" });
 });
 
-// All other routes serve the Vue App
 app.get(/.*/, (req, res) => {
-  // Return 404 for missing API/Auth routes regarding of Accept header
   if (req.url.startsWith("/api") || req.url.startsWith("/auth")) {
     return res.status(404).json({ message: "API Route Not Found" });
   }

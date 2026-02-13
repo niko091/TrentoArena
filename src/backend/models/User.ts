@@ -30,7 +30,7 @@ const UserSchema: Schema = new Schema({
     type: String,
     required: false,
     unique: true,
-    sparse: true, // Allows multiple null values
+    sparse: true, 
   },
   password: {
     type: String,

@@ -21,7 +21,6 @@
   background-color: var(--bg-panel) !important;
   border: 2px solid var(--text-primary) !important;
   border-radius: 16px !important;
-  /* USA LA VAR: Sarà nera in Light Mode e Bianca in Dark Mode */
   color: var(--text-primary) !important; 
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -31,19 +30,14 @@
 .wireframe-card div, 
 .wireframe-card span,
 .wireframe-card h5 {
-  /* RIMOSSO #ffffff: ora segue il tema */
   color: var(--text-primary) !important;
   text-decoration: none !important;
 }
 
 .wireframe-card .text-muted,
 .wireframe-card small {
-  /* USA LA VAR SECONDARIA per i testi meno importanti */
   color: var(--text-secondary) !important; 
 }
-
-/* Rimuovi o correggi questo blocco se presente sotto, 
-   perché 'inherit' potrebbe creare conflitti se non necessario */
 .wireframe-card h5,
 .wireframe-card p,
 .wireframe-card span {
@@ -130,8 +124,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-panel: #1e1e1e;      /* Colore solido */
-    --text-primary: #ffffff;   /* Bianco puro */
-    --text-secondary: #b0b0b0; /* Grigio chiaro per sottotitoli */
+    --bg-panel: #1e1e1e;      
+    --text-primary: #ffffff;  
+    --text-secondary: #b0b0b0; 
   }
 }

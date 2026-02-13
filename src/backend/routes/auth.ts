@@ -118,7 +118,7 @@ router.post("/verify", async (req: Request, res: Response) => {
   }
 });
 
-// @desc    Login user
+
 // @route   POST /auth/login
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   passport.authenticate("local", (err: Error, user: any, info: any) => {
@@ -131,7 +131,6 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
         .json({ msg: info.message || "Credenziali non valide" });
     }
 
-    // Controllo Verifica Email
     if (!user.isVerified) {
       return res.status(403).json({
         msg: "Devi verificare la tua email prima di accedere. Controlla la tua casella di posta.",
@@ -147,14 +146,12 @@ router.post("/login", (req: Request, res: Response, next: NextFunction) => {
   })(req, res, next);
 });
 
-// @desc    Auth with Google
 // @route   GET /auth/google
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
-// @desc    Google auth callback
 // @route   GET /auth/google/callback
 router.get(
   "/google/callback",
@@ -164,14 +161,12 @@ router.get(
   },
 );
 
-// @desc    Get current user
 // @route   GET /auth/current_user
 router.get("/current_user", (req: Request, res: Response) => {
   if (!req.user) return res.status(401).json({ msg: "Not authenticated" });
   res.json(req.user);
 });
 
-// @desc    Logout user
 // @route   GET /auth/logout
 router.get("/logout", (req: Request, res: Response, next: NextFunction) => {
   req.logout((err) => {
