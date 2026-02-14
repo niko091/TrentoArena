@@ -186,7 +186,7 @@ onUnmounted(() => {
         <div class="d-flex justify-content-between align-items-center mb-4">
           <h3 class="fw-bold mb-0">{{ t("dashboard.recent_activity") }}</h3>
 
-          <div class="dropdown">
+          <div class="dropdown" ref="dropdownRef">
             <button
               class="btn btn-outline-secondary btn-sm rounded-pill px-3 shadow-sm dropdown-toggle d-flex align-items-center gap-2"
               type="button"
@@ -201,14 +201,14 @@ onUnmounted(() => {
             </button>
 
             <div
-              class="dropdown-menu dropdown-menu-end border-0 shadow p-3 custom-filter-dropdown"
+              class="dropdown-menu dropdown-menu-end border-0 shadow custom-filter-dropdown"
               :class="{ show: isDropdownOpen }"
               @click.stop
-              style="width: 300px;"
             >
-              <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
+              <h6 class="dropdown-header text-uppercase small fw-bold mb-2">
                 {{ t('dashboard.status') || 'Stato' }}
               </h6>
+              
               <div class="btn-group w-100 mb-3" role="group">
                 <button type="button" class="btn btn-sm btn-outline-primary"
                   :class="{ active: filterStatus === 'all' }" @click="filterStatus = 'all'">
@@ -224,7 +224,7 @@ onUnmounted(() => {
                 </button>
               </div>
 
-              <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
+              <h6 class="dropdown-header text-uppercase small fw-bold mb-2">
                 {{ t('dashboard.sport') || 'Sport' }}
               </h6>
               <select class="form-select form-select-sm mb-3" v-model="selectedSport">
@@ -234,7 +234,7 @@ onUnmounted(() => {
                 </option>
               </select>
 
-              <h6 class="dropdown-header px-0 text-uppercase small fw-bold text-muted mb-2">
+              <h6 class="dropdown-header text-uppercase small fw-bold mb-2">
                 {{ t('dashboard.place') || 'Luogo' }}
               </h6>
               <select class="form-select form-select-sm mb-3" v-model="selectedPlace"
@@ -249,12 +249,12 @@ onUnmounted(() => {
 
               <hr class="dropdown-divider my-2">
               
-              <div class="d-flex justify-content-between align-items-center">
-                 <button class="btn btn-link btn-sm text-decoration-none text-danger p-0" @click="resetFilters">
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                 <button class="btn btn-link btn-sm text-danger p-0" @click="resetFilters">
                   Reset
                 </button>
                 <button class="btn btn-sm btn-primary px-3" @click="closeDropdown">
-                  Chiudi
+                  {{ t('common.close') || 'Chiudi' }}
                 </button>
               </div>
             </div>
@@ -273,7 +273,7 @@ onUnmounted(() => {
             v-else
             v-for="game in games"
             :key="game._id"
-            class="wireframe-card activity-card"
+            class="wireframe-card" 
             @click="selectedGame = game"
           >
             <GameCard :game="game" class="border-0 bg-transparent" />

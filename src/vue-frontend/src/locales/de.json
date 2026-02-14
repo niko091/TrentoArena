@@ -18,7 +18,8 @@
     "place": "Ort",
     "unknown": "Unbekannt",
     "avatar": "Avatar",
-    "user": "Benutzer"
+    "user": "Benutzer",
+    "close": "Schließen"
   },
   "navbar": {
     "dashboard": "Dashboard",
@@ -94,6 +95,7 @@
   },
   "dashboard": {
     "recent_activity": "Letzte Aktivitäten",
+    
     "games": "Spiele",
     "player_role": "Spieler",
     "feed_error": "Feed konnte nicht geladen werden.",
@@ -118,7 +120,9 @@
     "filter_finished": "Beendet",
     "feed_loading": "Feed wird geladen...",
     "all_sports": "Alle Sportarten",
-    "all_places": "Alle Einrichtungen"
+    "all_places": "Alle Einrichtungen",
+    "sport": "Nach Sportart filtern",
+    "place": "Nach Einrichtung filtern"
   },
   "leaderboard": {
     "title": "Bestenliste",

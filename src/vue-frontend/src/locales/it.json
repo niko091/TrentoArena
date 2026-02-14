@@ -18,7 +18,8 @@
     "place": "Luogo",
     "unknown": "Sconosciuto",
     "avatar": "Avatar",
-    "user": "Utente"
+    "user": "Utente",
+    "close": "Chiudi"
   },
   "navbar": {
     "dashboard": "Dashboard",
@@ -32,7 +33,9 @@
     "admin": "Admin",
     "requests": "Richieste",
     "search": "Cerca",
-    "create": "Crea"
+    "create": "Crea",
+    "sport": "Filtra per sport",
+    "place": "Filtra per struttura"
   },
   "login": {
     "title": "Accedi",

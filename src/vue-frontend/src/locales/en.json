@@ -18,7 +18,8 @@
     "place": "Place",
     "unknown": "Unknown",
     "avatar": "Avatar",
-    "user": "User"
+    "user": "User",
+    "close": "Close"
   },
   "navbar": {
     "dashboard": "Dashboard",
@@ -118,7 +119,9 @@
     "filter_finished": "Finished",
     "feed_loading": "Loading feed...",
     "all_sports": "All Sports",
-    "all_places": "All facilities"
+    "all_places": "All facilities",
+    "sport": "Filter by sport",
+    "place": "Filter by facility"
   },
   "leaderboard": {
     "title": "Leaderboard",
