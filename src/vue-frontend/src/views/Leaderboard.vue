@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { IUserShared, ILeaderboardEntry } from "@shared/types/User";
 import { ISportShared } from "@shared/types/Sport";
 import LeaderboardTable from "../components/LeaderboardTable.vue";
-
 
 const currentUser = ref<IUserShared | null>(null);
 const sports = ref<ISportShared[]>([]);
@@ -15,17 +14,28 @@ const loading = ref(false);
 const error = ref("");
 const loadingSports = ref(true);
 
+let abortController: AbortController | null = null;
+
 const { t } = useI18n();
 
-
 const displayedUsers = computed(() => {
-  if (filterType.value === "friends" && currentUser.value) {
-    const friendIds = (currentUser.value.friends || []).map((f: any) => f._id || f);
-    return leaderboardData.value.filter(
-      (u) => u._id === currentUser.value?._id || friendIds.includes(u._id)
-    );
+  if (filterType.value !== "friends" || !currentUser.value) {
+    return leaderboardData.value;
   }
-  return leaderboardData.value;
+
+  const currentUserId = String(currentUser.value._id);
+
+  const friendIdsSet = new Set(
+    (currentUser.value.friends || []).map((f: any) => {
+      const id = (typeof f === 'object' && f !== null && f._id) ? f._id : f;
+      return String(id);
+    })
+  );
+
+  return leaderboardData.value.filter((u) => {
+    const userId = String(u._id);
+    return userId === currentUserId || friendIdsSet.has(userId);
+  });
 });
 
 const fetchCurrentUser = async () => {
@@ -41,7 +51,9 @@ const fetchSports = async () => {
     const res = await fetch("/api/sports");
     if (res.ok) {
       sports.value = await res.json();
-      if (sports.value.length > 0) selectedSportId.value = sports.value[0]._id;
+      if (sports.value.length > 0 && !selectedSportId.value) {
+        selectedSportId.value = sports.value[0]._id;
+      }
     }
   } catch (e) { console.error("Error loading sports:", e); } 
   finally { loadingSports.value = false; }
@@ -49,22 +61,37 @@ const fetchSports = async () => {
 
 const fetchLeaderboard = async () => {
   if (!selectedSportId.value) return;
+  if (abortController) {
+    abortController.abort();
+  }
+  abortController = new AbortController();
 
   loading.value = true;
-  leaderboardData.value = []; 
   error.value = "";
 
   try {
-    const res = await fetch(`/api/users/leaderboard?sportId=${selectedSportId.value}&limit=100`);
+    const res = await fetch(
+      `/api/users/leaderboard?sportId=${selectedSportId.value}&limit=100`, 
+      { signal: abortController.signal } 
+    );
+
     if (res.ok) {
       leaderboardData.value = await res.json();
     } else {
       throw new Error("Failed to fetch");
     }
-  } catch (e) {
+  } catch (e: any) {
+    // Ignora l'errore se è stato causato dall'abort (utente che cambia sport veloce)
+    if (e.name === 'AbortError') {
+      console.log('Fetch aborted due to quick switch');
+      return; 
+    }
     error.value = t("leaderboard.list_load_error");
+    leaderboardData.value = []; 
   } finally {
-    loading.value = false;
+    if (!abortController?.signal.aborted) {
+      loading.value = false;
+    }
   }
 };
 
@@ -73,6 +100,10 @@ watch(selectedSportId, fetchLeaderboard);
 onMounted(async () => {
   await fetchCurrentUser();
   await fetchSports();
+});
+
+onUnmounted(() => {
+  if (abortController) abortController.abort();
 });
 </script>
 
