@@ -8,6 +8,7 @@ const { t } = useI18n();
 
 const isActive = ref(false);
 const searchQuery = ref("");
+const typeSearch = ref("");
 const resultsUsers = ref<any[]>([]);
 const resultsPlaces = ref<any[]>([]);
 const isLoading = ref(false);
@@ -37,9 +38,11 @@ const performSearch = async (query: string) => {
   isLoading.value = true;
   hasSearched.value = true;
   try {
+    const type = typeSearch.value.trim();
+
     const [usersRes, placesRes] = await Promise.all([
-      fetch(`/api/users/search?query=${encodeURIComponent(query)}`),
-      fetch(`/api/places/search?query=${encodeURIComponent(query)}`),
+        fetch(`/api/users/search?query=${encodeURIComponent(query)}`),
+        fetch(`/api/places/search?query=${encodeURIComponent(query)}`)
     ]);
 
     if (usersRes.ok) resultsUsers.value = await usersRes.json();
@@ -47,6 +50,13 @@ const performSearch = async (query: string) => {
 
     if (placesRes.ok) resultsPlaces.value = await placesRes.json();
     else resultsPlaces.value = [];
+
+    if(type=='user'){
+      resultsPlaces.value = [];
+    }else if(type=="place"){
+      resultsUsers.value = [];
+    }
+
   } catch (error) {
     console.error("Search error:", error);
     resultsUsers.value = [];
@@ -75,6 +85,7 @@ onMounted(async () => {
 });
 
 watch(searchQuery, handleInput);
+watch(typeSearch, handleInput);
 </script>
 
 <template>
@@ -104,6 +115,15 @@ watch(searchQuery, handleInput);
             ref="searchInput"
             autofocus
           />
+        </div>
+
+        <div>
+          <strong>{{ t("search_popup.placeholder") }}</strong>
+           <select class="search-type form-select form-select-sm shadow-sm" v-model="typeSearch">
+              <option value="all">{{ t("search_popup.all") }}</option>
+              <option value="place">{{ t("search_popup.places") }}</option>
+              <option value="user">{{ t("search_popup.users") }}</option>
+          </select>
         </div>
 
         <div class="search-results-section">

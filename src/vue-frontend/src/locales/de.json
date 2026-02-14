@@ -211,6 +211,7 @@
     "no_results": "Keine Ergebnisse gefunden",
     "users": "Benutzer",
     "places": "Orte",
+    "all":"Alle",
     "error": "Fehler bei der Suche"
   },
   "game_popup": {
