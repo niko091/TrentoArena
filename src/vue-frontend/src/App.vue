@@ -1,20 +1,30 @@
 <script setup lang="ts">
-import { RouterView, useRoute } from "vue-router";
-import Navbar from "./components/Navbar.vue";
 import { computed } from "vue";
+import { RouterView, useRoute } from "vue-router";
+import LayoutWithNavbar from "@/layouts/WithNavbar.vue";
+import LayoutWithoutNavbar from "@/layouts/WithOutNavbar.vue";
 
 const route = useRoute();
-const showNavbar = computed(() => {
-  return (
-    route.name !== "login" &&
-    route.name !== "register" &&
-    !route.meta.hideNavbar
-  );
+
+const layouts = {
+  default: LayoutWithNavbar,
+  noNavbar: LayoutWithoutNavbar,
+};
+
+const currentLayout = computed(() => {
+  if (!route.name) return null;
+
+  const layoutName = (route.meta.layout as string) || "default";
+
+  return layouts[layoutName as keyof typeof layouts] || layouts.default;
 });
 </script>
 
 <template>
-  <Navbar v-if="showNavbar" />
-  <RouterView />
+  <component :is="currentLayout" v-if="currentLayout">
+    <RouterView />
+  </component>
+  
+  <div v-else class="loading-state">
+    </div>
 </template>
-

@@ -121,7 +121,9 @@
     "filter_finished": "Concluse",
     "feed_loading": "Caricamento feed...",
     "all_sports": "Tutti gli Sport",
-    "all_places": "Tutte le strutture"
+    "all_places": "Tutte le strutture",
+    "sport": "Filtra per sport",
+    "place": "Filtra per struttura"
   },
   "leaderboard": {
     "title": "Classifica",
