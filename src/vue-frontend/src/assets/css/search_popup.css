@@ -19,6 +19,14 @@
   border-color: var(--brand-primary);
 }
 
+.search-type{
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+
 .search-icon {
   position: absolute;
   left: 12px;
