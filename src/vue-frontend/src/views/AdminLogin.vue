@@ -7,7 +7,7 @@ const router = useRouter();
 const username = ref("");
 const password = ref("");
 const error = ref("");
-const loading = ref(false); 
+const loading = ref(false);
 
 const login = async () => {
   error.value = "";
@@ -39,10 +39,13 @@ const login = async () => {
 <template>
   <div class="auth-wrapper">
     <div class="auth-card">
-      
       <h2 class="auth-title">Admin Login</h2>
-      
-      <div v-if="error" class="alert alert-danger text-center mb-3" role="alert">
+
+      <div
+        v-if="error"
+        class="alert alert-danger text-center mb-3"
+        role="alert"
+      >
         {{ error }}
       </div>
 
@@ -57,7 +60,7 @@ const login = async () => {
             required
           />
         </div>
-        
+
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
           <input
@@ -68,9 +71,14 @@ const login = async () => {
             required
           />
         </div>
-        
+
         <button type="submit" class="btn-auth-primary" :disabled="loading">
-          <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+          <span
+            v-if="loading"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
           Login
         </button>
       </form>

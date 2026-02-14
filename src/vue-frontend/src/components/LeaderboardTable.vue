@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router"; 
+import { useRouter } from "vue-router";
 import { ILeaderboardEntry } from "@shared/types/User";
 
 const props = defineProps<{
@@ -75,7 +75,7 @@ const navigateToUser = (username: string) => {
               {{ index + 1 }}
             </div>
           </td>
-          
+
           <td class="align-middle">
             <div class="d-flex align-items-center">
               <img
@@ -86,7 +86,7 @@ const navigateToUser = (username: string) => {
               <span class="fw-bold username-text">{{ user.username }}</span>
             </div>
           </td>
-          
+
           <td class="text-end pe-4 align-middle">
             <span class="elo-text">{{ user.elo }}</span>
           </td>
@@ -97,12 +97,10 @@ const navigateToUser = (username: string) => {
 </template>
 
 <style scoped>
-
 @import "@/assets/css/leaderboard.css";
 
-
 .brand-spinner {
-  color: var(--brand-primary); 
+  color: var(--brand-primary);
 }
 
 .error-text {
@@ -121,13 +119,32 @@ const navigateToUser = (username: string) => {
   width: 80px;
 }
 
-.text-center { text-align: center; }
-.text-end { text-align: right; }
-.align-middle { vertical-align: middle; }
-.pe-4 { padding-right: 1.5rem; }
-.py-5 { padding-top: 3rem; padding-bottom: 3rem; }
-.d-flex { display: flex; }
-.align-items-center { align-items: center; }
-.fw-bold { font-weight: 700; }
-.me-2 { margin-right: 0.5rem; }
+.text-center {
+  text-align: center;
+}
+.text-end {
+  text-align: right;
+}
+.align-middle {
+  vertical-align: middle;
+}
+.pe-4 {
+  padding-right: 1.5rem;
+}
+.py-5 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+.d-flex {
+  display: flex;
+}
+.align-items-center {
+  align-items: center;
+}
+.fw-bold {
+  font-weight: 700;
+}
+.me-2 {
+  margin-right: 0.5rem;
+}
 </style>

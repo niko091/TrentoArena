@@ -29,7 +29,7 @@ const deletePlace = async (id: string) => {
         {{ t("admin.existing_places") }}
       </h2>
     </div>
-    
+
     <div class="card-body p-0">
       <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">
@@ -48,7 +48,7 @@ const deletePlace = async (id: string) => {
                 {{ t("common.loading") }}
               </td>
             </tr>
-            
+
             <tr v-else-if="!places || places.length === 0">
               <td colspan="5" class="text-center py-4 text-secondary">
                 {{ t("admin.no_places_found") || "No places found" }}
@@ -99,7 +99,7 @@ const deletePlace = async (id: string) => {
 }
 
 .card-body {
-  overflow: hidden; 
+  overflow: hidden;
   border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 </style>

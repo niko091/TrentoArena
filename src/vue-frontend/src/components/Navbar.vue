@@ -15,15 +15,15 @@ const isMenuOpen = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
   if (isMenuOpen.value) {
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
   } else {
-    document.body.style.overflow = '';
+    document.body.style.overflow = "";
   }
 };
 
 const closeMenu = () => {
   isMenuOpen.value = false;
-  document.body.style.overflow = '';
+  document.body.style.overflow = "";
 };
 
 const openCreateGame = () => {
@@ -54,15 +54,17 @@ const updateRequestsCount = async () => {
   try {
     const authResp = await fetch("/auth/current_user");
     if (!authResp.ok) return;
-        const contentType = authResp.headers.get("content-type");
+    const contentType = authResp.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) return;
 
     const currentUser = await authResp.json();
     const userResp = await fetch(`/api/users/${currentUser._id}`);
-    
+
     if (userResp.ok) {
       const user = await userResp.json();
-      requestsCount.value = user.friendRequests ? user.friendRequests.length : 0;
+      requestsCount.value = user.friendRequests
+        ? user.friendRequests.length
+        : 0;
     }
   } catch (e) {
     console.error("Failed to update requests count", e);
@@ -99,15 +101,14 @@ onMounted(() => {
       </button>
 
       <div class="nav-items" :class="{ 'mobile-open': isMenuOpen }">
-        
         <div class="mobile-menu-logo">
-           <RouterLink to="/dashboard" @click="closeMenu">
-            <img 
-              src="/images/logo_TrentoArena.png" 
-              alt="TrentoArena" 
+          <RouterLink to="/dashboard" @click="closeMenu">
+            <img
+              src="/images/logo_TrentoArena.png"
+              alt="TrentoArena"
               class="nav-logo"
             />
-           </RouterLink>
+          </RouterLink>
         </div>
 
         <a class="nav-link" href="#" @click.prevent="openSearch">
@@ -133,10 +134,7 @@ onMounted(() => {
         <a class="nav-link" href="#" @click.prevent="openRequests">
           <div class="icon-wrapper">
             <img src="/images/bell.png" :alt="t('navbar.requests')" />
-            <span
-              v-if="requestsCount > 0"
-              class="notification-badge"
-            >
+            <span v-if="requestsCount > 0" class="notification-badge">
               {{ requestsCount }}
             </span>
           </div>

@@ -8,7 +8,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     throw new Error("❌ BREVO_API_KEY is missing");
   }
 
-  const url = 'https://api.brevo.com/v3/smtp/email';
+  const url = "https://api.brevo.com/v3/smtp/email";
   const link = `${process.env.BASE_URL}/verify-account?token=${token}`;
 
   const body = {
@@ -25,18 +25,18 @@ export const sendVerificationEmail = async (email: string, token: string) => {
                 </div>
             </div>
         </div>
-    `
+    `,
   };
 
   try {
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'accept': 'application/json',
-        'api-key': apiKey,
-        'content-type': 'application/json'
+        accept: "application/json",
+        "api-key": apiKey,
+        "content-type": "application/json",
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -46,9 +46,10 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     }
 
     const data = await response.json();
-    console.log(`📧 Mail sent successfully to real user: ${email} (MsgID: ${data.messageId})`);
+    console.log(
+      `📧 Mail sent successfully to real user: ${email} (MsgID: ${data.messageId})`,
+    );
     return data;
-
   } catch (error) {
     console.error("❌ Network Error:", error);
     throw error;

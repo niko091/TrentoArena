@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express"; 
+import express, { Request, Response, NextFunction } from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -98,7 +98,6 @@ router.post("/verify", async (req: Request, res: Response) => {
       return res.status(400).json({ msg: "Token mancante" });
     }
 
-
     const user = await User.findOne({ verificationToken: token });
 
     if (!user) {
@@ -117,7 +116,6 @@ router.post("/verify", async (req: Request, res: Response) => {
     res.status(500).json({ msg: "Server Error during verification" });
   }
 });
-
 
 // @route   POST /auth/login
 router.post("/login", (req: Request, res: Response, next: NextFunction) => {

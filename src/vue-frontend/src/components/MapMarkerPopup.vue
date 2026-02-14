@@ -45,11 +45,11 @@ function formatDate(dateStr: string) {
     <div class="popup-divider"></div>
 
     <div v-if="loading" class="state-msg">{{ t("common.loading") }}...</div>
-    
+
     <div v-else-if="error" class="state-msg error">
       {{ t("map.error_loading") }}
     </div>
-    
+
     <div v-else-if="games.length === 0" class="state-msg">
       {{ t("map.no_upcoming") }}
     </div>

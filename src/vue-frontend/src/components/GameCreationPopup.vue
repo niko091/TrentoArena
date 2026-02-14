@@ -102,7 +102,9 @@ const createGame = async () => {
       emit("created");
     } else {
       const error = await response.json();
-      alert(t("common.error_generic") + ": " + (error.message || "Unknown error"));
+      alert(
+        t("common.error_generic") + ": " + (error.message || "Unknown error"),
+      );
     }
   } catch (err) {
     console.error("Network error:", err);
@@ -133,7 +135,6 @@ onMounted(async () => {
     @click.self="closePopup"
   >
     <div class="modal-content">
-      
       <div class="modal-header">
         <h2 class="modal-title">{{ t("game_creation.title") }}</h2>
         <button class="modal-close-btn" @click="closePopup" aria-label="Close">
@@ -142,9 +143,10 @@ onMounted(async () => {
       </div>
 
       <div class="modal-body">
-        
         <div class="form-group">
-          <label class="popup-label" for="popupInputSport">{{ t("admin.sport") }}</label>
+          <label class="popup-label" for="popupInputSport">{{
+            t("admin.sport")
+          }}</label>
           <select
             id="popupInputSport"
             class="form-control"
@@ -158,14 +160,20 @@ onMounted(async () => {
         </div>
 
         <div class="form-group">
-          <label class="popup-label" for="popupInputMap">{{ t("game_popup.place") }}</label>
+          <label class="popup-label" for="popupInputMap">{{
+            t("game_popup.place")
+          }}</label>
           <select
             id="popupInputMap"
             class="form-control"
             v-model="form.placeId"
           >
             <option selected>Choose...</option>
-            <option v-for="place in filteredPlaces" :key="place._id" :value="place._id">
+            <option
+              v-for="place in filteredPlaces"
+              :key="place._id"
+              :value="place._id"
+            >
               {{ place.name }}
             </option>
           </select>
@@ -173,7 +181,9 @@ onMounted(async () => {
 
         <div class="containerTimeInput">
           <div class="form-group">
-            <label class="popup-label" for="popupDateInput">{{ t("admin.table_date") }}</label>
+            <label class="popup-label" for="popupDateInput">{{
+              t("admin.table_date")
+            }}</label>
             <input
               type="date"
               class="form-control"
@@ -183,7 +193,9 @@ onMounted(async () => {
           </div>
 
           <div class="form-group">
-            <label class="popup-label" for="popupTimeInput">{{ t("admin.table_time") }}</label>
+            <label class="popup-label" for="popupTimeInput">{{
+              t("admin.table_time")
+            }}</label>
             <input
               type="time"
               class="form-control"
@@ -194,7 +206,9 @@ onMounted(async () => {
         </div>
 
         <div class="form-group">
-          <label class="popup-label" for="popupInputNote">{{ t("admin.table_note") }}</label>
+          <label class="popup-label" for="popupInputNote">{{
+            t("admin.table_note")
+          }}</label>
           <textarea
             class="form-control"
             id="popupInputNote"
@@ -204,7 +218,9 @@ onMounted(async () => {
         </div>
 
         <div class="form-group">
-          <label class="popup-label" for="popupMaxParticipants">{{ t("game_creation.max_participants") }}</label>
+          <label class="popup-label" for="popupMaxParticipants">{{
+            t("game_creation.max_participants")
+          }}</label>
           <input
             type="number"
             class="form-control"
@@ -215,14 +231,10 @@ onMounted(async () => {
         </div>
 
         <div class="popup-actions">
-          <button
-            type="button"
-            class="btn btn-primary"
-            @click="createGame"
-          >
+          <button type="button" class="btn btn-primary" @click="createGame">
             {{ t("game_creation.submit") }}
           </button>
-        </div>       
+        </div>
       </div>
     </div>
   </div>

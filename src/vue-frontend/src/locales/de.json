@@ -95,7 +95,7 @@
   },
   "dashboard": {
     "recent_activity": "Letzte Aktivitäten",
-    
+
     "games": "Spiele",
     "player_role": "Spieler",
     "feed_error": "Feed konnte nicht geladen werden.",
@@ -211,7 +211,7 @@
     "no_results": "Keine Ergebnisse gefunden",
     "users": "Benutzer",
     "places": "Orte",
-    "all":"Alle",
+    "all": "Alle",
     "error": "Fehler bei der Suche"
   },
   "game_popup": {

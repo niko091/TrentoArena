@@ -36,7 +36,7 @@
 .game-popup-note {
   margin-top: 1rem;
   padding: 1rem;
-  background: var(--bg-tertiary); 
+  background: var(--bg-tertiary);
   border-radius: 8px;
   font-style: italic;
   color: var(--text-secondary);

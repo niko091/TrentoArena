@@ -24,7 +24,6 @@ const currentLayout = computed(() => {
   <component :is="currentLayout" v-if="currentLayout">
     <RouterView />
   </component>
-  
-  <div v-else class="loading-state">
-    </div>
+
+  <div v-else class="loading-state"></div>
 </template>

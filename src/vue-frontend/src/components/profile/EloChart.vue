@@ -13,7 +13,6 @@ const chartCanvas = ref<HTMLCanvasElement | null>(null);
 const chartInstance = ref<Chart | null>(null);
 const selectedSportIndex = ref(0);
 
-
 const hasStats = () => props.user.sportsElo && props.user.sportsElo.length > 0;
 
 const renderChart = () => {
@@ -28,8 +27,10 @@ const renderChart = () => {
   const data: number[] = [];
 
   if (stat.history && stat.history.length > 0) {
-    const sorted = [...stat.history].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    sorted.forEach(h => {
+    const sorted = [...stat.history].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+    sorted.forEach((h) => {
       labels.push(new Date(h.date).toLocaleDateString());
       data.push(h.elo);
     });
@@ -42,14 +43,16 @@ const renderChart = () => {
     type: "line",
     data: {
       labels,
-      datasets: [{
-        label: "ELO",
-        data,
-        borderColor: "#fd7e14",
-        backgroundColor: "rgba(253, 126, 20, 0.1)",
-        tension: 0.3,
-        fill: true,
-      }],
+      datasets: [
+        {
+          label: "ELO",
+          data,
+          borderColor: "#fd7e14",
+          backgroundColor: "rgba(253, 126, 20, 0.1)",
+          tension: 0.3,
+          fill: true,
+        },
+      ],
     },
     options: {
       responsive: true,
@@ -59,10 +62,14 @@ const renderChart = () => {
   });
 };
 
-watch(() => props.user, () => {
-  selectedSportIndex.value = 0;
-  nextTick(renderChart);
-}, { deep: true });
+watch(
+  () => props.user,
+  () => {
+    selectedSportIndex.value = 0;
+    nextTick(renderChart);
+  },
+  { deep: true },
+);
 
 watch(selectedSportIndex, renderChart);
 
@@ -71,8 +78,10 @@ onMounted(renderChart);
 
 <template>
   <div v-if="hasStats()" class="mb-5">
-    <h5 class="fw-bold mb-3 text-center text-lg-start">{{ t("profile.elo_stats") }}</h5>
-    
+    <h5 class="fw-bold mb-3 text-center text-lg-start">
+      {{ t("profile.elo_stats") }}
+    </h5>
+
     <select v-model="selectedSportIndex" class="form-select mb-3">
       <option v-for="(stat, idx) in user.sportsElo" :key="idx" :value="idx">
         {{ stat.sport?.name || "Unknown" }}

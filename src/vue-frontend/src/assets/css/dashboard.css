@@ -2,7 +2,7 @@
   width: 100%;
   max-width: 1650px;
   margin: 0 auto;
-  padding: 2rem 5%; 
+  padding: 2rem 5%;
 }
 
 @media (min-width: 1200px) {
@@ -13,7 +13,7 @@
 
 .sticky-widget {
   position: sticky;
-  top: 160px; 
+  top: 160px;
   z-index: 90;
 }
 
@@ -21,8 +21,10 @@
   background-color: var(--bg-panel) !important;
   border: 2px solid var(--text-primary) !important;
   border-radius: 16px !important;
-  color: var(--text-primary) !important; 
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  color: var(--text-primary) !important;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   cursor: pointer;
   display: block;
   text-decoration: none !important;
@@ -35,7 +37,7 @@
 
 .wireframe-card .text-muted,
 .wireframe-card small {
-  color: var(--text-secondary) !important; 
+  color: var(--text-secondary) !important;
 }
 
 .wireframe-card h5,
@@ -53,14 +55,13 @@
   background-color: var(--bg-panel);
 }
 
-
 .custom-filter-dropdown {
   position: absolute;
-  right: 0; 
-  left: auto; 
+  right: 0;
+  left: auto;
   z-index: 1050;
   width: 300px;
-  max-width: calc(100vw - 30px); 
+  max-width: calc(100vw - 30px);
   background-color: var(--bg-panel) !important;
   border: 2px solid var(--text-primary) !important;
   border-radius: 16px !important;
@@ -81,17 +82,17 @@
 }
 
 .custom-filter-dropdown .btn-group .btn-outline-primary {
-  flex: 1; 
-  display: flex; 
+  flex: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--bg-panel) !important;
   border: 2px solid var(--text-primary) !important;
   color: var(--text-primary) !important;
   border-radius: 8px !important;
-  margin: 0 !important; 
-  padding: 8px 0 !important; 
-  line-height: 1.2 !important; 
+  margin: 0 !important;
+  padding: 8px 0 !important;
+  line-height: 1.2 !important;
 }
 
 .custom-filter-dropdown .btn-group .btn-outline-primary.active {
@@ -126,14 +127,14 @@
 @media (max-width: 400px) {
   .custom-filter-dropdown {
     width: 280px;
-    right: -10px; 
+    right: -10px;
   }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-panel: #1e1e1e;      
-    --text-primary: #ffffff;  
-    --text-secondary: #b0b0b0; 
+    --bg-panel: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
   }
 }

@@ -21,8 +21,8 @@ describe("API Integration Tests", function () {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
         process.env.MONGO_TEST_URI ||
-        process.env.MONGO_URI ||
-        "mongodb://localhost:27017/trentoArena",
+          process.env.MONGO_URI ||
+          "mongodb://localhost:27017/trentoArena",
       );
     } else {
       // connection might be connecting (2) or disconnecting (3). Wait for (1).
@@ -80,9 +80,7 @@ describe("API Integration Tests", function () {
 
   it("Step 3: Should serve SPA shell for /map", async () => {
     const anonAgent = request.agent(app);
-    await anonAgent
-      .get("/map")
-      .expect(200); // SPA shell is served; redirect happens on frontend
+    await anonAgent.get("/map").expect(200); // SPA shell is served; redirect happens on frontend
   });
 
   it("Step 4: Should ALLOW authenticated access to /map", async () => {

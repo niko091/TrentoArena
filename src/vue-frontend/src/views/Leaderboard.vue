@@ -27,9 +27,9 @@ const displayedUsers = computed(() => {
 
   const friendIdsSet = new Set(
     (currentUser.value.friends || []).map((f: any) => {
-      const id = (typeof f === 'object' && f !== null && f._id) ? f._id : f;
+      const id = typeof f === "object" && f !== null && f._id ? f._id : f;
       return String(id);
-    })
+    }),
   );
 
   return leaderboardData.value.filter((u) => {
@@ -42,7 +42,9 @@ const fetchCurrentUser = async () => {
   try {
     const res = await fetch("/auth/current_user");
     if (res.ok) currentUser.value = await res.json();
-  } catch (e) { console.error("Auth check failed:", e); }
+  } catch (e) {
+    console.error("Auth check failed:", e);
+  }
 };
 
 const fetchSports = async () => {
@@ -55,8 +57,11 @@ const fetchSports = async () => {
         selectedSportId.value = sports.value[0]._id;
       }
     }
-  } catch (e) { console.error("Error loading sports:", e); } 
-  finally { loadingSports.value = false; }
+  } catch (e) {
+    console.error("Error loading sports:", e);
+  } finally {
+    loadingSports.value = false;
+  }
 };
 
 const fetchLeaderboard = async () => {
@@ -71,8 +76,8 @@ const fetchLeaderboard = async () => {
 
   try {
     const res = await fetch(
-      `/api/users/leaderboard?sportId=${selectedSportId.value}&limit=100`, 
-      { signal: abortController.signal } 
+      `/api/users/leaderboard?sportId=${selectedSportId.value}&limit=100`,
+      { signal: abortController.signal },
     );
 
     if (res.ok) {
@@ -81,12 +86,12 @@ const fetchLeaderboard = async () => {
       throw new Error("Failed to fetch");
     }
   } catch (e: any) {
-    if (e.name === 'AbortError') {
-      console.log('Fetch aborted due to quick switch');
-      return; 
+    if (e.name === "AbortError") {
+      console.log("Fetch aborted due to quick switch");
+      return;
     }
     error.value = t("leaderboard.list_load_error");
-    leaderboardData.value = []; 
+    leaderboardData.value = [];
   } finally {
     if (!abortController?.signal.aborted) {
       loading.value = false;
@@ -110,21 +115,42 @@ onUnmounted(() => {
   <div class="container mt-4 mt-md-5">
     <div class="row justify-content-center">
       <div class="col-12 col-lg-10 col-xl-8">
-        <div class="leaderboard-card">     
+        <div class="leaderboard-card">
           <div class="controls-container">
             <h2 class="leaderboard-title text-center mb-4">
               <i class="bi bi-trophy text-warning me-2"></i>
               {{ t("leaderboard.title") }}
             </h2>
 
-            <div class="row g-3 align-items-center">   
+            <div class="row g-3 align-items-center">
               <div class="col-md-6 text-center text-md-start">
                 <div class="btn-group" role="group">
-                  <input type="radio" class="btn-check" name="lbType" id="lbGlobal" value="global" v-model="filterType" />
-                  <label class="btn btn-outline-dark" for="lbGlobal">{{ t("leaderboard.global") }}</label>
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="lbType"
+                    id="lbGlobal"
+                    value="global"
+                    v-model="filterType"
+                  />
+                  <label class="btn btn-outline-dark" for="lbGlobal">{{
+                    t("leaderboard.global")
+                  }}</label>
 
-                  <input type="radio" class="btn-check" name="lbType" id="lbFriends" value="friends" v-model="filterType" :disabled="!currentUser" />
-                  <label class="btn btn-outline-dark" for="lbFriends" :class="{ disabled: !currentUser }">
+                  <input
+                    type="radio"
+                    class="btn-check"
+                    name="lbType"
+                    id="lbFriends"
+                    value="friends"
+                    v-model="filterType"
+                    :disabled="!currentUser"
+                  />
+                  <label
+                    class="btn btn-outline-dark"
+                    for="lbFriends"
+                    :class="{ disabled: !currentUser }"
+                  >
                     {{ t("leaderboard.friends") }}
                     <i v-if="!currentUser" class="bi bi-lock-fill ms-1"></i>
                   </label>
@@ -132,9 +158,18 @@ onUnmounted(() => {
               </div>
 
               <div class="col-md-6">
-                <select class="form-select custom-select" v-model="selectedSportId">
-                  <option value="" disabled v-if="loadingSports">{{ t("leaderboard.loading_sports") }}</option>
-                  <option v-for="sport in sports" :key="sport._id" :value="sport._id">
+                <select
+                  class="form-select custom-select"
+                  v-model="selectedSportId"
+                >
+                  <option value="" disabled v-if="loadingSports">
+                    {{ t("leaderboard.loading_sports") }}
+                  </option>
+                  <option
+                    v-for="sport in sports"
+                    :key="sport._id"
+                    :value="sport._id"
+                  >
                     {{ sport.name }}
                   </option>
                 </select>
@@ -142,12 +177,12 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <LeaderboardTable 
-            :users="displayedUsers" 
-            :loading="loading" 
+          <LeaderboardTable
+            :users="displayedUsers"
+            :loading="loading"
             :error="error"
             :sport-selected="!!selectedSportId"
-          /> 
+          />
         </div>
       </div>
     </div>

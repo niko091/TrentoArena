@@ -24,8 +24,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
-
 connectDB();
 
 import MongoStore from "connect-mongo";
@@ -68,7 +66,7 @@ app.use("/api/places", placeRoutes);
 app.use("/api/sports", sportRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/reports", reportRoutes); 
+app.use("/api/reports", reportRoutes);
 app.use("/api/stats", statsAuth, statsRoutes);
 
 app.use("/api/admin", adminAuth, adminRoutes);

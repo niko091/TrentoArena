@@ -22,7 +22,7 @@
   height: 200px;
   object-fit: cover;
   border-radius: 50%;
-  border: 3px solid var(--text-primary); 
+  border: 3px solid var(--text-primary);
   box-shadow: 0px 0px 15px var(--shadow-sm);
   background-color: var(--bg-panel);
 }
@@ -35,8 +35,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0; 
-  font-size: 1.5rem; 
+  padding: 0;
+  font-size: 1.5rem;
   line-height: 1;
   font-weight: 400;
   cursor: pointer;
@@ -48,7 +48,7 @@
 
 .edit-btn.upload {
   right: 10px;
-  background-color: var(--status-info); 
+  background-color: var(--status-info);
   color: #ffffff;
 }
 .edit-btn.upload:hover {
@@ -58,7 +58,7 @@
 
 .edit-btn.delete {
   left: 10px;
-  background-color: var(--status-danger); 
+  background-color: var(--status-danger);
   color: #ffffff;
 }
 .edit-btn.delete:hover {
@@ -118,7 +118,14 @@
     padding: 1.5rem;
   }
 
-  .profile-avatar-section { width: auto; }
-  .profile-pic-responsive { width: 250px; height: 250px; }
-  .profile-sidebar-section { width: 300px; }
+  .profile-avatar-section {
+    width: auto;
+  }
+  .profile-pic-responsive {
+    width: 250px;
+    height: 250px;
+  }
+  .profile-sidebar-section {
+    width: 300px;
+  }
 }
