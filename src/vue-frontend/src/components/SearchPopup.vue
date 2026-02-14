@@ -102,28 +102,31 @@ watch(typeSearch, handleInput);
       </div>
 
       <div class="modal-body">
-        <div class="search-input-container">
-          <img src="/images/search.png" class="search-icon" alt="Search" />
-          <input
-            type="text"
-            class="search-input"
-            :placeholder="t('search_popup.placeholder')"
-            v-model="searchQuery"
-            ref="searchInput"
-            autofocus
-          />
-        </div>
 
-        <div>
-          <strong>{{ t("search_popup.placeholder") }}</strong>
-          <select
-            class="search-type form-select form-select-sm shadow-sm"
-            v-model="typeSearch"
-          >
-            <option value="all">{{ t("search_popup.all") }}</option>
-            <option value="place">{{ t("search_popup.places") }}</option>
-            <option value="user">{{ t("search_popup.users") }}</option>
-          </select>
+        <div class="input-container">
+
+          <div class="search-input-container">
+            <img src="/images/search.png" class="search-icon" alt="Search" />
+            <input
+              type="text"
+              class="search-input"
+              :placeholder="t('search_popup.placeholder')"
+              v-model="searchQuery"
+              ref="searchInput"
+              autofocus
+            />
+          </div>
+
+          <div>
+            <select
+              class="search-type form-select form-select-sm shadow-sm"
+              v-model="typeSearch"
+            >
+              <option value="all">{{ t("search_popup.all") }}</option>
+              <option value="place">{{ t("search_popup.places") }}</option>
+              <option value="user">{{ t("search_popup.users") }}</option>
+            </select>
+          </div>
         </div>
 
         <div class="search-results-section">

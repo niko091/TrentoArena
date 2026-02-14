@@ -20,6 +20,7 @@
 }
 
 .search-type {
+  width: 100%;
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
@@ -103,4 +104,14 @@
   color: var(--text-muted);
   padding: 20px;
   font-style: italic;
+}
+
+.input-container{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  gap: 10px; 
 }
