@@ -81,7 +81,6 @@ const fetchLeaderboard = async () => {
       throw new Error("Failed to fetch");
     }
   } catch (e: any) {
-    // Ignora l'errore se è stato causato dall'abort (utente che cambia sport veloce)
     if (e.name === 'AbortError') {
       console.log('Fetch aborted due to quick switch');
       return; 
