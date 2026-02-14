@@ -3,14 +3,14 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
-  games: any[]; 
+  games: any[];
 }>();
 
 const { t } = useI18n();
 
 const calendarDots = computed(() => {
   const matchCounts: Record<string, number> = {};
-  
+
   if (!props.games) return [];
 
   props.games.forEach((g) => {
@@ -19,14 +19,14 @@ const calendarDots = computed(() => {
   });
 
   const today = new Date();
-  const currentDayOfWeek = today.getDay(); 
+  const currentDayOfWeek = today.getDay();
   const distanceToSunday = currentDayOfWeek === 0 ? 0 : 7 - currentDayOfWeek;
-  
+
   const endDate = new Date(today);
   endDate.setDate(today.getDate() + distanceToSunday);
 
   const startDate = new Date(endDate);
-  startDate.setDate(startDate.getDate() - 27); 
+  startDate.setDate(startDate.getDate() - 27);
 
   const dots = [];
   for (let i = 0; i < 28; i++) {
@@ -55,8 +55,11 @@ const calendarDots = computed(() => {
       {{ t("profile.calendar") }}
     </h4>
     <div class="card wireframe-card w-100 p-3">
-      <div class="d-flex justify-content-between mb-3 text-muted fw-bold small text-center px-1">
-        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+      <div
+        class="d-flex justify-content-between mb-3 text-muted fw-bold small text-center px-1"
+      >
+        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span
+        ><span>S</span><span>S</span>
       </div>
       <div class="calendar-grid">
         <div
@@ -68,7 +71,9 @@ const calendarDots = computed(() => {
             height: dot.size + 'px',
             backgroundColor: dot.color,
           }"
-          :title="dot.count > 0 ? `${dot.count} games on ${dot.date}` : dot.date"
+          :title="
+            dot.count > 0 ? `${dot.count} games on ${dot.date}` : dot.date
+          "
         ></div>
       </div>
     </div>

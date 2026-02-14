@@ -13,7 +13,7 @@
   padding: 0 2rem;
   margin-bottom: 2rem;
   box-shadow: var(--shadow-sm);
-  color: var(--navbar-text, #fff); 
+  color: var(--navbar-text, #fff);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -51,7 +51,7 @@
   color: var(--text-primary);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .card-header {
@@ -60,8 +60,8 @@
   padding: 1rem;
 }
 
-.card-header h2, 
-.card-header .h5, 
+.card-header h2,
+.card-header .h5,
 .card-header .h6 {
   color: var(--brand-primary) !important;
   margin: 0;
@@ -109,12 +109,12 @@
 .table {
   color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
-  --bs-table-bg: transparent !important; 
+  --bs-table-bg: transparent !important;
 }
 
 .table thead th,
 .table .table-light th {
-  background-color: var(--bg-tertiary) !important; 
+  background-color: var(--bg-tertiary) !important;
   color: var(--text-primary) !important;
   border-bottom: 2px solid var(--border-color) !important;
   font-weight: 600;
@@ -127,11 +127,11 @@
 }
 
 .table-hover tbody tr:hover td {
-  background-color: var(--bg-element) !important; 
+  background-color: var(--bg-element) !important;
   color: var(--text-primary) !important;
 }
 
-.table .text-muted, 
+.table .text-muted,
 .table .text-secondary {
   color: var(--text-secondary) !important;
 }
@@ -145,10 +145,10 @@
 }
 
 .list-group-item {
-  background-color: var(--bg-panel) !important; 
-  
+  background-color: var(--bg-panel) !important;
+
   color: var(--text-primary) !important;
-  
+
   border-color: var(--border-color) !important;
 }
 

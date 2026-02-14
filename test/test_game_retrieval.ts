@@ -21,8 +21,8 @@ describe("Game Retrieval API Tests", function () {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
         process.env.MONGO_TEST_URI ||
-        process.env.MONGO_URI ||
-        "mongodb://localhost:27017/trentoArena",
+          process.env.MONGO_URI ||
+          "mongodb://localhost:27017/trentoArena",
       );
     } else {
       let retries = 20;

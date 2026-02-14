@@ -46,8 +46,7 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-
-// GET /api/games - Retrieve games with filtering 
+// GET /api/games - Retrieve games with filtering
 router.get("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -107,7 +106,7 @@ router.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/games/:id/finish 
+// PATCH /api/games/:id/finish
 router.patch("/:id/finish", async (req: Request, res: Response) => {
   try {
     if (!req.isAuthenticated() || !req.user) {
@@ -153,12 +152,13 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
       if (winners.length > 0 && losers.length > 0) {
         const sportId = game.sport.toString();
 
-
         const winnerUsers = await User.find({ _id: { $in: winners } });
         const loserUsers = await User.find({ _id: { $in: losers } });
 
         const getEloValue = (u: any, sId: string) => {
-          const entry = u.sportsElo?.find((e: any) => e.sport.toString() === sId);
+          const entry = u.sportsElo?.find(
+            (e: any) => e.sport.toString() === sId,
+          );
           return entry ? entry.elo : 1200;
         };
 
@@ -177,23 +177,33 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
           return historyLength < 10 ? 80 : 32;
         };
 
-        const updateEloForUsers = async (users: any[], actualScore: number, probability: number) => {
+        const updateEloForUsers = async (
+          users: any[],
+          actualScore: number,
+          probability: number,
+        ) => {
           return Promise.all(
             users.map(async (user) => {
               if (!user.sportsElo) user.sportsElo = [];
 
-              let entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+              let entry = user.sportsElo.find(
+                (e: any) => e.sport.toString() === sportId,
+              );
 
               if (!entry) {
                 user.sportsElo.push({ sport: sportId, elo: 1200, history: [] });
-                entry = user.sportsElo.find((e: any) => e.sport.toString() === sportId);
+                entry = user.sportsElo.find(
+                  (e: any) => e.sport.toString() === sportId,
+                );
               }
 
               if (entry) {
                 const oldElo = entry.elo;
                 const gamesPlayed = entry.history ? entry.history.length : 0;
                 const K = getKFactor(gamesPlayed);
-                const newElo = Math.round(oldElo + K * (actualScore - probability));
+                const newElo = Math.round(
+                  oldElo + K * (actualScore - probability),
+                );
                 const change = newElo - oldElo;
 
                 entry.elo = newElo;
@@ -206,7 +216,7 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
                 });
               }
               await user.save();
-            })
+            }),
           );
         };
 
@@ -222,7 +232,7 @@ router.patch("/:id/finish", async (req: Request, res: Response) => {
           isFinished: true,
           participants: game.participants,
         },
-      }
+      },
     );
 
     res.json({ message: "Game marked as finished", game });

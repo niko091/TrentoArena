@@ -1,141 +1,152 @@
 .user-profile-box {
   position: relative !important;
-  margin-top: 100px !important; 
+  margin-top: 100px !important;
   overflow: visible !important;
   z-index: 1;
 
   width: 100% !important;
   max-width: 100% !important;
 
-.user-profile-box {
-  position: relative !important;
-  margin-top: 100px !important; 
-  overflow: visible !important;
-  z-index: 1;
+  .user-profile-box {
+    position: relative !important;
+    margin-top: 100px !important;
+    overflow: visible !important;
+    z-index: 1;
 
-  width: 100% !important;
-  max-width: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
 
-  padding-top: 100px; 
+    padding-top: 100px;
+    padding-bottom: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    text-align: center;
+
+    background-color: var(--bg-panel) !important;
+    border: 2px solid var(--text-primary) !important;
+    border-radius: 20px !important;
+    color: var(--text-primary) !important;
+    box-shadow: 8px 8px 0px var(--text-primary) !important;
+    transition:
+      background-color 0.3s,
+      border-color 0.3s,
+      color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  .avatar-wrapper {
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 160px;
+    height: 160px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    background: linear-gradient(
+      to bottom,
+      var(--bg-app) 50%,
+      var(--bg-panel) 50%
+    ) !important;
+    border-radius: 50%;
+  }
+
+  .wireframe-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 1 / 1;
+    border-radius: 50% !important;
+    border: 3px solid var(--text-primary) !important;
+    background-color: var(--bg-panel);
+  }
+
+  .user-name {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    color: inherit !important;
+  }
+
+  .user-role {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    font-weight: 500;
+    color: var(--text-secondary) !important;
+  }
+
+  .stats-container {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin-top: 25px;
+    border-top: 2px solid var(--text-primary);
+    padding-top: 20px;
+  }
+
+  .stat-box {
+    flex: 1;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .stat-box:first-child {
+    border-right: 2px solid var(--text-primary);
+  }
+
+  .stat-number {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: inherit !important;
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    opacity: 0.8;
+    color: inherit !important;
+  }
+
+  padding-top: 100px;
   padding-bottom: 40px;
   padding-left: 20px;
   padding-right: 20px;
-  
-  text-align: center;
 
-  background-color: var(--bg-panel) !important;
-  border: 2px solid var(--text-primary) !important; 
-  border-radius: 20px !important;
-  color: var(--text-primary) !important; 
-  box-shadow: 8px 8px 0px var(--text-primary) !important;
-  transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
-}
-
-.avatar-wrapper {
-  position: absolute;
-  top: -80px; 
-  left: 50%;
-  transform: translateX(-50%);
-  
-  width: 160px;
-  height: 160px;
-  
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  background: linear-gradient(to bottom, var(--bg-app) 50%, var(--bg-panel) 50%) !important;
-  border-radius: 50%;
-}
-
-.wireframe-avatar {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  aspect-ratio: 1 / 1;
-  border-radius: 50% !important;
-  border: 3px solid var(--text-primary) !important; 
-  background-color: var(--bg-panel);
-}
-
-.user-name {
-  font-size: 2rem; 
-  font-weight: 800;
-  margin-top: 15px;
-  margin-bottom: 5px;
-  color: inherit !important;
-}
-
-.user-role {
-  font-size: 1.1rem; 
-  margin-bottom: 40px;
-  font-weight: 500;
-  color: var(--text-secondary) !important;
-}
-
-.stats-container {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  margin-top: 25px;
-  border-top: 2px solid var(--text-primary); 
-  padding-top: 20px;
-}
-
-.stat-box {
-  flex: 1;
-  text-align: center;
-  padding: 0 10px;
-}
-
-.stat-box:first-child {
-  border-right: 2px solid var(--text-primary);
-}
-
-.stat-number {
-  display: block;
-  font-size: 1.8rem; 
-  font-weight: 900;
-  line-height: 1;
-  color: inherit !important;
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-weight: 700;
-  opacity: 0.8;
-  color: inherit !important;
-}
-
-  padding-top: 100px; 
-  padding-bottom: 40px;
-  padding-left: 20px;
-  padding-right: 20px;
-  
   text-align: center;
 
   background-color: #ffffff !important;
   border: 2px solid #000000 !important;
   border-radius: 20px !important;
   color: #000000 !important;
-  
-  box-shadow: 8px 8px 0px rgba(0,0,0,0.1) !important;
 
-  transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.1) !important;
+
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
 }
 
 .avatar-wrapper {
   position: absolute;
-  top: -80px; 
+  top: -80px;
   left: 50%;
   transform: translateX(-50%);
-  
+
   width: 160px;
   height: 160px;
-  
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -152,12 +163,12 @@
   object-fit: cover;
   aspect-ratio: 1 / 1;
   border-radius: 50% !important;
-  border: 3px solid #000000 !important; 
+  border: 3px solid #000000 !important;
   background-color: #ffffff;
 }
 
 .user-name {
-  font-size: 2rem; 
+  font-size: 2rem;
   font-weight: 800;
   margin-top: 15px;
   margin-bottom: 5px;
@@ -165,7 +176,7 @@
 }
 
 .user-role {
-  font-size: 1.1rem; 
+  font-size: 1.1rem;
   margin-bottom: 40px;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.6) !important;
@@ -176,7 +187,7 @@
   justify-content: center;
   gap: 0;
   margin-top: 25px;
-  border-top: 2px solid #000000; 
+  border-top: 2px solid #000000;
   padding-top: 20px;
 }
 
@@ -192,7 +203,7 @@
 
 .stat-number {
   display: block;
-  font-size: 1.8rem; 
+  font-size: 1.8rem;
   font-weight: 900;
   line-height: 1;
   color: inherit !important;
@@ -213,7 +224,7 @@
     background-color: #1e1e1e !important;
     border-color: #ffffff !important;
     color: #e0e0e0 !important;
-    box-shadow: 8px 8px 0px rgba(255,255,255,0.1) !important;
+    box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.1) !important;
   }
 
   .avatar-wrapper {
@@ -225,9 +236,15 @@
     background-color: #1e1e1e !important;
   }
 
-  .user-role { color: #b0b0b0 !important; }
-  .stats-container { border-top-color: #ffffff !important; }
-  .stat-box:first-child { border-right-color: #ffffff !important; }
+  .user-role {
+    color: #b0b0b0 !important;
+  }
+  .stats-container {
+    border-top-color: #ffffff !important;
+  }
+  .stat-box:first-child {
+    border-right-color: #ffffff !important;
+  }
 }
 
 [data-bs-theme="dark"] .user-profile-box,
@@ -235,7 +252,7 @@ body.dark-mode .user-profile-box {
   background-color: #1e1e1e !important;
   border-color: #ffffff !important;
   color: #e0e0e0 !important;
-  box-shadow: 8px 8px 0px rgba(255,255,255,0.1) !important;
+  box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.1) !important;
 }
 
 [data-bs-theme="dark"] .avatar-wrapper,
@@ -250,10 +267,16 @@ body.dark-mode .wireframe-avatar {
 }
 
 [data-bs-theme="dark"] .user-role,
-body.dark-mode .user-role { color: #b0b0b0 !important; }
+body.dark-mode .user-role {
+  color: #b0b0b0 !important;
+}
 
 [data-bs-theme="dark"] .stats-container,
-body.dark-mode .stats-container { border-top-color: #ffffff !important; }
+body.dark-mode .stats-container {
+  border-top-color: #ffffff !important;
+}
 
 [data-bs-theme="dark"] .stat-box:first-child,
-body.dark-mode .stat-box:first-child { border-right-color: #ffffff !important; }
+body.dark-mode .stat-box:first-child {
+  border-right-color: #ffffff !important;
+}

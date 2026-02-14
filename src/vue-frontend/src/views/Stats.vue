@@ -19,7 +19,6 @@ const topPlacesList = ref<any[]>([]);
 let sportChartInstance: Chart | null = null;
 let placeChartInstance: Chart | null = null;
 
-
 const sportCanvas = ref<HTMLCanvasElement | null>(null);
 const placeCanvas = ref<HTMLCanvasElement | null>(null);
 
@@ -75,7 +74,9 @@ const init = async () => {
 const updateSportChart = async () => {
   if (!selectedSport.value || !sportCanvas.value) return;
 
-  const dataMap = await fetchData(`/api/stats/chart-data?type=sport&id=${selectedSport.value}`);
+  const dataMap = await fetchData(
+    `/api/stats/chart-data?type=sport&id=${selectedSport.value}`,
+  );
   if (!dataMap) return;
 
   const labels = Object.keys(dataMap);
@@ -83,7 +84,8 @@ const updateSportChart = async () => {
 
   if (sportChartInstance) sportChartInstance.destroy();
 
-  const sportName = sports.value.find((s) => s._id === selectedSport.value)?.name || "Sport";
+  const sportName =
+    sports.value.find((s) => s._id === selectedSport.value)?.name || "Sport";
 
   sportChartInstance = new Chart(sportCanvas.value, {
     type: "bar",
@@ -93,8 +95,8 @@ const updateSportChart = async () => {
         {
           label: `Games Played: ${sportName}`,
           data: dataPoints as number[],
-          borderColor: "#fd7e14", 
-          backgroundColor: "rgba(253, 126, 20, 0.5)", 
+          borderColor: "#fd7e14",
+          backgroundColor: "rgba(253, 126, 20, 0.5)",
           borderWidth: 2,
         },
       ],
@@ -106,9 +108,13 @@ const updateSportChart = async () => {
       },
       plugins: {
         legend: {
-          labels: { color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#e0e0e0' : '#666' }
-        }
-      }
+          labels: {
+            color: window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "#e0e0e0"
+              : "#666",
+          },
+        },
+      },
     },
   });
 };
@@ -116,7 +122,9 @@ const updateSportChart = async () => {
 const updatePlaceChart = async () => {
   if (!selectedPlace.value || !placeCanvas.value) return;
 
-  const dataMap = await fetchData(`/api/stats/chart-data?type=place&id=${selectedPlace.value}`);
+  const dataMap = await fetchData(
+    `/api/stats/chart-data?type=place&id=${selectedPlace.value}`,
+  );
   if (!dataMap) return;
 
   const labels = Object.keys(dataMap);
@@ -124,7 +132,8 @@ const updatePlaceChart = async () => {
 
   if (placeChartInstance) placeChartInstance.destroy();
 
-  const placeName = places.value.find((p) => p._id === selectedPlace.value)?.name || "Place";
+  const placeName =
+    places.value.find((p) => p._id === selectedPlace.value)?.name || "Place";
 
   placeChartInstance = new Chart(placeCanvas.value, {
     type: "bar",
@@ -134,8 +143,8 @@ const updatePlaceChart = async () => {
         {
           label: `Games Played at: ${placeName}`,
           data: dataPoints as number[],
-          borderColor: "#fd7e14", 
-          backgroundColor: "rgba(253, 126, 20, 0.5)", 
+          borderColor: "#fd7e14",
+          backgroundColor: "rgba(253, 126, 20, 0.5)",
           borderWidth: 2,
         },
       ],
@@ -147,20 +156,28 @@ const updatePlaceChart = async () => {
       },
       plugins: {
         legend: {
-          labels: { color: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#e0e0e0' : '#666' }
-        }
-      }
+          labels: {
+            color: window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "#e0e0e0"
+              : "#666",
+          },
+        },
+      },
     },
   });
 };
 
 const updateTopSports = async () => {
-  const data = await fetchData(`/api/stats/top-entities?type=sport&period=${topSportsPeriod.value}`);
+  const data = await fetchData(
+    `/api/stats/top-entities?type=sport&period=${topSportsPeriod.value}`,
+  );
   if (data) topSportsList.value = data;
 };
 
 const updateTopPlaces = async () => {
-  const data = await fetchData(`/api/stats/top-entities?type=place&period=${topPlacesPeriod.value}`);
+  const data = await fetchData(
+    `/api/stats/top-entities?type=place&period=${topPlacesPeriod.value}`,
+  );
   if (data) topPlacesList.value = data;
 };
 
@@ -176,18 +193,19 @@ onUnmounted(() => {
 
 <template>
   <div class="stats-page">
-    
     <div class="stats-header-strip">
-      <div class="container h-100 d-flex justify-content-between align-items-center">
+      <div
+        class="container h-100 d-flex justify-content-between align-items-center"
+      >
         <div class="d-flex align-items-center">
-          <img 
-            src="/images/logo_TrentoArena.png" 
-            alt="TrentoArena" 
-            class="me-3 stats-logo" 
+          <img
+            src="/images/logo_TrentoArena.png"
+            alt="TrentoArena"
+            class="me-3 stats-logo"
           />
           <h1 class="h3 mb-0 fw-bold title-text">{{ t("stats.title") }}</h1>
         </div>
-        
+
         <button @click="logout" class="btn-logout">
           <span>{{ t("admin.logout") }}</span>
         </button>
@@ -195,15 +213,26 @@ onUnmounted(() => {
     </div>
 
     <div class="container pb-4">
-      
       <div class="row g-4 mb-5">
         <div class="col-lg-8">
           <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
               <h2>{{ t("stats.games_by_sport") }}</h2>
-              <select v-model="selectedSport" @change="updateSportChart" class="form-select w-auto">
+              <select
+                v-model="selectedSport"
+                @change="updateSportChart"
+                class="form-select w-auto"
+              >
                 <option value="" disabled>{{ t("stats.select_sport") }}</option>
-                <option v-for="sport in sports" :key="sport._id" :value="sport._id">{{ sport.name }}</option>
+                <option
+                  v-for="sport in sports"
+                  :key="sport._id"
+                  :value="sport._id"
+                >
+                  {{ sport.name }}
+                </option>
               </select>
             </div>
             <div class="card-body">
@@ -214,21 +243,33 @@ onUnmounted(() => {
 
         <div class="col-lg-4">
           <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
               <h2>{{ t("stats.top_sports") }}</h2>
-              <select v-model="topSportsPeriod" @change="updateTopSports" class="form-select w-auto">
+              <select
+                v-model="topSportsPeriod"
+                @change="updateTopSports"
+                class="form-select w-auto"
+              >
                 <option value="year">{{ t("stats.period_year") }}</option>
                 <option value="month">{{ t("stats.period_month") }}</option>
                 <option value="all">{{ t("stats.period_all") }}</option>
               </select>
             </div>
             <ul class="list-group list-group-flush">
-              <li v-for="(item, index) in topSportsList" :key="index" class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+              <li
+                v-for="(item, index) in topSportsList"
+                :key="index"
+                class="list-group-item d-flex justify-content-between align-items-center px-4 py-3"
+              >
                 <div class="d-flex align-items-center">
                   <span class="rank-badge me-3">{{ index + 1 }}</span>
                   <span class="fw-medium">{{ item.name }}</span>
                 </div>
-                <span class="badge bg-primary rounded-pill">{{ item.count }}</span>
+                <span class="badge bg-primary rounded-pill">{{
+                  item.count
+                }}</span>
               </li>
             </ul>
           </div>
@@ -238,11 +279,23 @@ onUnmounted(() => {
       <div class="row g-4">
         <div class="col-lg-8">
           <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
               <h2>{{ t("stats.games_by_place") }}</h2>
-              <select v-model="selectedPlace" @change="updatePlaceChart" class="form-select w-auto">
+              <select
+                v-model="selectedPlace"
+                @change="updatePlaceChart"
+                class="form-select w-auto"
+              >
                 <option value="" disabled>{{ t("stats.select_place") }}</option>
-                <option v-for="place in places" :key="place._id" :value="place._id">{{ place.name }}</option>
+                <option
+                  v-for="place in places"
+                  :key="place._id"
+                  :value="place._id"
+                >
+                  {{ place.name }}
+                </option>
               </select>
             </div>
             <div class="card-body">
@@ -253,27 +306,38 @@ onUnmounted(() => {
 
         <div class="col-lg-4">
           <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div
+              class="card-header d-flex justify-content-between align-items-center"
+            >
               <h2>{{ t("stats.top_places") }}</h2>
-              <select v-model="topPlacesPeriod" @change="updateTopPlaces" class="form-select w-auto">
+              <select
+                v-model="topPlacesPeriod"
+                @change="updateTopPlaces"
+                class="form-select w-auto"
+              >
                 <option value="year">{{ t("stats.period_year") }}</option>
                 <option value="month">{{ t("stats.period_month") }}</option>
                 <option value="all">{{ t("stats.period_all") }}</option>
               </select>
             </div>
             <ul class="list-group list-group-flush">
-              <li v-for="(item, index) in topPlacesList" :key="index" class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+              <li
+                v-for="(item, index) in topPlacesList"
+                :key="index"
+                class="list-group-item d-flex justify-content-between align-items-center px-4 py-3"
+              >
                 <div class="d-flex align-items-center">
                   <span class="rank-badge me-3">{{ index + 1 }}</span>
                   <span class="fw-medium">{{ item.name }}</span>
                 </div>
-                <span class="badge bg-success rounded-pill">{{ item.count }}</span>
+                <span class="badge bg-success rounded-pill">{{
+                  item.count
+                }}</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </template>

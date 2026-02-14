@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { RouterLink } from "vue-router"; 
+import { RouterLink } from "vue-router";
 import { IUserShared } from "@shared/types/User";
 
 const props = defineProps<{
@@ -13,8 +13,7 @@ const emit = defineEmits(["close", "refresh"]);
 const { t } = useI18n();
 const selectedWinners = ref<string[]>([]);
 const loadingAction = ref(false);
-const isActive = ref(false); 
-
+const isActive = ref(false);
 
 const isCreator = computed(() => {
   return (
@@ -107,7 +106,9 @@ async function finishGame() {
       closePopup();
     } else {
       const err = await res.json();
-      alert(t("game_popup.error_finish") + ": " + (err.message || "Sconosciuto"));
+      alert(
+        t("game_popup.error_finish") + ": " + (err.message || "Sconosciuto"),
+      );
     }
   } catch (e) {
     console.error(e);
@@ -132,7 +133,9 @@ async function deleteGame() {
       closePopup();
     } else {
       const err = await res.json();
-      alert(t("game_popup.error_delete") + ": " + (err.message || "Sconosciuto"));
+      alert(
+        t("game_popup.error_delete") + ": " + (err.message || "Sconosciuto"),
+      );
     }
   } catch (e) {
     console.error(e);
@@ -151,27 +154,30 @@ function toggleWinner(userId: string) {
 }
 
 onMounted(() => {
-  setTimeout(() => isActive.value = true, 50);
+  setTimeout(() => (isActive.value = true), 50);
 });
 </script>
 
 <template>
-  <div class="modal-overlay" :class="{ active: isActive }" @click.self="closePopup">
-    
+  <div
+    class="modal-overlay"
+    :class="{ active: isActive }"
+    @click.self="closePopup"
+  >
     <div class="modal-content">
-      
       <div class="modal-header">
         <h3 class="modal-title">{{ t("game_popup.title") }}</h3>
         <button class="modal-close-btn" @click="closePopup">&times;</button>
       </div>
 
       <div class="modal-body">
-        
         <div class="game-popup-row">
           <span class="game-popup-label">{{ t("game_popup.sport") }}</span>
-          <span class="game-popup-value">{{ game.sport?.name || t("common.sport") }}</span>
+          <span class="game-popup-value">{{
+            game.sport?.name || t("common.sport")
+          }}</span>
         </div>
-        
+
         <div class="game-popup-row">
           <span class="game-popup-label">{{ t("game_popup.place") }}</span>
           <span class="game-popup-value">
@@ -185,17 +191,17 @@ onMounted(() => {
             <span v-else>{{ t("common.place") }}</span>
           </span>
         </div>
-        
+
         <div class="game-popup-row">
           <span class="game-popup-label">{{ t("game_popup.date") }}</span>
           <span class="game-popup-value">{{ formattedDate }}</span>
         </div>
-        
+
         <div class="game-popup-row">
           <span class="game-popup-label">{{ t("game_popup.time") }}</span>
           <span class="game-popup-value">{{ formattedTime }}</span>
         </div>
-        
+
         <div class="game-popup-row">
           <span class="game-popup-label">{{ t("game_popup.creator") }}</span>
           <span class="game-popup-value">
@@ -209,9 +215,11 @@ onMounted(() => {
             <span v-else>{{ t("common.unknown") }}</span>
           </span>
         </div>
-        
+
         <div class="game-popup-row">
-          <span class="game-popup-label">{{ t("game_popup.participants") }}</span>
+          <span class="game-popup-label">{{
+            t("game_popup.participants")
+          }}</span>
           <span class="game-popup-value">
             {{ game.participants ? game.participants.length : 0 }} /
             {{ game.maxParticipants || "?" }}
@@ -232,7 +240,7 @@ onMounted(() => {
               ({{ t("game_popup.check_winners") }})
             </small>
           </h4>
-          
+
           <div class="game-popup-participants-list">
             <div
               v-for="p in game.participants"
@@ -247,7 +255,9 @@ onMounted(() => {
                 :value="p.user._id || p.user"
                 @change="toggleWinner(p.user._id || p.user)"
               />
-              <span v-else-if="p.winner" class="participant-winner me-1">🏆</span>
+              <span v-else-if="p.winner" class="participant-winner me-1"
+                >🏆</span
+              >
 
               <img
                 :src="p.user.profilePicture || '/images/utenteDefault.png'"
@@ -269,8 +279,10 @@ onMounted(() => {
           <strong>{{ t("game_popup.note") }}:</strong> {{ game.note }}
         </div>
 
-        <div class="modal-footer" style="flex-direction: column; align-items: stretch; gap: 0.5rem;">
-          
+        <div
+          class="modal-footer"
+          style="flex-direction: column; align-items: stretch; gap: 0.5rem"
+        >
           <button
             v-if="currentUser && !isFinished && !isFull && !isParticipant"
             class="btn btn-success"
@@ -279,12 +291,12 @@ onMounted(() => {
           >
             {{ t("game_popup.join") }}
           </button>
-          
+
           <template v-if="isCreator && !isFinished">
             <button
               v-if="isGameTimePassed"
               class="btn btn-warning"
-              style="background-color: #ffc107; color: #000;"
+              style="background-color: #ffc107; color: #000"
               @click="finishGame"
               :disabled="loadingAction"
             >
@@ -296,13 +308,19 @@ onMounted(() => {
           </template>
 
           <div v-if="isParticipant" class="text-center">
-            <span class="badge bg-success py-2 fs-6 d-block w-100">{{ t("game_popup.is_participant") }}</span>
+            <span class="badge bg-success py-2 fs-6 d-block w-100">{{
+              t("game_popup.is_participant")
+            }}</span>
           </div>
           <div v-else-if="isFinished" class="text-center">
-            <span class="badge bg-secondary py-2 fs-6 d-block w-100">{{ t("game_popup.finished") }}</span>
+            <span class="badge bg-secondary py-2 fs-6 d-block w-100">{{
+              t("game_popup.finished")
+            }}</span>
           </div>
           <div v-else-if="isFull" class="text-center">
-            <span class="badge bg-danger py-2 fs-6 d-block w-100">{{ t("game_popup.full") }}</span>
+            <span class="badge bg-danger py-2 fs-6 d-block w-100">{{
+              t("game_popup.full")
+            }}</span>
           </div>
 
           <button

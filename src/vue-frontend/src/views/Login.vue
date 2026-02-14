@@ -34,7 +34,8 @@ const handleLogin = async () => {
     }
   } catch (err) {
     console.error("Login error:", err);
-    error.value = t("login.error_connection") || "Errore di connessione al server";
+    error.value =
+      t("login.error_connection") || "Errore di connessione al server";
   } finally {
     loading.value = false;
   }
@@ -44,39 +45,61 @@ const handleLogin = async () => {
 <template>
   <div class="auth-wrapper">
     <div class="auth-card">
-      
-      <h2 class="auth-title">{{ t('login.title') }}</h2>
-      
-      <div v-if="error" class="alert alert-danger text-center mb-3" role="alert">
+      <h2 class="auth-title">{{ t("login.title") }}</h2>
+
+      <div
+        v-if="error"
+        class="alert alert-danger text-center mb-3"
+        role="alert"
+      >
         {{ error }}
       </div>
 
       <form @submit.prevent="handleLogin">
         <div class="mb-3">
-          <label class="form-label">{{ t('login.email') }}</label>
-          <input type="text" class="auth-input" v-model="username" required>
+          <label class="form-label">{{ t("login.email") }}</label>
+          <input type="text" class="auth-input" v-model="username" required />
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ t('login.password_placeholder') }}</label>
-          <input type="password" class="auth-input" v-model="password" required>
+          <label class="form-label">{{
+            t("login.password_placeholder")
+          }}</label>
+          <input
+            type="password"
+            class="auth-input"
+            v-model="password"
+            required
+          />
         </div>
-        
+
         <button type="submit" class="btn-auth-primary" :disabled="loading">
-          <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-          {{ t('login.login_button') }}
+          <span
+            v-if="loading"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ t("login.login_button") }}
         </button>
 
         <div class="auth-footer">
-          <span>{{ t('login.not_registered') }} </span> 
-          <a href="/register" class="auth-link">{{ t('login.register_link') }}</a>
+          <span>{{ t("login.not_registered") }} </span>
+          <a href="/register" class="auth-link">{{
+            t("login.register_link")
+          }}</a>
         </div>
       </form>
-      
-      <a href="/auth/google" class="btn-google">
-        <img src="/images/google-logo.png" width="20" height="20" class="me-2" alt="Google">
-        {{ t('login.google_login') }}
-      </a>
 
+      <a href="/auth/google" class="btn-google">
+        <img
+          src="/images/google-logo.png"
+          width="20"
+          height="20"
+          class="me-2"
+          alt="Google"
+        />
+        {{ t("login.google_login") }}
+      </a>
     </div>
   </div>
 </template>

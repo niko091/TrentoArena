@@ -73,7 +73,7 @@ const generateUniqueUsername = async (baseName: string): Promise<string> => {
   let userExists = await User.findOne({ username });
 
   while (userExists) {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000); 
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     username = `${baseName} ${randomSuffix}`;
     userExists = await User.findOne({ username });
   }

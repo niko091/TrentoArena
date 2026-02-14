@@ -19,7 +19,7 @@ router.get("/search", async (req: Request, res: Response) => {
       username: { $regex: query, $options: "i" },
     })
       .select("username profilePicture")
-      .limit(10); 
+      .limit(10);
 
     res.json(users);
   } catch (err) {
@@ -90,8 +90,8 @@ router.get("/:id", async (req: Request, res: Response) => {
 router.get("/username/:username", async (req: Request, res: Response) => {
   try {
     const user = await User.findOne({ username: req.params.username })
-      .select("username friends profilePicture isBanned") 
-      .populate("friends", "username profilePicture"); 
+      .select("username friends profilePicture isBanned")
+      .populate("friends", "username profilePicture");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -106,7 +106,7 @@ router.get("/username/:username", async (req: Request, res: Response) => {
 
 // POST /api/users/:id/friend-requests - Send a friend request
 router.post("/:id/friend-requests", async (req: Request, res: Response) => {
-  const { requesterId } = req.body; 
+  const { requesterId } = req.body;
   const targetUserId = req.params.id;
 
   if (!requesterId)
@@ -178,7 +178,6 @@ router.post("/:id/friends/decline", async (req: Request, res: Response) => {
     const user = await User.findById(userId);
 
     if (!user) return res.status(404).json({ message: "User not found" });
-
 
     if (!user.friendRequests.includes(requesterId)) {
       return res

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { IUserShared } from "@shared/types/User"; 
+import { IUserShared } from "@shared/types/User";
 
 const props = defineProps<{
   user: IUserShared | null;
@@ -11,7 +11,9 @@ const props = defineProps<{
 const { t } = useI18n();
 
 const friendCount = computed(() => props.user?.friends?.length || 0);
-const displayAvatar = computed(() => props.user?.profilePicture || '/images/utenteDefault.png');
+const displayAvatar = computed(
+  () => props.user?.profilePicture || "/images/utenteDefault.png",
+);
 </script>
 
 <template>
@@ -27,7 +29,7 @@ const displayAvatar = computed(() => props.user?.profilePicture || '/images/uten
       {{ user ? user.username : t("common.loading") }}
     </h3>
     <p class="user-role">{{ t("dashboard.player_role") }}</p>
-    
+
     <div class="stats-container" v-if="user">
       <div class="stat-box">
         <span class="stat-number">{{ gamesCount }}</span>

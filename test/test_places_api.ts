@@ -32,8 +32,8 @@ describe("Places API", function () {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
         process.env.MONGO_TEST_URI ||
-        process.env.MONGO_URI ||
-        "mongodb://localhost:27017/trentoArena",
+          process.env.MONGO_URI ||
+          "mongodb://localhost:27017/trentoArena",
       );
     }
     await Place.deleteMany({ name: API_TEST_PLACE.name });
@@ -49,7 +49,10 @@ describe("Places API", function () {
     // 1. Create a Sport
     const sportRes = await request(app)
       .post("/api/sports")
-      .auth(process.env.ADMIN_USERNAME || "admin", process.env.ADMIN_PASSWORD || "admin123")
+      .auth(
+        process.env.ADMIN_USERNAME || "admin",
+        process.env.ADMIN_PASSWORD || "admin123",
+      )
       .send({ name: "Test Sport" })
       .expect(201);
 
@@ -64,7 +67,10 @@ describe("Places API", function () {
 
     const res = await request(app)
       .post("/api/places")
-      .auth(process.env.ADMIN_USERNAME || "admin", process.env.ADMIN_PASSWORD || "admin123")
+      .auth(
+        process.env.ADMIN_USERNAME || "admin",
+        process.env.ADMIN_PASSWORD || "admin123",
+      )
       .send(newPlace)
       .expect(201);
 
@@ -82,7 +88,10 @@ describe("Places API", function () {
   it("Step 3: Should reject invalid input", async () => {
     await request(app)
       .post("/api/places")
-      .auth(process.env.ADMIN_USERNAME || "admin", process.env.ADMIN_PASSWORD || "admin123")
+      .auth(
+        process.env.ADMIN_USERNAME || "admin",
+        process.env.ADMIN_PASSWORD || "admin123",
+      )
       .send({ name: "Incomplete Place" })
       .expect(400);
   });

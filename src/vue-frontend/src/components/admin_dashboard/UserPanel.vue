@@ -39,8 +39,8 @@ const calculateRemainingTime = (expiry: string) => {
   if (diff <= 0) return t("admin.js.expired");
   const days = Math.floor(diff / 86400000);
   if (days < 1) {
-      const hours = Math.floor(diff / 3600000);
-      return `${hours}h`;
+    const hours = Math.floor(diff / 3600000);
+    return `${hours}h`;
   }
   return `${days}d`;
 };
@@ -48,7 +48,6 @@ const calculateRemainingTime = (expiry: string) => {
 
 <template>
   <div class="row g-4 mt-1 align-items-start">
-    
     <div class="col-lg-6">
       <div class="card h-100">
         <div class="card-header py-3">
@@ -79,7 +78,9 @@ const calculateRemainingTime = (expiry: string) => {
                   </td>
                 </tr>
                 <tr v-for="report in reports" :key="report._id">
-                  <td class="small text-secondary">{{ formatDateTime(report.date) }}</td>
+                  <td class="small text-secondary">
+                    {{ formatDateTime(report.date) }}
+                  </td>
                   <td>
                     {{ report.reporter?.username || t("admin.js.unknown") }}
                   </td>
@@ -191,7 +192,6 @@ const calculateRemainingTime = (expiry: string) => {
 <style scoped src="@/assets/css/admin_dashboard.css"></style>
 
 <style scoped>
-
 .text-brand {
   color: var(--brand-primary);
   font-weight: 600;

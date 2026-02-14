@@ -27,8 +27,8 @@ describe("Game API Tests", function () {
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(
         process.env.MONGO_TEST_URI ||
-        process.env.MONGO_URI ||
-        "mongodb://localhost:27017/trentoArena",
+          process.env.MONGO_URI ||
+          "mongodb://localhost:27017/trentoArena",
       );
     }
 
@@ -87,16 +87,14 @@ describe("Game API Tests", function () {
   });
 
   it("Step 3: Should CREATE a new game", async () => {
-    const res = await agent
-      .post("/api/games")
-      .send({
-        sportId,
-        placeId,
-        date: "2020-01-01", // Backdated to allow finishing
-        time: "18:00",
-        note: "API_TEST_GAME",
-        maxParticipants: 10,
-      });
+    const res = await agent.post("/api/games").send({
+      sportId,
+      placeId,
+      date: "2020-01-01", // Backdated to allow finishing
+      time: "18:00",
+      note: "API_TEST_GAME",
+      maxParticipants: 10,
+    });
 
     if (res.status !== 201) {
       console.error("Create Game Failed:", res.status, res.body);

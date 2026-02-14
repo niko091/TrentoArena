@@ -41,8 +41,8 @@ const performSearch = async (query: string) => {
     const type = typeSearch.value.trim();
 
     const [usersRes, placesRes] = await Promise.all([
-        fetch(`/api/users/search?query=${encodeURIComponent(query)}`),
-        fetch(`/api/places/search?query=${encodeURIComponent(query)}`)
+      fetch(`/api/users/search?query=${encodeURIComponent(query)}`),
+      fetch(`/api/places/search?query=${encodeURIComponent(query)}`),
     ]);
 
     if (usersRes.ok) resultsUsers.value = await usersRes.json();
@@ -51,12 +51,11 @@ const performSearch = async (query: string) => {
     if (placesRes.ok) resultsPlaces.value = await placesRes.json();
     else resultsPlaces.value = [];
 
-    if(type=='user'){
+    if (type == "user") {
       resultsPlaces.value = [];
-    }else if(type=="place"){
+    } else if (type == "place") {
       resultsUsers.value = [];
     }
-
   } catch (error) {
     console.error("Search error:", error);
     resultsUsers.value = [];
@@ -95,7 +94,6 @@ watch(typeSearch, handleInput);
     @click.self="closePopup"
   >
     <div class="modal-content">
-      
       <div class="modal-header">
         <h2 class="modal-title">{{ t("search_popup.title") }}</h2>
         <button class="modal-close-btn" @click="closePopup" aria-label="Close">
@@ -104,7 +102,6 @@ watch(typeSearch, handleInput);
       </div>
 
       <div class="modal-body">
-        
         <div class="search-input-container">
           <img src="/images/search.png" class="search-icon" alt="Search" />
           <input
@@ -119,10 +116,13 @@ watch(typeSearch, handleInput);
 
         <div>
           <strong>{{ t("search_popup.placeholder") }}</strong>
-           <select class="search-type form-select form-select-sm shadow-sm" v-model="typeSearch">
-              <option value="all">{{ t("search_popup.all") }}</option>
-              <option value="place">{{ t("search_popup.places") }}</option>
-              <option value="user">{{ t("search_popup.users") }}</option>
+          <select
+            class="search-type form-select form-select-sm shadow-sm"
+            v-model="typeSearch"
+          >
+            <option value="all">{{ t("search_popup.all") }}</option>
+            <option value="place">{{ t("search_popup.places") }}</option>
+            <option value="user">{{ t("search_popup.users") }}</option>
           </select>
         </div>
 
@@ -135,7 +135,11 @@ watch(typeSearch, handleInput);
           </div>
 
           <div
-            v-if="!hasSearched && searchQuery.trim().length > 0 && searchQuery.trim().length < 2"
+            v-if="
+              !hasSearched &&
+              searchQuery.trim().length > 0 &&
+              searchQuery.trim().length < 2
+            "
             class="no-results"
           >
             {{ t("search_popup.type_more") }}
@@ -199,7 +203,6 @@ watch(typeSearch, handleInput);
           </div>
         </div>
       </div>
-      
     </div>
   </div>
 </template>

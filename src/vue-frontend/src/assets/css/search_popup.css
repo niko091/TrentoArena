@@ -19,13 +19,12 @@
   border-color: var(--brand-primary);
 }
 
-.search-type{
+.search-type {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
-
 
 .search-icon {
   position: absolute;
@@ -35,7 +34,7 @@
   width: 20px;
   height: 20px;
   opacity: 0.5;
-  filter: brightness(0) invert(0); 
+  filter: brightness(0) invert(0);
 }
 
 @media (prefers-color-scheme: dark) {

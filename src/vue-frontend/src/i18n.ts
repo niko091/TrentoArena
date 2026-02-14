@@ -14,9 +14,9 @@ function getBrowserType(): "en" | "it" | "de" {
 }
 
 const i18n = createI18n<[MessageSchema], "en" | "it" | "de">({
-  legacy: false, 
-  locale: getBrowserType(), 
-  fallbackLocale: "en", 
+  legacy: false,
+  locale: getBrowserType(),
+  fallbackLocale: "en",
   messages: {
     en,
     it,
