@@ -77,7 +77,7 @@ const router = createRouter({
       path: "/stats",
       name: "stats",
       component: Stats,
-      meta: { requiresAuth: false, requiresStats: true, layout: "without" },
+      meta: {layout: "without", requiresAuth: false, requiresStats: true},
     },
     {
       path: "/stats/login",

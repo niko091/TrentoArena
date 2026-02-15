@@ -8,7 +8,7 @@ const route = useRoute();
 
 const layouts = {
   default: LayoutWithNavbar,
-  noNavbar: LayoutWithoutNavbar,
+  without: LayoutWithoutNavbar, 
 };
 
 const currentLayout = computed(() => {
