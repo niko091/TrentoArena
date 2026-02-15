@@ -98,15 +98,4 @@ const getBadgeClass = (game: any) => {
   </div>
 </template>
 
-<style scoped>
-.wireframe-card {
-  border: 2px solid #000000;
-  border-radius: 12px;
-  background-color: #fff;
-  transition: transform 0.2s;
-}
-.wireframe-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 4px 4px 0px #000000;
-}
-</style>
+<style scoped src="@/assets/css/profile.css"></style>

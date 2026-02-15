@@ -80,21 +80,4 @@ const calendarDots = computed(() => {
   </div>
 </template>
 
-<style scoped>
-.wireframe-card {
-  background: #fff;
-  border: 2px solid #000;
-  border-radius: 12px;
-}
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  justify-items: center;
-  align-items: center;
-}
-.calendar-dot {
-  border-radius: 50%;
-  transition: all 0.2s ease;
-}
-</style>
+<style scoped src="@/assets/css/profile.css"></style>

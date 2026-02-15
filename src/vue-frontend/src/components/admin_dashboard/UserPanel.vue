@@ -88,14 +88,21 @@ const calculateRemainingTime = (expiry?: string) => {
                 <tr>
                   <th style="width: 15%">{{ t("admin.table_date") }}</th>
                   <th style="width: 20%">{{ t("admin.table_reporter") }}</th>
-                  <th style="width: 45%">{{ t("admin.table_reported_user") }}</th>
-                  <th style="width: 20%" class="text-end pe-4">{{ t("admin.table_actions") }}</th>
+                  <th style="width: 45%">
+                    {{ t("admin.table_reported_user") }}
+                  </th>
+                  <th style="width: 20%" class="text-end pe-4">
+                    {{ t("admin.table_actions") }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="loadingReports">
                   <td colspan="4" class="text-center py-4 text-secondary">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <div
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    ></div>
                     {{ t("common.loading") }}
                   </td>
                 </tr>
@@ -160,13 +167,18 @@ const calculateRemainingTime = (expiry?: string) => {
                 <tr>
                   <th style="width: 40%">{{ t("admin.table_username") }}</th>
                   <th style="width: 40%">{{ t("admin.table_ban_expiry") }}</th>
-                  <th style="width: 20%" class="text-end pe-4">{{ t("admin.table_actions") }}</th>
+                  <th style="width: 20%" class="text-end pe-4">
+                    {{ t("admin.table_actions") }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="loadingBanned">
                   <td colspan="3" class="text-center py-4 text-secondary">
-                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                    <div
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    ></div>
                     {{ t("common.loading") }}
                   </td>
                 </tr>
@@ -229,7 +241,7 @@ const calculateRemainingTime = (expiry?: string) => {
 }
 
 .card {
-  border: 1px solid #e9ecef; 
+  border: 1px solid #e9ecef;
 }
 
 .card-body {
@@ -240,6 +252,6 @@ const calculateRemainingTime = (expiry?: string) => {
 .text-muted {
   color: #6c757d !important;
   display: block;
-  white-space: normal; 
+  white-space: normal;
 }
 </style>

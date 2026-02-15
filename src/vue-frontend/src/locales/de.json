@@ -180,7 +180,7 @@
     "ban_duration": "Dauer",
     "ban_reason": "Grund",
     "ban_confirm": "Benutzer sperren",
-     "status_banned": "Bannato",
+    "status_banned": "Bannato",
     "js": {
       "confirm_delete_place": "Sind Sie sicher, dass Sie diesen Ort löschen möchten?",
       "place_deleted": "Ort erfolgreich gelöscht",

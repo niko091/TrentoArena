@@ -94,10 +94,4 @@ onMounted(renderChart);
   </div>
 </template>
 
-<style scoped>
-.elo-chart-container {
-  position: relative;
-  height: 400px;
-  width: 100%;
-}
-</style>
+<style scoped src="@/assets/css/profile.css"></style>
