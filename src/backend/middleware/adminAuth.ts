@@ -5,5 +5,5 @@ export const adminAuth = basicAuth({
     [process.env.ADMIN_USERNAME || "admin"]:
       process.env.ADMIN_PASSWORD || "admin123",
   },
-  challenge: true,
+  challenge: false,
 });

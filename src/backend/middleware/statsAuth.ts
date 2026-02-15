@@ -5,5 +5,5 @@ export const statsAuth = basicAuth({
     [process.env.STATS_USERNAME || "stats"]:
       process.env.STATS_PASSWORD || "stats123",
   },
-  challenge: true,
+  challenge: false,
 });

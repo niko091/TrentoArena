@@ -59,11 +59,50 @@ const logout = () => {
   router.push("/admin/login");
 };
 
+const getAuthHeaders = (): HeadersInit => {
+  const auth = localStorage.getItem("admin_auth");
+  if (!auth) {
+    router.push("/admin/login");
+    return {};
+  }
+  return {
+    Authorization: `Basic ${auth}`,
+    "Content-Type": "application/json",
+  };
+};
+
+const handleAuthError = (response: Response) => {
+  if (response.status === 401) {
+    localStorage.removeItem("admin_auth");
+    router.push("/admin/login");
+    return true;
+  }
+  return false;
+};
+
+const fetchData = async (url: string, options: RequestInit = {}) => {
+  try {
+    const authHeaders = getAuthHeaders();
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...authHeaders,
+        ...(options.headers || {}),
+      },
+    });
+    if (handleAuthError(response)) return null;
+    return response;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
 const fetchPlaces = async () => {
   loading.places = true;
   try {
-    const res = await fetch("/api/places");
-    if (res.ok) places.value = await res.json();
+    const res = await fetchData("/api/places");
+    if (res && res.ok) places.value = await res.json();
   } catch (e) {
     console.error(e);
   } finally {
@@ -74,8 +113,8 @@ const fetchPlaces = async () => {
 const fetchSports = async () => {
   loading.sports = true;
   try {
-    const res = await fetch("/api/sports");
-    if (res.ok) sports.value = await res.json();
+    const res = await fetchData("/api/sports");
+    if (res && res.ok) sports.value = await res.json();
   } catch (e) {
     console.error(e);
   } finally {
@@ -86,8 +125,8 @@ const fetchSports = async () => {
 const fetchReports = async () => {
   loading.reports = true;
   try {
-    const res = await fetch("/api/reports");
-    if (res.ok) reports.value = await res.json();
+    const res = await fetchData("/api/reports");
+    if (res && res.ok) reports.value = await res.json();
   } catch (e) {
     console.error(e);
   } finally {
@@ -98,8 +137,8 @@ const fetchReports = async () => {
 const fetchBannedUsers = async () => {
   loading.bannedUsers = true;
   try {
-    const res = await fetch("/api/admin/banned-users");
-    if (res.ok) bannedUsers.value = await res.json();
+    const res = await fetchData("/api/admin/banned-users");
+    if (res && res.ok) bannedUsers.value = await res.json();
   } catch (e) {
     console.error(e);
   } finally {
@@ -120,9 +159,8 @@ const openEditModal = (place: any) => {
 
 const updatePlace = async () => {
   try {
-    const res = await fetch(`/api/places/${editPlaceForm.id}`, {
+    const res = await fetchData(`/api/places/${editPlaceForm.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: editPlaceForm.name,
         sport: editPlaceForm.sport,
@@ -132,11 +170,11 @@ const updatePlace = async () => {
         },
       }),
     });
-    if (res.ok) {
+    if (res && res.ok) {
       alert(t("admin.js.place_updated"));
       editPlaceModal?.hide();
       fetchPlaces();
-    } else {
+    } else if (res) {
       const data = await res.json();
       alert(`Error: ${data.message}`);
     }
@@ -157,21 +195,20 @@ const openBanModal = (user: any) => {
 
 const banUser = async () => {
   try {
-    const res = await fetch("/api/admin/ban", {
+    const res = await fetchData("/api/admin/ban", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: banUserForm.id,
         duration: banUserForm.duration,
         reason: banUserForm.reason,
       }),
     });
-    if (res.ok) {
+    if (res && res.ok) {
       alert("User banned.");
       banUserModal?.hide();
       fetchReports();
       fetchBannedUsers();
-    } else {
+    } else if (res) {
       const data = await res.json();
       alert(`Error: ${data.message}`);
     }
