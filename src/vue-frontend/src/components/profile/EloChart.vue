@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, shallowRef, markRaw, onMounted, watch, nextTick } from "vue";
 import Chart from "chart.js/auto";
 import { useI18n } from "vue-i18n";
 import { IUserShared } from "@shared/types/User";
@@ -10,7 +10,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
-const chartInstance = ref<Chart | null>(null);
+const chartInstance = shallowRef<Chart | null>(null);
 const selectedSportIndex = ref(0);
 
 const hasStats = () => props.user.sportsElo && props.user.sportsElo.length > 0;
@@ -39,7 +39,7 @@ const renderChart = () => {
     data.push(stat.elo);
   }
 
-  chartInstance.value = new Chart(chartCanvas.value, {
+  chartInstance.value = markRaw(new Chart(chartCanvas.value, {
     type: "line",
     data: {
       labels,
@@ -59,7 +59,7 @@ const renderChart = () => {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
     },
-  });
+  }));
 };
 
 watch(
