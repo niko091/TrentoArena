@@ -121,7 +121,8 @@
     "all_sports": "All Sports",
     "all_places": "All facilities",
     "sport": "Filter by sport",
-    "place": "Filter by facility"
+    "place": "Filter by facility",
+    "status": "Status"
   },
   "leaderboard": {
     "title": "Leaderboard",
@@ -180,7 +181,6 @@
     "ban_reason": "Reason",
     "ban_confirm": "Ban User",
     "status_banned": "Bereits gesperrt",
-
     "js": {
       "confirm_delete_place": "Are you sure you want to delete this place?",
       "place_deleted": "Place deleted successfully",

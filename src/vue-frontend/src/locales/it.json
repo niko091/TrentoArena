@@ -123,7 +123,8 @@
     "all_sports": "Tutti gli Sport",
     "all_places": "Tutte le strutture",
     "sport": "Filtra per sport",
-    "place": "Filtra per struttura"
+    "place": "Filtra per struttura",
+    "status": "Stato"
   },
   "leaderboard": {
     "title": "Classifica",
@@ -182,7 +183,6 @@
     "ban_reason": "Motivazione",
     "ban_confirm": "Banna Utente",
     "status_banned": "Bannato",
-
     "js": {
       "confirm_delete_place": "Sei sicuro di voler eliminare questo luogo?",
       "place_deleted": "Luogo eliminato con successo",
