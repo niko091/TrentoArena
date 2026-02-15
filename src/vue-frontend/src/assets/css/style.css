@@ -7,12 +7,15 @@
   --status-danger: #dc3545;
   --status-info: #0d6efd;
   --status-warning: #ffc107;
+
   --navbar-bg: var(--brand-primary);
   --navbar-text: #ffffff;
   --navbar-icon-filter: brightness(0) invert(1);
+
   --bg-panel: #ffffff;
   --bg-element: #f1f1f1;
   --bg-input: #ffffff;
+  --bg-app: #ffffff;
 
   --text-primary: #212529;
   --text-secondary: #6c757d;
@@ -52,7 +55,7 @@
 
     --text-primary: #e0e0e0;
     --text-secondary: #b0b0b0;
-    --text-muted: #6c757d;
+    --text-muted: #adb5bd;
     --text-inverse: #121212;
 
     --border-color: #495057;
@@ -70,6 +73,7 @@
   margin: 0;
   padding: 0;
 }
+
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
@@ -82,14 +86,17 @@ body {
     background-color 0.3s ease,
     color 0.3s ease;
 }
+
 a {
   text-decoration: none;
   color: inherit;
   transition: color 0.2s;
 }
+
 ul {
   list-style: none;
 }
+
 img,
 svg {
   max-width: 100%;
@@ -106,6 +113,7 @@ svg {
     transform 0.2s,
     box-shadow 0.2s;
 }
+
 .form-control {
   width: 100%;
   padding: 0.75rem;
@@ -119,11 +127,13 @@ svg {
     border-color 0.2s,
     box-shadow 0.2s;
 }
+
 .form-control:focus {
   outline: none;
   border-color: var(--input-focus-border);
   box-shadow: 0 0 0 3px var(--input-focus-shadow);
 }
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -141,10 +151,52 @@ svg {
   background-color: var(--brand-primary);
   color: #fff;
 }
+
 .btn-primary:hover {
   background-color: var(--brand-secondary);
   transform: translateY(-1px);
 }
+
+.btn-danger {
+  background-color: var(--status-danger);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background-color: var(--status-success);
+  color: #fff;
+}
+
+.btn-success:hover {
+  filter: brightness(0.9);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--text-secondary);
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  filter: brightness(0.9);
+}
+
+.btn-outline-danger {
+  background-color: transparent;
+  border: 1px solid var(--status-danger);
+  color: var(--status-danger);
+}
+
+.btn-outline-danger:hover {
+  background-color: var(--status-danger);
+  color: #fff;
+}
+
 .container {
   max-width: 1400px;
   width: 100%;

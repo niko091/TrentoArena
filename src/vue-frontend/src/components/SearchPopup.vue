@@ -102,9 +102,7 @@ watch(typeSearch, handleInput);
       </div>
 
       <div class="modal-body">
-
         <div class="input-container">
-
           <div class="search-input-container">
             <img src="/images/search.png" class="search-icon" alt="Search" />
             <input

@@ -73,6 +73,7 @@
   border-color: var(--brand-primary) !important;
   color: #fff !important;
 }
+
 .btn-primary-custom:hover {
   filter: brightness(0.9);
 }
@@ -82,6 +83,7 @@
   border-color: var(--brand-primary) !important;
   background-color: transparent !important;
 }
+
 .btn-outline-primary-custom:hover {
   background-color: var(--brand-primary) !important;
   color: white !important;
@@ -146,9 +148,7 @@
 
 .list-group-item {
   background-color: var(--bg-panel) !important;
-
   color: var(--text-primary) !important;
-
   border-color: var(--border-color) !important;
 }
 
@@ -162,4 +162,39 @@ a.list-group-item:hover,
 button.list-group-item:hover {
   background-color: var(--bg-element) !important;
   color: var(--text-primary) !important;
+}
+
+.modal-content {
+  background-color: var(--bg-panel) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.modal-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+.btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.modal-body .form-label {
+  color: var(--text-primary) !important;
+  opacity: 1 !important;
 }

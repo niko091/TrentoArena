@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import * as bootstrap from "bootstrap";
 import { IUserShared as User } from "@shared/types/User";
 import { ProfileAPI } from "../api/profile";
 import GamePopup from "../components/GamePopup.vue";
+import ReportPopup from "../components/profile/ReportPopup.vue";
 import EloChart from "../components/profile/EloChart.vue";
 import Calendar from "../components/profile/Calendar.vue";
 import GameList from "../components/profile/GameList.vue";
@@ -20,9 +20,7 @@ const friends = ref<any[]>([]);
 const upcomingGames = ref<any[]>([]);
 const pastGames = ref<any[]>([]);
 const selectedGame = ref<any | null>(null);
-const reportMotivation = ref("");
-
-let reportModal: any = null;
+const showReportModal = ref(false);
 
 const isOwnProfile = computed(
   () => currentUser.value?._id === profileUser.value?._id,
@@ -47,15 +45,6 @@ const friendStatus = computed(() => {
 
 onMounted(async () => {
   await init();
-});
-
-watch(loading, (isLoading) => {
-  if (!isLoading) {
-    nextTick(() => {
-      const modalEl = document.getElementById("reportModal");
-      if (modalEl) reportModal = new bootstrap.Modal(modalEl);
-    });
-  }
 });
 
 watch(() => route.params, init);
@@ -152,18 +141,22 @@ async function handleFileChange(event: Event) {
     );
 }
 
-function submitReport() {
-  if (!reportMotivation.value) return alert("Inserisci motivazione");
+function submitReport(motivation: string) {
+  if (!currentUser.value || !profileUser.value) return;
+
   ProfileAPI.sendReport(
-    currentUser.value!._id,
-    profileUser.value!._id,
-    reportMotivation.value,
+    currentUser.value._id,
+    profileUser.value._id,
+    motivation,
   )
     .then(() => {
-      alert("Segnalazione inviata");
-      reportModal?.hide();
+      alert(t("profile.report_success") || "Segnalazione inviata");
+      showReportModal.value = false;
     })
-    .catch(console.error);
+    .catch((e) => {
+      console.error(e);
+      alert("Errore nell'invio della segnalazione");
+    });
 }
 </script>
 
@@ -213,10 +206,7 @@ function submitReport() {
           {{ profileUser.email }}
         </p>
 
-        <div
-          v-if="!isOwnProfile"
-          class="d-flex justify-content-center gap-2 mt-3 flex-wrap"
-        >
+        <div v-if="!isOwnProfile" class="gap-2 mt-3">
           <button
             v-if="friendStatus === 'none'"
             class="btn btn-primary"
@@ -245,25 +235,19 @@ function submitReport() {
           >
             {{ t("profile.remove_friend") }}
           </button>
+
           <button
             class="btn btn-outline-danger btn-sm"
-            @click="
-              () => {
-                reportMotivation = '';
-                reportModal?.show();
-              }
-            "
+            @click="showReportModal = true"
           >
             {{ t("profile.report_user") }}
           </button>
         </div>
 
         <div v-if="isOwnProfile" class="mt-3">
-          <a
-            href="/auth/logout"
-            class="btn btn-outline-danger btn-lg px-5 w-100"
-            >{{ t("profile.logout") }}</a
-          >
+          <a href="/auth/logout" class="btn btn-outline-danger btn-lg px-5">{{
+            t("profile.logout")
+          }}</a>
         </div>
       </div>
 
@@ -317,33 +301,13 @@ function submitReport() {
     </div>
   </div>
 
-  <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ t("profile.report_modal_title") }}</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <textarea
-            v-model="reportMotivation"
-            class="form-control"
-            rows="3"
-            :placeholder="t('profile.report_reason')"
-          ></textarea>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" @click="submitReport">
-            {{ t("profile.report_submit") }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <ReportPopup
+    v-if="profileUser"
+    :is-open="showReportModal"
+    :username="profileUser.username"
+    @close="showReportModal = false"
+    @submit="submitReport"
+  />
 
   <GamePopup
     v-if="selectedGame"

@@ -179,6 +179,8 @@
     "ban_duration": "Duration",
     "ban_reason": "Reason",
     "ban_confirm": "Ban User",
+    "status_banned": "Bereits gesperrt",
+
     "js": {
       "confirm_delete_place": "Are you sure you want to delete this place?",
       "place_deleted": "Place deleted successfully",

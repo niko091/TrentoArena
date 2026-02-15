@@ -181,6 +181,8 @@
     "ban_duration": "Durata",
     "ban_reason": "Motivazione",
     "ban_confirm": "Banna Utente",
+    "status_banned": "Bannato",
+
     "js": {
       "confirm_delete_place": "Sei sicuro di voler eliminare questo luogo?",
       "place_deleted": "Luogo eliminato con successo",

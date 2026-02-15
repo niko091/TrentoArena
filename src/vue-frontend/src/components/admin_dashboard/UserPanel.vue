@@ -1,13 +1,39 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 
+interface Report {
+  _id: string;
+  date: string;
+  motivation: string;
+  reporter?: {
+    username: string;
+  };
+  reported?: {
+    _id: string;
+    username: string;
+    isBanned?: boolean;
+  };
+}
+
+interface BannedUser {
+  _id: string;
+  username: string;
+  banReason?: string;
+  banExpiresAt?: string;
+}
+
 const props = defineProps<{
-  reports: any[];
-  bannedUsers: any[];
+  reports: Report[];
+  bannedUsers: BannedUser[];
   loadingReports: boolean;
   loadingBanned: boolean;
 }>();
-const emit = defineEmits(["refresh-users", "open-ban-modal"]);
+
+const emit = defineEmits<{
+  (e: "refresh-users"): void;
+  (e: "open-ban-modal", user: any): void;
+}>();
+
 const { t } = useI18n();
 
 const unbanUser = async (userId: string, username: string) => {
@@ -33,7 +59,7 @@ const unbanUser = async (userId: string, username: string) => {
 
 const formatDateTime = (d: string) => new Date(d).toLocaleString("it-IT");
 
-const calculateRemainingTime = (expiry: string) => {
+const calculateRemainingTime = (expiry?: string) => {
   if (!expiry) return "";
   const diff = new Date(expiry).getTime() - new Date().getTime();
   if (diff <= 0) return t("admin.js.expired");
@@ -47,10 +73,10 @@ const calculateRemainingTime = (expiry: string) => {
 </script>
 
 <template>
-  <div class="row g-4 mt-1 align-items-start">
-    <div class="col-lg-6">
-      <div class="card h-100">
-        <div class="card-header py-3">
+  <div class="row g-4 mt-1">
+    <div class="col-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header py-3 bg-transparent border-bottom">
           <h2 class="h6 mb-0 text-brand">
             {{ t("admin.user_reports") }}
           </h2>
@@ -58,17 +84,25 @@ const calculateRemainingTime = (expiry: string) => {
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
-              <thead class="table-light">
+              <thead>
                 <tr>
-                  <th>{{ t("admin.table_date") }}</th>
-                  <th>{{ t("admin.table_reporter") }}</th>
-                  <th>{{ t("admin.table_reported_user") }}</th>
-                  <th>{{ t("admin.table_actions") }}</th>
+                  <th style="width: 15%">{{ t("admin.table_date") }}</th>
+                  <th style="width: 20%">{{ t("admin.table_reporter") }}</th>
+                  <th style="width: 45%">
+                    {{ t("admin.table_reported_user") }}
+                  </th>
+                  <th style="width: 20%" class="text-end pe-4">
+                    {{ t("admin.table_actions") }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="loadingReports">
                   <td colspan="4" class="text-center py-4 text-secondary">
+                    <div
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    ></div>
                     {{ t("common.loading") }}
                   </td>
                 </tr>
@@ -85,18 +119,17 @@ const calculateRemainingTime = (expiry: string) => {
                     {{ report.reporter?.username || t("admin.js.unknown") }}
                   </td>
                   <td>
-                    <div class="fw-bold">
-                      {{ report.reported?.username || t("admin.js.unknown") }}
+                    <div class="d-flex flex-column">
+                      <span class="fw-bold">
+                        {{ report.reported?.username || t("admin.js.unknown") }}
+                      </span>
+                      <small class="text-muted mt-1">
+                        <i class="bi bi-chat-quote me-1"></i>
+                        {{ report.motivation }}
+                      </small>
                     </div>
-                    <small
-                      class="text-secondary text-truncate d-block"
-                      style="max-width: 150px"
-                      :title="report.motivation"
-                    >
-                      {{ report.motivation }}
-                    </small>
                   </td>
-                  <td>
+                  <td class="text-end pe-3">
                     <button
                       v-if="report.reported?.isBanned"
                       class="btn btn-secondary btn-sm"
@@ -120,9 +153,9 @@ const calculateRemainingTime = (expiry: string) => {
       </div>
     </div>
 
-    <div class="col-lg-6">
-      <div class="card h-100">
-        <div class="card-header py-3">
+    <div class="col-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header py-3 bg-transparent border-bottom">
           <h2 class="h6 mb-0 text-brand">
             {{ t("admin.banned_users") }}
           </h2>
@@ -130,16 +163,22 @@ const calculateRemainingTime = (expiry: string) => {
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
-              <thead class="table-light">
+              <thead>
                 <tr>
-                  <th>{{ t("admin.table_username") }}</th>
-                  <th>{{ t("admin.table_ban_expiry") }}</th>
-                  <th class="text-end pe-4">{{ t("admin.table_actions") }}</th>
+                  <th style="width: 40%">{{ t("admin.table_username") }}</th>
+                  <th style="width: 40%">{{ t("admin.table_ban_expiry") }}</th>
+                  <th style="width: 20%" class="text-end pe-4">
+                    {{ t("admin.table_actions") }}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="loadingBanned">
                   <td colspan="3" class="text-center py-4 text-secondary">
+                    <div
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    ></div>
                     {{ t("common.loading") }}
                   </td>
                 </tr>
@@ -151,8 +190,8 @@ const calculateRemainingTime = (expiry: string) => {
                 <tr v-for="user in bannedUsers" :key="user._id">
                   <td>
                     <div class="fw-bold">{{ user.username }}</div>
-                    <small class="text-secondary">{{
-                      user.banReason || "No reason"
+                    <small class="text-secondary fst-italic">{{
+                      user.banReason || "No reason specified"
                     }}</small>
                   </td>
                   <td class="small">
@@ -200,8 +239,19 @@ const calculateRemainingTime = (expiry: string) => {
 .text-secondary {
   color: var(--text-secondary) !important;
 }
+
+.card {
+  border: 1px solid #e9ecef;
+}
+
 .card-body {
   overflow: hidden;
   border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.text-muted {
+  color: #6c757d !important;
+  display: block;
+  white-space: normal;
 }
 </style>
