@@ -79,7 +79,9 @@
     "accept_request": "Accept Request",
     "report_modal_title": "Report User",
     "report_reason": "Reason...",
-    "report_submit": "Submit Report"
+    "report_submit": "Submit Report",
+    "reported_user" : "Reported user"
+
   },
   "stats": {
     "title": "Game Statistics",
