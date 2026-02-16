@@ -10,6 +10,7 @@ import AdminLogin from "../views/AdminLogin.vue";
 import Stats from "../views/Stats.vue";
 import StatsLogin from "../views/StatsLogin.vue";
 import VerifyAccount from "../components/VerifyAccount.vue";
+import ApiDashboard from "../views/ApiDashboard.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -83,6 +84,12 @@ const router = createRouter({
       path: "/stats/login",
       name: "stats-login",
       component: StatsLogin,
+      meta: { layout: "without" },
+    },
+    {
+      path: "/docs",
+	name: "APIdoc",
+      component: ApiDashboard,
       meta: { layout: "without" },
     },
     {
