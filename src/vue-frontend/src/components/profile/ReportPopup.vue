@@ -42,7 +42,7 @@ const submit = () => {
 
       <div class="modal-body">
         <p class="mb-3 text-description">
-          Segnalazione utente: <strong>{{ username }}</strong>
+          {{ t("profile.reported_user") }}: <strong>{{ username }}</strong>
         </p>
         <textarea
           v-model="motivation"

@@ -79,7 +79,9 @@
     "elo_rating": "ELO-Bewertung",
     "report_modal_title": "Benutzer melden",
     "report_reason": "Grund...",
-    "report_submit": "Meldung senden"
+    "report_submit": "Meldung senden",
+    "reported_user" : "Gemeldeter Benutzer"
+
   },
   "stats": {
     "title": "Spielstatistiken",

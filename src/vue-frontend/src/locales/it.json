@@ -81,7 +81,8 @@
     "accept_request": "Accetta Richiesta",
     "report_modal_title": "Segnala Utente",
     "report_reason": "Motivazione...",
-    "report_submit": "Invia Report"
+    "report_submit": "Invia Report",
+    "reported_user" : "Utente segnalato"
   },
   "stats": {
     "title": "Statistiche Partite",
